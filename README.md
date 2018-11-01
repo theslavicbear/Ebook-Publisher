@@ -24,4 +24,4 @@ To run Ebook-Publisher, use the terminal or command prompt to execute Python3 an
 
 ## Adding support for sites:
 
-Coming sood
+Coming soon
