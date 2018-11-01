@@ -21,7 +21,7 @@ def MakeText(site):
 #This function is basically all space magic from the docs of ebooklib
 def MakeEpub(site):
     book=epub.EpubBook()
-    book.set_identifier(urllib.parse.urlparse(str(sys.argv[1]))[2])
+    book.set_identifier(urllib.parse.urlparse(url)[2])
     book.set_title(site.title)
     book.set_language('en')
     book.add_author(site.author)
