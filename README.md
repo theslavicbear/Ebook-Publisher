@@ -20,7 +20,10 @@ Ebook-Publisher requires the following:
 Both external libraries can be installed with pip `pip3 install beautifulsoup4 && pip3 install ebooklib`
 
 To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py as well as the URL for the story and the preferred format:
+
 `python3 Ebook-Publisher.py www.some.website/stories/my-story txt`
+
+**The second argument must be the URL and the third argument must be the preferred filetype. If you do not provide a preffered file type the code will default to .txt**
 
 ## Adding support for sites:
 
