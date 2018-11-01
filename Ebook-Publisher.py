@@ -47,13 +47,13 @@ def MakeEpub(site):
     epub.write_epub(site.title+'.epub', book, {})
     
     
-#specified URL. Terminates program if no URL specified
+#specified URL. Asks for URL if no URL specified
 try:
     url=str(sys.argv[1])
 except:
-    print("No arguments supplied, doing nothing")
-    sys.exit()
-#TODO implement checking if domain is supported
+    print("Input URL for story")
+    url=input()
+    
 domain=urllib.parse.urlparse(url)[1]
 #returns www.site.extension
     
