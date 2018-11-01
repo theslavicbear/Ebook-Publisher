@@ -5,10 +5,9 @@ import sys
 from Site import *
 import urllib.parse
 from ebooklib import epub
-import zipfile
 
 #Master array of supported sites
-sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com']
+sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com']
 
 #function for making text files
 def MakeText(site):
@@ -27,12 +26,16 @@ def MakeEpub(site):
     book.add_author(site.author)
     c=[]
     #print(str(type(site)))
-    if type(site) is Fanfiction.Fanfiction:
+    if type(site) is Fanfiction.Fanfiction or type(site) is Classicreader.Classicreader:
         for i in range(len(site.rawstoryhtml)):
+            #print('iteration '+str(i))
             c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
-            c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
+            if type(site) is Fanfiction.Fanfiction:
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
+            else:
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i]
             book.add_item(c[i])
-    #elif type(site) is Literotica:
+    
     #fallback method
     else:
         c.append(epub.EpubHtml(title=site.title, file_name='Story.xhtml', lang='en'))
@@ -72,6 +75,8 @@ elif sites[1]==domain:
     site=Fanfiction.Fanfiction(soup)
 elif sites[2]==domain:
     site=Fanfiction.Fanfiction(soup)
+elif sites[3]==domain:
+    site=Classicreader.Classicreader(soup)
 else:
     print('Unsupported website, terminating program')
     sys.exit()
