@@ -64,7 +64,8 @@ while page.status_code!=200:
     time.sleep(5)
 #parses the document, and sends it to the relevant class    
 soup = BeautifulSoup(page.content, 'html.parser')
-#TODO find a better way to lookup sites and pick class used
+
+
 if sites[0]==domain:
     site=Literotica.Literotica(soup)
 elif sites[1]==domain:
@@ -73,15 +74,16 @@ else:
     print('Unsupported website, terminating program')
     sys.exit()
 
-#TODO remove try/except block and instigate an if/else solution
 try:
-    if str(sys.argv[2]) in ('epub', 'Epub', '.epub', 'EPUB'):
-        MakeEpub(site)
-    elif str(sys.argv[2]) in ('txt', 'text', '.txt', 'TXT'):
-        MakeText(site)
-    else:
-        print('No format provided, defaulting to .txt')
-        MakeText(site)
+    a=sys.argv[2]
 except:
+    print('Select preferred output format: (1. txt) (2. epub)')
+    a=input()
+
+if a in ('epub', 'Epub', '.epub', 'EPUB', '2'):
+    MakeEpub(site)
+elif a in ('txt', 'text', '.txt', 'TXT', '1'):
+    MakeText(site)
+else:
     print('No format provided, defaulting to .txt')
     MakeText(site)
