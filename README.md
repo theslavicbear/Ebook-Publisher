@@ -3,6 +3,7 @@ A Python tool for converting online stories into portable formats
 
 ## Currently supported sites:
 * fanfiction.net
+* fictionpress.com
 * literotica.com
   
 ## Currently supported file types:

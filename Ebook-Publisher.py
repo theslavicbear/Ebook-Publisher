@@ -8,7 +8,7 @@ from ebooklib import epub
 import zipfile
 
 #Master array of supported sites
-sites=['www.literotica.com', 'www.fanfiction.net']
+sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com']
 
 #function for making text files
 def MakeText(site):
@@ -69,6 +69,8 @@ soup = BeautifulSoup(page.content, 'html.parser')
 if sites[0]==domain:
     site=Literotica.Literotica(soup)
 elif sites[1]==domain:
+    site=Fanfiction.Fanfiction(soup)
+elif sites[2]==domain:
     site=Fanfiction.Fanfiction(soup)
 else:
     print('Unsupported website, terminating program')
