@@ -23,6 +23,11 @@ def MakeEpub(site):
     book.set_identifier(url)
     titlepage=epub.EpubHtml(title='Title Page', file_name='Title.xhtml', lang='en')
     titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+url+'<a>'
+    #add summary information
+    try:
+        titlepage.content+='<br /><p>'+site.summary+'</p>'
+    except:
+        pass
     book.add_item(titlepage)
     book.spine=[titlepage]
     book.set_title(site.title)
@@ -30,7 +35,7 @@ def MakeEpub(site):
     book.add_author(site.author)
     c=[]
     #print(str(type(site)))
-    if type(site) is Fanfiction.Fanfiction or type(site) is Classicreader.Classicreader or type(site) is Fictionpress.Fictionpress:
+    if type(site) is Fanfiction.Fanfiction or type(site) is Classicreader.Classicreader:
         toc=()
         for i in range(len(site.rawstoryhtml)):
             #print('iteration '+str(i))
