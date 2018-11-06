@@ -23,6 +23,11 @@ def MakeEpub(site):
     book.set_identifier(url)
     titlepage=epub.EpubHtml(title='Title Page', file_name='Title.xhtml', lang='en')
     titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+url+'<a>'
+    #add summary information
+    try:
+        titlepage.content+='<br /><p>'+site.summary+'</p>'
+    except:
+        pass
     book.add_item(titlepage)
     book.spine=[titlepage]
     book.set_title(site.title)
