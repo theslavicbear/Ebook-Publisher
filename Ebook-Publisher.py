@@ -30,7 +30,7 @@ def MakeEpub(site):
     book.add_author(site.author)
     c=[]
     #print(str(type(site)))
-    if type(site) is Fanfiction.Fanfiction or type(site) is Classicreader.Classicreader or type(site) is Fictionpress.Fictionpress:
+    if type(site) is Fanfiction.Fanfiction or type(site) is Classicreader.Classicreader:
         toc=()
         for i in range(len(site.rawstoryhtml)):
             #print('iteration '+str(i))
