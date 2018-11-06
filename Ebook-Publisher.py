@@ -20,13 +20,18 @@ def MakeText(site):
 #This function is basically all space magic from the docs of ebooklib
 def MakeEpub(site):
     book=epub.EpubBook()
-    book.set_identifier(urllib.parse.urlparse(url)[2])
+    book.set_identifier(url)
+    titlepage=epub.EpubHtml(title='Title Page', file_name='Title.xhtml', lang='en')
+    titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+url+'<a>'
+    book.add_item(titlepage)
+    book.spine=[titlepage]
     book.set_title(site.title)
     book.set_language('en')
     book.add_author(site.author)
     c=[]
     #print(str(type(site)))
     if type(site) is Fanfiction.Fanfiction or type(site) is Classicreader.Classicreader or type(site) is Fictionpress.Fictionpress:
+        toc=()
         for i in range(len(site.rawstoryhtml)):
             #print('iteration '+str(i))
             c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
@@ -35,6 +40,8 @@ def MakeEpub(site):
             else:
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i]
             book.add_item(c[i])
+            toc=toc+(c[i],)
+        book.toc=toc
     
     #fallback method
     else:
@@ -44,7 +51,7 @@ def MakeEpub(site):
     #more ebooklib space magic
     book.add_item(epub.EpubNcx())
     book.add_item(epub.EpubNav())
-    book.spine=['nav']
+    book.spine.append('nav')
     for i in c:
         book.spine.append(i)
     epub.write_epub(site.title+'.epub', book, {})
