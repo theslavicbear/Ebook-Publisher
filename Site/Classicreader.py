@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 from time import sleep 
 import re
+import sys
 class Classicreader:
     title=''
     author=''
@@ -9,8 +10,13 @@ class Classicreader:
     rawstoryhtml=[]
     chapters=[]
     
-    def __init__(self, soup):
-        
+    def __init__(self, url):
+        try:
+            page=requests.get(url)
+        except:
+            print('Error accessing website: try checking internet connection and url')
+            sys.exit()
+        soup=BeautifulSoup(page.content, 'html.parser')
         #grabs important metadata information
         self.title=soup.find('span', attrs={'class': 'book-header'}).get_text()
         print(self.title)
@@ -56,7 +62,7 @@ class Classicreader:
             self.AddNextPage('https://www.classicreader.com'+i.get('href'))
             self.chapters.append(i.get_text())
         
-        print(self.chapters)
+        #print(self.chapters)
             
     def AddNextPage(self, link):
         page=requests.get(link)

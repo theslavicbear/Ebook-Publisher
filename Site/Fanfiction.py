@@ -2,6 +2,8 @@ from bs4 import BeautifulSoup
 import requests
 from time import sleep
 import re
+import urllib.parse
+import sys
 #TODO clean up and comment
 class Fanfiction:
     #simple string for the title
@@ -16,8 +18,18 @@ class Fanfiction:
     storyhtml=''
     #array of chapter names
     chapters=[]
+    #summary
+    summary=''
+    url=''
     
-    def __init__(self, soup):
+    def __init__(self, url):
+        self.url=url
+        try:
+            page=requests.get(self.url)
+        except:
+            print('Error accessing website: try checking internet connection and url')
+            sys.exit()
+        soup=BeautifulSoup(page.content, 'html.parser')
         self.rawstoryhtml[0]=soup.find('div', attrs={'id': 'storytext'})
         #self.chapters=soup.find_all('option', attrs={'selected':''})
         
@@ -30,20 +42,24 @@ class Fanfiction:
                     continue
                 else:
                     self.chapters.append(child.string)
+            #we end up with an extra chapter at the end of the file, so the band-aid fix is to delete the last node
             del self.chapters[len(self.chapters)-1]
         except:
             print('Chapter name couldn\'t be grabbed')
             self.chapters.append(soup.find('b', attrs={'class': 'xcontrast_txt'}).text.strip())
+            
+            
         '''So here's the deal. fanfiction.net doesn't close any of the <option> tags that contain the chapter names, so BeautifulSoup closes them all 
-            at the end. This means that each option is the child of the option above it. so good fucking extracting the name of each chapter individually
+            at the end. This means that each option is the child of the option above it. so good luck extracting the name of each chapter individually
             There's also two (2) chapter selection fields on each web page, which makes the output look worse than it really is, since we're only ever
             going to use the first one we won't have to worry about it
             '''
-        print("Chapters:")
-        print(self.chapters)
-        
+        #print("Chapters:")
+        #print(self.chapters)
+        self.summary=soup.find_all('div', attrs={'class': 'xcontrast_txt'})[0].text.strip()
         self.author=soup.find_all('a', attrs={'class': 'xcontrast_txt'})[2].text.strip()
         self.title=soup.find('b', attrs={'class': 'xcontrast_txt'}).text.strip()
+        print(self.title+'\nby '+self.author+'\n'+self.summary)
         
         #exception handling to avoid errors on single page stories
         try:
@@ -54,10 +70,11 @@ class Fanfiction:
                     self.AddNextPage(soup)
                     break
         except:
+            print("excepting")
             pass
         
         for i in self.rawstoryhtml:
-            self.storyhtml+=str(i.prettify())
+            self.storyhtml+=i.prettify()
         #print(self.storyhtml)
         self.story=self.storyhtml
         self.story=BeautifulSoup(self.story, 'lxml').text
@@ -68,12 +85,16 @@ class Fanfiction:
         for i in soup.find_all('button'):
             if i.text.strip()=='Next >':
                 rawnexturl=i.get('onclick')
-                nexturl='https://www.fanfiction.net'+rawnexturl[15:-1]
+                if urllib.parse.urlparse(self.url)[1]=='www.fanfiction.net':
+                    nexturl='https://www.fanfiction.net'+rawnexturl[15:-1]
+                else:
+                    nexturl='https://www.fictionpress.com'+rawnexturl[15:-1]
                 #print(nexturl)
-                page=requests.get(nexturl)
-                while page.status_code!=200:
-                    print("Error getting page, trying again: status code: "+str(page.status_code))
-                    time.sleep(5)
+                try:
+                    page=requests.get(nexturl)
+                except:
+                    print('Error accessing website: try checking internet connection and url')
+                    sys.exit()
                 soup=BeautifulSoup(page.content, 'html.parser')
                 self.rawstoryhtml.append(soup.find('div', attrs={'id': 'storytext'}))
                 self.AddNextPage(soup)

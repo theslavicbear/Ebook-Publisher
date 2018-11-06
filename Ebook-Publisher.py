@@ -1,5 +1,5 @@
-from bs4 import BeautifulSoup
-import requests
+#from bs4 import BeautifulSoup
+#import requests
 from time import sleep
 import sys
 from Site import *
@@ -35,13 +35,16 @@ def MakeEpub(site):
         for i in range(len(site.rawstoryhtml)):
             #print('iteration '+str(i))
             c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
-            if type(site) is Fanfiction.Fanfiction or type(site) is Fictionpress.Fictionpress:
-                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
-            else:
+            
+            #different methods for classicreader since its rawstoryhtml nodes are already strings
+            if type(site) is Classicreader.Classicreader:
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i]
+            else:
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
             book.add_item(c[i])
             toc=toc+(c[i],)
         book.toc=toc
+        book.spine.append('nav')
     
     #fallback method
     else:
@@ -51,7 +54,7 @@ def MakeEpub(site):
     #more ebooklib space magic
     book.add_item(epub.EpubNcx())
     book.add_item(epub.EpubNav())
-    book.spine.append('nav')
+    #book.spine.append('nav')
     for i in c:
         book.spine.append(i)
     epub.write_epub(site.title+'.epub', book, {})
@@ -68,22 +71,22 @@ domain=urllib.parse.urlparse(url)[1]
 #returns www.site.extension
     
 #Gets webpage, waits and tries again ad infinitum #TODO make a maximum number of attemps before release
-page=requests.get(url)
-while page.status_code!=200:
-    print("Error getting page, trying again: status code: "+str(page.status_code))
-    time.sleep(5)
+#page=requests.get(url)
+#while page.status_code!=200:
+    #print("Error getting page, trying again: status code: "+str(page.status_code))
+   # time.sleep(5)
 #parses the document, and sends it to the relevant class    
-soup = BeautifulSoup(page.content, 'html.parser')
+#soup = BeautifulSoup(page.content, 'html.parser')
 
 
 if sites[0]==domain:
-    site=Literotica.Literotica(soup)
+    site=Literotica.Literotica(url)
 elif sites[1]==domain:
-    site=Fanfiction.Fanfiction(soup)
+    site=Fanfiction.Fanfiction(url)
 elif sites[2]==domain:
-    site=Fictionpress.Fictionpress(soup)
+    site=Fanfiction.Fanfiction(url)
 elif sites[3]==domain:
-    site=Classicreader.Classicreader(soup)
+    site=Classicreader.Classicreader(url)
 else:
     print('Unsupported website, terminating program')
     sys.exit()
