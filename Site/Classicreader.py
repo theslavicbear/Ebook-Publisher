@@ -35,8 +35,9 @@ class Classicreader:
                     self.story+=re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'\n\n'
                     #print(p.get_text())
                     text+='<p>'+re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'</p>\n'
+                temp=BeautifulSoup(text, 'html.parser')
                 self.chapters.append(self.title)
-                self.rawstoryhtml.append(text)
+                self.rawstoryhtml.append(temp)
                 return
             try:
                 url='https://www.classicreader.com'+soup.find_all('a', attrs={'class':'categories'})[7].get('href')
@@ -51,8 +52,9 @@ class Classicreader:
                     self.story+=re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'\n\n'
                     #print(p.get_text())
                     text+='<p>'+re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'</p>\n'
+                temp=BeautifulSoup(text, 'html.parser')
                 self.chapters.append(self.title)
-                self.rawstoryhtml.append(text)
+                self.rawstoryhtml.append(temp)
                 return
             
         
@@ -74,4 +76,5 @@ class Classicreader:
             self.story+=re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'\n\n'
             #print(p.get_text())
             text+='<p>'+re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'</p>\n'
-        self.rawstoryhtml.append(text)
+        temp=BeautifulSoup(text, 'html.parser')
+        self.rawstoryhtml.append(temp)

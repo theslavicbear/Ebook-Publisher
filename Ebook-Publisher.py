@@ -42,10 +42,7 @@ def MakeEpub(site):
             c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
             
             #different methods for classicreader since its rawstoryhtml nodes are already strings
-            if type(site) is Classicreader.Classicreader:
-                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i]
-            else:
-                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
+            c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
             book.add_item(c[i])
             toc=toc+(c[i],)
         book.toc=toc
