@@ -74,7 +74,11 @@ class Fanfiction:
             pass
         
         for i in self.rawstoryhtml:
-            self.storyhtml+=i.prettify()
+            for j in i.contents:
+                try:
+                    self.storyhtml+=j.get_text()+'\n\n'
+                except:
+                    self.storyhtml+=j
         #print(self.storyhtml)
         self.story=self.storyhtml
         self.story=BeautifulSoup(self.story, 'lxml').text
