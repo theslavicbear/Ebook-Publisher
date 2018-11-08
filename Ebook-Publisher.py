@@ -7,7 +7,7 @@ import urllib.parse
 from ebooklib import epub
 
 #Master array of supported sites
-sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com']
+sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com','chyoa.com']
 
 #function for making text files
 def MakeText(site):
@@ -35,7 +35,7 @@ def MakeEpub(site):
     book.add_author(site.author)
     c=[]
     #print(str(type(site)))
-    if type(site) is Fanfiction.Fanfiction or type(site) is Classicreader.Classicreader:
+    if type(site) is not Literotica.Literotica:
         toc=()
         for i in range(len(site.rawstoryhtml)):
             #print('iteration '+str(i))
@@ -87,6 +87,8 @@ elif sites[2]==domain:
     site=Fanfiction.Fanfiction(url)
 elif sites[3]==domain:
     site=Classicreader.Classicreader(url)
+elif sites[4]==domain:
+    site=Chyoa.Chyoa(url)
 else:
     print('Unsupported website, terminating program')
     sys.exit()

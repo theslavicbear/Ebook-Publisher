@@ -1,1 +1,1 @@
-__all__=["Literotica","Fanfiction","Classicreader",]
+__all__=["Literotica","Fanfiction","Classicreader","Chyoa"]
