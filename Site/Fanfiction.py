@@ -1,9 +1,11 @@
 from bs4 import BeautifulSoup
 import requests
-from time import sleep
+#from time import sleep
 import re
 import urllib.parse
 import sys
+from Site import Progress
+
 #TODO clean up and comment
 class Fanfiction:
     #simple string for the title
@@ -21,6 +23,7 @@ class Fanfiction:
     #summary
     summary=''
     url=''
+    pbar=None
     
     def __init__(self, url):
         self.url=url
@@ -61,6 +64,11 @@ class Fanfiction:
         self.title=soup.find('b', attrs={'class': 'xcontrast_txt'}).text.strip()
         print(self.title+'\nby '+self.author+'\n'+self.summary)
         
+        
+        #setup progress bar
+        self.pbar=Progress.Progress(len(self.chapters))
+        self.pbar.Update()
+        
         #exception handling to avoid errors on single page stories
         try:
             if soup.find('button', attrs={'type': 'BUTTON'}).text.strip()=='< Prev':
@@ -70,8 +78,10 @@ class Fanfiction:
                     self.AddNextPage(soup)
                     break
         except:
-            print("excepting")
+            print("An error occured")
             pass
+        
+        self.pbar.End()
         
         for i in self.rawstoryhtml:
             for j in i.contents:
@@ -101,6 +111,7 @@ class Fanfiction:
                     sys.exit()
                 soup=BeautifulSoup(page.content, 'html.parser')
                 self.rawstoryhtml.append(soup.find('div', attrs={'id': 'storytext'}))
+                self.pbar.Update()
                 self.AddNextPage(soup)
                 break
             
