@@ -1,14 +1,15 @@
 from bs4 import BeautifulSoup
 import requests
-from time import sleep 
 import re
 import sys
+from Site import Progress
 class Classicreader:
     title=''
     author=''
     story=''
     rawstoryhtml=[]
     chapters=[]
+    pbar=None
     
     def __init__(self, url):
         try:
@@ -35,8 +36,9 @@ class Classicreader:
                     self.story+=re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'\n\n'
                     #print(p.get_text())
                     text+='<p>'+re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'</p>\n'
+                temp=BeautifulSoup(text, 'html.parser')
                 self.chapters.append(self.title)
-                self.rawstoryhtml.append(text)
+                self.rawstoryhtml.append(temp)
                 return
             try:
                 url='https://www.classicreader.com'+soup.find_all('a', attrs={'class':'categories'})[7].get('href')
@@ -51,17 +53,25 @@ class Classicreader:
                     self.story+=re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'\n\n'
                     #print(p.get_text())
                     text+='<p>'+re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'</p>\n'
+                temp=BeautifulSoup(text, 'html.parser')
                 self.chapters.append(self.title)
-                self.rawstoryhtml.append(text)
+                self.rawstoryhtml.append(temp)
                 return
             
         
+        
+        
         links=soup.find_all('a', attrs={'class': 'chapter-title'})
+        
+        self.pbar=Progress.Progress(len(links))
+        #self.pbar.Update()
         
         for i in links:
             self.AddNextPage('https://www.classicreader.com'+i.get('href'))
             self.chapters.append(i.get_text())
+            self.pbar.Update()
         
+        self.pbar.End()
         #print(self.chapters)
             
     def AddNextPage(self, link):
@@ -74,4 +84,5 @@ class Classicreader:
             self.story+=re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'\n\n'
             #print(p.get_text())
             text+='<p>'+re.sub(r'\n\s*', r'', p.get_text(), flags=re.M)+'</p>\n'
-        self.rawstoryhtml.append(text)
+        temp=BeautifulSoup(text, 'html.parser')
+        self.rawstoryhtml.append(temp)
