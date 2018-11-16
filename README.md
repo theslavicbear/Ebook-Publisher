@@ -6,12 +6,13 @@ A Python tool for converting online stories into portable formats
 * fictionpress.com
 * literotica.com
 * classicreader.com
+* chyoa.com (rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)
   
 ## Currently supported file types:
 * plain text files
 * epub ebook files
   
-Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! Guidelines for adding support for a new site below.
+Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! 
 
 ## Usage:
 Ebook-Publisher requires the following:
@@ -21,16 +22,10 @@ Ebook-Publisher requires the following:
 
 Both external libraries can be installed with pip `pip3 install beautifulsoup4 && pip3 install ebooklib`
 
-**New in version 1.1:**
-
 Running `python3 Ebook-Publisher.py` without any additional arguments will result in being asked for the URL and output format at runtime. You can still pass both a URL and format as arguments.
 
 To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py as well as the URL for the story and the preferred format:
 
 `python3 Ebook-Publisher.py www.some.website/stories/my-story txt`
 
-**The second argument must be the URL and the third argument must be the preferred file type. If you do not provide a preferred file type the code will default to .txt**
-
-## Adding support for sites:
-
-Coming soon
+**The second argument must be the URL and the third argument must be the preferred file type.**
