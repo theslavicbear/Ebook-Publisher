@@ -5,6 +5,7 @@ import sys
 from Site import *
 import urllib.parse
 from ebooklib import epub
+import argparse
 
 #Master array of supported sites
 sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com','chyoa.com']
@@ -34,13 +35,15 @@ def MakeEpub(site):
     book.set_language('en')
     book.add_author(site.author)
     c=[]
-    #print(str(type(site)))
+
     if type(site) is not Literotica.Literotica:
         toc=()
         for i in range(len(site.rawstoryhtml)):
-            #print('iteration '+str(i))
             c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
-            c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
+            if type(site) is Chyoa.Chyoa:
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.truestoryhttml[i]
+            else:
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
             book.add_item(c[i])
             toc=toc+(c[i],)
         book.toc=toc
@@ -59,49 +62,54 @@ def MakeEpub(site):
         book.spine.append(i)
     epub.write_epub(site.title+'.epub', book, {})
     
-    
+'''    
 #specified URL. Asks for URL if no URL specified
 try:
     url=str(sys.argv[1])
 except:
     print("Input URL for story")
     url=input()
-    
+'''
+
+parser=argparse.ArgumentParser()
+parser.add_argument('url', help='The URL of the story you want')
+parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
+parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
+args=parser.parse_args()
+
+
+#getting url
+url=args.url
 domain=urllib.parse.urlparse(url)[1]
 #returns www.site.extension
-    
-#Gets webpage, waits and tries again ad infinitum #TODO make a maximum number of attemps before release
-#page=requests.get(url)
-#while page.status_code!=200:
-    #print("Error getting page, trying again: status code: "+str(page.status_code))
-   # time.sleep(5)
-#parses the document, and sends it to the relevant class    
-#soup = BeautifulSoup(page.content, 'html.parser')
 
 
-if sites[0]==domain:
-    site=Literotica.Literotica(url)
-elif sites[1]==domain:
-    site=Fanfiction.Fanfiction(url)
-elif sites[2]==domain:
-    site=Fanfiction.Fanfiction(url)
-elif sites[3]==domain:
-    site=Classicreader.Classicreader(url)
-elif sites[4]==domain:
-    site=Chyoa.Chyoa(url)
-else:
-    print('Unsupported website, terminating program')
-    sys.exit()
+if not args.file:
+    if sites[0]==domain:
+        site=Literotica.Literotica(url)
+    elif sites[1]==domain:
+        site=Fanfiction.Fanfiction(url)
+    elif sites[2]==domain:
+        site=Fanfiction.Fanfiction(url)
+    elif sites[3]==domain:
+        site=Classicreader.Classicreader(url)
+    elif sites[4]==domain:
+        site=Chyoa.Chyoa(url)
+    else:
+        print('Unsupported website, terminating program')
+        sys.exit()
 
-try:
-    a=sys.argv[2]
-except:
-    print('Select preferred output format: (1. txt) (2. epub)')
-    a=input()
+#try:
+    #a=sys.argv[2]
+#except:
+    #print('Select preferred output format: (1. txt) (2. epub)')
+    #a=input()
 
-if a in ('epub', 'Epub', '.epub', 'EPUB', '2'):
+ftype=args.output_type
+
+if ftype in ('epub', 'Epub', '.epub', 'EPUB', '2'):
     MakeEpub(site)
-elif a in ('txt', 'text', '.txt', 'TXT', '1'):
+elif ftype in ('txt', 'text', '.txt', 'TXT', '1'):
     MakeText(site)
 else:
     print('No format provided, defaulting to .txt')
