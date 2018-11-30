@@ -24,7 +24,6 @@ Both external libraries can be installed with pip `pip3 install beautifulsoup4 &
 
 To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py and the URL for the story you want. You can add several other arguments. Try `python3 Ebook-Publisher.py --help` for the detailed readout, or see below:
 
-usage: `Ebook-Publisher.py [-h] [-o {txt,epub}] [-f] [-d DIRECTORY] url`
 
     usage: Ebook-Publisher.py [-h] [-o {txt,epub}] [-f] [-d DIRECTORY] url
 
