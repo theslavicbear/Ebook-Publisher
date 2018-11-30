@@ -3,15 +3,16 @@ from bs4 import BeautifulSoup
 import requests
 from time import sleep
 import sys
-class Literotica:
-    title=''
-    author=''
-    story=''
-    rawstoryhtml=[0]
-    storyhtml=''
+class Literotica:    
     def __init__(self, url):
+        self.title=''
+        self.author=''
+        self.story=''
+        self.rawstoryhtml=[0]
+        self.storyhtml=''
+        self.url=url
         try:
-            page=requests.get(url)
+            page=requests.get(self.url)
         except:
             print('Error accessing website: try checking internet connection and url')
             sys.exit()

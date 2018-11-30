@@ -4,14 +4,19 @@ from time import sleep
 import sys
 from Site import *
 import urllib.parse
-from ebooklib import epub
+try:
+    from ebooklib import epub
+except:
+    print('Warning: No epub filetype support')
+import argparse
+import os
 
 #Master array of supported sites
 sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com','chyoa.com']
 
 #function for making text files
 def MakeText(site):
-    published=open(site.title+'.txt', 'w')
+    published=open(wd+site.title+'.txt', 'w')
     published.write(site.title+'\n')
     published.write('by '+site.author+'\n\n')
     published.write(site.story)
@@ -20,9 +25,9 @@ def MakeText(site):
 #This function is basically all space magic from the docs of ebooklib
 def MakeEpub(site):
     book=epub.EpubBook()
-    book.set_identifier(url)
+    book.set_identifier(site.url)
     titlepage=epub.EpubHtml(title='Title Page', file_name='Title.xhtml', lang='en')
-    titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+url+'<a>'
+    titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+site.url+'<a>'
     #add summary information
     try:
         titlepage.content+='<br /><p>'+site.summary+'</p>'
@@ -34,13 +39,15 @@ def MakeEpub(site):
     book.set_language('en')
     book.add_author(site.author)
     c=[]
-    #print(str(type(site)))
+
     if type(site) is not Literotica.Literotica:
         toc=()
         for i in range(len(site.rawstoryhtml)):
-            #print('iteration '+str(i))
             c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
-            c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
+            if type(site) is Chyoa.Chyoa:
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.truestoryhttml[i]
+            else:
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
             book.add_item(c[i])
             toc=toc+(c[i],)
         book.toc=toc
@@ -57,52 +64,61 @@ def MakeEpub(site):
     #book.spine.append('nav')
     for i in c:
         book.spine.append(i)
-    epub.write_epub(site.title+'.epub', book, {})
+    epub.write_epub(wd+site.title+'.epub', book, {})
     
-    
-#specified URL. Asks for URL if no URL specified
-try:
-    url=str(sys.argv[1])
-except:
-    print("Input URL for story")
-    url=input()
-    
-domain=urllib.parse.urlparse(url)[1]
-#returns www.site.extension
-    
-#Gets webpage, waits and tries again ad infinitum #TODO make a maximum number of attemps before release
-#page=requests.get(url)
-#while page.status_code!=200:
-    #print("Error getting page, trying again: status code: "+str(page.status_code))
-   # time.sleep(5)
-#parses the document, and sends it to the relevant class    
-#soup = BeautifulSoup(page.content, 'html.parser')
 
+def MakeClass(url):
+    #getting url
+    domain=urllib.parse.urlparse(url)[1]
+    if sites[0]==domain:
+        site=Literotica.Literotica(url)
+    elif sites[1]==domain:
+        site=Fanfiction.Fanfiction(url)
+    elif sites[2]==domain:
+        site=Fanfiction.Fanfiction(url)
+    elif sites[3]==domain:
+        site=Classicreader.Classicreader(url)
+    elif sites[4]==domain:
+        site=Chyoa.Chyoa(url)
+    else:
+        print('Unsupported website, terminating program')
+        site=None
+    return site
 
-if sites[0]==domain:
-    site=Literotica.Literotica(url)
-elif sites[1]==domain:
-    site=Fanfiction.Fanfiction(url)
-elif sites[2]==domain:
-    site=Fanfiction.Fanfiction(url)
-elif sites[3]==domain:
-    site=Classicreader.Classicreader(url)
-elif sites[4]==domain:
-    site=Chyoa.Chyoa(url)
+#setting up commandline argument parser
+parser=argparse.ArgumentParser()
+parser.add_argument('url', help='The URL of the story you want')
+parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
+parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
+parser.add_argument('-d','--directory', help="Directory to place output files. Default ./output")
+args=parser.parse_args()
+
+if args.directory is None:
+    wd='./output/'
 else:
-    print('Unsupported website, terminating program')
-    sys.exit()
+    wd=args.directory
+cwd=os.getcwd()
+wd=os.path.join(cwd, wd)
+if not os.path.exists(wd):
+    os.makedirs(wd)
 
-try:
-    a=sys.argv[2]
-except:
-    print('Select preferred output format: (1. txt) (2. epub)')
-    a=input()
+ftype=args.output_type
 
-if a in ('epub', 'Epub', '.epub', 'EPUB', '2'):
-    MakeEpub(site)
-elif a in ('txt', 'text', '.txt', 'TXT', '1'):
-    MakeText(site)
+if args.file:
+    f=open(args.url, 'r')
+    urls=f.readlines()
+    f.close()
+    for i in urls:
+        #site=MakeClass(i)
+        if ftype=='epub':
+            MakeEpub(MakeClass(i))
+        else:
+            MakeText(MakeClass(i))
 else:
-    print('No format provided, defaulting to .txt')
-    MakeText(site)
+    site=MakeClass(args.url)
+    if site==None:
+        sys.exit()
+    if ftype=='epub':
+        MakeEpub(site)
+    else:
+        MakeText(site)

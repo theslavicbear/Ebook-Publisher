@@ -8,24 +8,24 @@ from Site import Progress
 
 #TODO clean up and comment
 class Fanfiction:
-    #simple string for the title
-    title=''
-    #simple string for the author
-    author=''
-    #Extra long string containing the text of the story
-    story=''
-    #each node of the list contains the raw html for one page of the story
-    rawstoryhtml=[0]
-    #the raw html but prettified and concatenated together
-    storyhtml=''
-    #array of chapter names
-    chapters=[]
-    #summary
-    summary=''
-    url=''
-    pbar=None
+
     
     def __init__(self, url):
+        #simple string for the title
+        self.title=''
+        #simple string for the author
+        self.author=''
+        #Extra long string containing the text of the story
+        self.story=''
+        #each node of the list contains the raw html for one page of the story
+        self.rawstoryhtml=[0]
+        #the raw html but prettified and concatenated together
+        self.storyhtml=''
+        #array of chapter names
+        self.chapters=[]
+        #summary
+        self.summary=''
+        self.pbar=None
         self.url=url
         try:
             page=requests.get(self.url)
@@ -78,8 +78,8 @@ class Fanfiction:
                     self.AddNextPage(soup)
                     break
         except:
-            print("An error occured")
-            pass
+           print("An error occured")
+            #pass
         
         self.pbar.End()
         

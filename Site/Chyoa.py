@@ -2,29 +2,33 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import sys
+from Site import Progress
 
 class Chyoa:
-    title=''
-    #initial author only for title page
-    author=''
-    #author for each individual chapter
-    authors=[]
-    #the h1 tag
-    chapters=[]
-    story=''
-    temp=[]
-    rawstoryhtml=[]
-    #the question at the end of each page
-    questions=[]
-    summary=''
-    renames=[]
-    oldnames=[]
-    truestoryhttml=[]
-    
+
     
     def __init__(self, url):
+        self.title=''
+        #initial author only for title page
+        self.author=''
+        #author for each individual chapter
+        self.authors=[]
+        #the h1 tag
+        self.chapters=[]
+        self.story=''
+        self.temp=[]
+        self.rawstoryhtml=[]
+        #the question at the end of each page
+        self.questions=[]
+        self.summary=''
+        self.renames=[]
+        self.oldnames=[]
+        self.truestoryhttml=[]
+        self.length=1
+        self.pbar=None
+        self.url=url
         try:
-            page=requests.get(url)
+            page=requests.get(self.url)
         except:
             print('Error accessing website: try checking internet connection and url')
         soup=BeautifulSoup(page.content, 'html.parser')
@@ -32,6 +36,11 @@ class Chyoa:
         self.authors.insert(0,soup.find_all('a')[7].get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
         self.summary=soup.find('p', attrs={'class': 'synopsis'}).get_text()
+        
+        tmp=soup.find('p', attrs={'class': 'meta'}).get_text()
+        t=[s for s in tmp.split() if s.isdigit()]
+        self.length=int(t[0])        
+      
         
         if soup.find('form', attrs={'id':'immersion-form'}) is not None:
             inputs=soup.find('form', attrs={'id': 'immersion-form'}).find_all('input', attrs={'value':''})
@@ -47,14 +56,16 @@ class Chyoa:
                     self.renames[i]=self.oldnames[i]
         
         
-        #print(self.title+'\n'+str(self.authors)+'\n'+self.summary)
+        print(self.title+'\n'+str(self.authors)+'\n'+self.summary)
         #print(self.chapters)
         
+        self.pbar=Progress.Progress(self.length)
         
         temp=soup.find('div', attrs={'class': 'chapter-content'}).prettify()
         self.questions.insert(0, soup.find_all('h2')[1].get_text())
         temp+='<h2>'+self.questions[0]+'</h2>'
         self.temp.insert(0, temp)
+        self.pbar.Update()
         #print(self.temp[0])
         #for i in range(len(self.renames)):
             #self.temp[0]=self.temp[0].replace(self.oldnames[i], self.renames[i])
@@ -67,6 +78,7 @@ class Chyoa:
             if i.text.strip()=='Previous Chapter':
                 self.AddNextPage(i.get('href'))
                 break
+        self.pbar.End()
             
         #band-aid fix for names in chapter titles
         for i in range(len(self.chapters)):
@@ -127,6 +139,7 @@ class Chyoa:
             #self.temp[0]=self.temp[0].replace(self.oldnames[i], self.renames[i])
             #self.temp[0]=self.temp[0].replace('\n  <span class="js-immersion-receiver-c'+str(i)+'">\n   '+self.oldnames[i]+'\n  </span>\n  ',' '+self.renames[i])
         #self.rawstoryhtml.insert(0, BeautifulSoup(temp, 'html.parser'))
+        self.pbar.Update()
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter':
                 self.AddNextPage(i.get('href'))
