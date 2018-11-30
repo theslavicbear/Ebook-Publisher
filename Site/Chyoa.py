@@ -5,31 +5,30 @@ import sys
 from Site import Progress
 
 class Chyoa:
-    title=''
-    #initial author only for title page
-    author=''
-    #author for each individual chapter
-    authors=[]
-    #the h1 tag
-    chapters=[]
-    story=''
-    temp=[]
-    rawstoryhtml=[]
-    #the question at the end of each page
-    questions=[]
-    summary=''
-    renames=[]
-    oldnames=[]
-    truestoryhttml=[]
-    url=''
-    length=1
-    pbar=None
-    
+
     
     def __init__(self, url):
+        self.title=''
+        #initial author only for title page
+        self.author=''
+        #author for each individual chapter
+        self.authors=[]
+        #the h1 tag
+        self.chapters=[]
+        self.story=''
+        self.temp=[]
+        self.rawstoryhtml=[]
+        #the question at the end of each page
+        self.questions=[]
+        self.summary=''
+        self.renames=[]
+        self.oldnames=[]
+        self.truestoryhttml=[]
+        self.length=1
+        self.pbar=None
         self.url=url
         try:
-            page=requests.get(url)
+            page=requests.get(self.url)
         except:
             print('Error accessing website: try checking internet connection and url')
         soup=BeautifulSoup(page.content, 'html.parser')

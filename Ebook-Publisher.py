@@ -67,6 +67,7 @@ def MakeEpub(site):
     
 
 def MakeClass(url):
+    site=None
     #getting url
     domain=urllib.parse.urlparse(url)[1]
     if sites[0]==domain:
@@ -97,13 +98,14 @@ if args.file:
     f=open(args.url, 'r')
     urls=f.readlines()
     f.close()
+    objs=[]
     for i in urls:
-        site=MakeClass(i)
+        #site=MakeClass(i)
         if ftype=='epub':
-            MakeEpub(site)
+            MakeEpub(MakeClass(i))
         else:
-            MakeText(site)
-        del site
+            MakeText(MakeClass(i))
+        #site=None
 else:
     site=MakeClass(args.url)
     if site==None:

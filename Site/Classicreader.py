@@ -4,18 +4,17 @@ import re
 import sys
 from Site import Progress
 class Classicreader:
-    title=''
-    author=''
-    story=''
-    rawstoryhtml=[]
-    chapters=[]
-    pbar=None
-    url=''
     
     def __init__(self, url):
+        self.title=''
+        self.author=''
+        self.story=''
+        self.rawstoryhtml=[]
+        self.chapters=[]
+        self.pbar=None
         self.url=url
         try:
-            page=requests.get(url)
+            page=requests.get(self.url)
         except:
             print('Error accessing website: try checking internet connection and url')
             sys.exit()
