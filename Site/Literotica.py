@@ -9,7 +9,10 @@ class Literotica:
     story=''
     rawstoryhtml=[0]
     storyhtml=''
+    url=''
+    
     def __init__(self, url):
+        self.url=url
         try:
             page=requests.get(url)
         except:

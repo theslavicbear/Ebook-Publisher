@@ -10,8 +10,10 @@ class Classicreader:
     rawstoryhtml=[]
     chapters=[]
     pbar=None
+    url=''
     
     def __init__(self, url):
+        self.url=url
         try:
             page=requests.get(url)
         except:

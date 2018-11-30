@@ -4,7 +4,10 @@ from time import sleep
 import sys
 from Site import *
 import urllib.parse
-from ebooklib import epub
+try:
+    from ebooklib import epub
+except:
+    print('Warning: No epub filetype support')
 import argparse
 
 #Master array of supported sites
@@ -21,9 +24,9 @@ def MakeText(site):
 #This function is basically all space magic from the docs of ebooklib
 def MakeEpub(site):
     book=epub.EpubBook()
-    book.set_identifier(url)
+    book.set_identifier(site.url)
     titlepage=epub.EpubHtml(title='Title Page', file_name='Title.xhtml', lang='en')
-    titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+url+'<a>'
+    titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+site.url+'<a>'
     #add summary information
     try:
         titlepage.content+='<br /><p>'+site.summary+'</p>'
@@ -62,29 +65,10 @@ def MakeEpub(site):
         book.spine.append(i)
     epub.write_epub(site.title+'.epub', book, {})
     
-'''    
-#specified URL. Asks for URL if no URL specified
-try:
-    url=str(sys.argv[1])
-except:
-    print("Input URL for story")
-    url=input()
-'''
 
-parser=argparse.ArgumentParser()
-parser.add_argument('url', help='The URL of the story you want')
-parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
-parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
-args=parser.parse_args()
-
-
-#getting url
-url=args.url
-domain=urllib.parse.urlparse(url)[1]
-#returns www.site.extension
-
-
-if not args.file:
+def MakeClass(url):
+    #getting url
+    domain=urllib.parse.urlparse(url)[1]
     if sites[0]==domain:
         site=Literotica.Literotica(url)
     elif sites[1]==domain:
@@ -97,20 +81,34 @@ if not args.file:
         site=Chyoa.Chyoa(url)
     else:
         print('Unsupported website, terminating program')
-        sys.exit()
+        site=None
+    return site
 
-#try:
-    #a=sys.argv[2]
-#except:
-    #print('Select preferred output format: (1. txt) (2. epub)')
-    #a=input()
+#setting up commandline argument parser
+parser=argparse.ArgumentParser()
+parser.add_argument('url', help='The URL of the story you want')
+parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
+parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
+args=parser.parse_args()
 
 ftype=args.output_type
 
-if ftype in ('epub', 'Epub', '.epub', 'EPUB', '2'):
-    MakeEpub(site)
-elif ftype in ('txt', 'text', '.txt', 'TXT', '1'):
-    MakeText(site)
+if args.file:
+    f=open(args.url, 'r')
+    urls=f.readlines()
+    f.close()
+    for i in urls:
+        site=MakeClass(i)
+        if ftype=='epub':
+            MakeEpub(site)
+        else:
+            MakeText(site)
+        del site
 else:
-    print('No format provided, defaulting to .txt')
-    MakeText(site)
+    site=MakeClass(args.url)
+    if site==None:
+        sys.exit()
+    if ftype=='epub':
+        MakeEpub(site)
+    else:
+        MakeText(site)
