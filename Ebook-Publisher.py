@@ -9,13 +9,14 @@ try:
 except:
     print('Warning: No epub filetype support')
 import argparse
+import os
 
 #Master array of supported sites
 sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com','chyoa.com']
 
 #function for making text files
 def MakeText(site):
-    published=open(site.title+'.txt', 'w')
+    published=open(wd+site.title+'.txt', 'w')
     published.write(site.title+'\n')
     published.write('by '+site.author+'\n\n')
     published.write(site.story)
@@ -63,11 +64,10 @@ def MakeEpub(site):
     #book.spine.append('nav')
     for i in c:
         book.spine.append(i)
-    epub.write_epub(site.title+'.epub', book, {})
+    epub.write_epub(wd+site.title+'.epub', book, {})
     
 
 def MakeClass(url):
-    site=None
     #getting url
     domain=urllib.parse.urlparse(url)[1]
     if sites[0]==domain:
@@ -90,7 +90,17 @@ parser=argparse.ArgumentParser()
 parser.add_argument('url', help='The URL of the story you want')
 parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
 parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
+parser.add_argument('-d','--directory', help="Directory to place output files. Default ./output")
 args=parser.parse_args()
+
+if args.directory is None:
+    wd='./output/'
+else:
+    wd=args.directory
+cwd=os.getcwd()
+wd=os.path.join(cwd, wd)
+if not os.path.exists(wd):
+    os.makedirs(wd)
 
 ftype=args.output_type
 
@@ -98,14 +108,12 @@ if args.file:
     f=open(args.url, 'r')
     urls=f.readlines()
     f.close()
-    objs=[]
     for i in urls:
         #site=MakeClass(i)
         if ftype=='epub':
             MakeEpub(MakeClass(i))
         else:
             MakeText(MakeClass(i))
-        #site=None
 else:
     site=MakeClass(args.url)
     if site==None:
