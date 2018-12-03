@@ -12,7 +12,7 @@ import argparse
 import os
 
 #Master array of supported sites
-sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com','chyoa.com']
+sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com','chyoa.com', 'www.wattpad.com']
 
 #function for making text files
 def MakeText(site):
@@ -80,6 +80,8 @@ def MakeClass(url):
         site=Classicreader.Classicreader(url)
     elif sites[4]==domain:
         site=Chyoa.Chyoa(url)
+    elif sites[5]==domain:
+        site=Wattpad.Wattpad(url)
     else:
         print('Unsupported website, terminating program')
         site=None
@@ -90,7 +92,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument('url', help='The URL of the story you want')
 parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
 parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
-parser.add_argument('-d','--directory', help="Directory to place output files. Default ./output")
+parser.add_argument('-d','--directory', help="Directory to place output files. Default ./output/")
 args=parser.parse_args()
 
 if args.directory is None:
