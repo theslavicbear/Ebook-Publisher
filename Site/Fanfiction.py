@@ -66,22 +66,22 @@ class Fanfiction:
         
         
         #setup progress bar
-        self.pbar=Progress.Progress(len(self.chapters))
-        self.pbar.Update()
+       
         
         #exception handling to avoid errors on single page stories
-        try:
-            if soup.find('button', attrs={'type': 'BUTTON'}).text.strip()=='< Prev':
-                print("Non-first page entered. Ebook-Publisher will only add subsequent pages and chapter titles will be wrong")
-            for i in soup.find_all('button', attrs={'type': 'BUTTON'}):
-                if i.text.strip()=='Next >':
-                    self.AddNextPage(soup)
-                    break
-        except:
-           print("An error occured")
-            #pass
+        if soup.find('button', attrs={'type': 'BUTTON'}) is not None and soup.find('button', attrs={'type': 'BUTTON'}).text.strip()=='< Prev':
+            print("Non-first page entered. Ebook-Publisher will only add subsequent pages and chapter titles will be wrong")
+        for i in soup.find_all('button', attrs={'type': 'BUTTON'}):
+            if i.text.strip()=='Next >':
+                self.pbar=Progress.Progress(len(self.chapters))
+                self.pbar.Update()
+                self.AddNextPage(soup)
+                break
         
-        self.pbar.End()
+        try:
+            self.pbar.End()
+        except:
+            pass
         
         for i in self.rawstoryhtml:
             for j in i.contents:
