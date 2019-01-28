@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 #from bs4 import BeautifulSoup
 #import requests
 from time import sleep
@@ -92,11 +93,11 @@ parser=argparse.ArgumentParser()
 parser.add_argument('url', help='The URL of the story you want')
 parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
 parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
-parser.add_argument('-d','--directory', help="Directory to place output files. Default ./output/")
+parser.add_argument('-d','--directory', help="Directory to place output files. Default ./")
 args=parser.parse_args()
 
 if args.directory is None:
-    wd='./output/'
+    wd='./'
 else:
     wd=args.directory
 cwd=os.getcwd()
