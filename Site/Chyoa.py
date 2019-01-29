@@ -61,7 +61,13 @@ class Chyoa:
         
         self.pbar=Progress.Progress(self.length)
         
-        temp=soup.find('div', attrs={'class': 'chapter-content'}).prettify()
+        
+        #for name in self.renames:
+            
+        
+        
+        
+        temp=str(soup.find('div', attrs={'class': 'chapter-content'}))
         self.questions.insert(0, soup.find_all('h2')[1].get_text())
         temp+='<h2>'+self.questions[0]+'</h2>'
         self.temp.insert(0, temp)
@@ -81,6 +87,7 @@ class Chyoa:
         self.pbar.End()
             
         #band-aid fix for names in chapter titles
+        #WARNING DO NOT PUT THIS TO PRODUCTION
         for i in range(len(self.chapters)):
             for j in range(len(self.renames)):
                 #print(self.chapters[i])
@@ -103,7 +110,7 @@ class Chyoa:
                     k.string=self.renames[j]
             self.story+=i.get_text()
             
-            self.truestoryhttml.append(i.prettify())
+            self.truestoryhttml.append(str(i))
         
         for i in range(len(self.truestoryhttml)):
             self.truestoryhttml[i]=self.truestoryhttml[i].replace('\n  <span', '<span')
@@ -131,7 +138,7 @@ class Chyoa:
         soup=BeautifulSoup(page.content, 'html.parser')
         self.authors.insert(0,soup.find_all('a')[7].get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
-        temp=soup.find('div', attrs={'class': 'chapter-content'}).prettify()
+        temp=str(soup.find('div', attrs={'class': 'chapter-content'}))
         self.questions.insert(0, soup.find_all('h2')[1].get_text())
         temp+='<h2>'+self.questions[0]+'</h2>'
         self.temp.insert(0, temp)
