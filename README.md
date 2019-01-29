@@ -7,6 +7,7 @@ A Python tool for converting online stories into portable formats
 * literotica.com
 * classicreader.com
 * chyoa.com (rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)
+* wattpad.com
   
 ## Currently supported file types:
 * plain text files
