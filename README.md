@@ -43,3 +43,5 @@ To run Ebook-Publisher, use the terminal or command prompt to execute Python3 an
 Sample Usage:
 
 `python3 Ebook-Publisher.py www.some.website/stories/my-story -o epub -d ~/Documents/My\ Books/`
+
+`./Ebook-Publisher.py -f -o txt to-download.txt`
