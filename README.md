@@ -37,7 +37,7 @@ To run Ebook-Publisher, use the terminal or command prompt to execute Python3 an
       -f, --file            Use text file containing a list of URLs instead of
                             single URL
       -d DIRECTORY, --directory DIRECTORY
-                            Directory to place output files. Default ./output/
+                            Directory to place output files. Default ./
 
                         
 Sample Usage:
