@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #from bs4 import BeautifulSoup
 #import requests
-from time import sleep
+#from time import sleep
 import sys
 from Site import *
 import urllib.parse
@@ -84,17 +84,26 @@ def MakeClass(url):
     elif sites[5]==domain:
         site=Wattpad.Wattpad(url)
     else:
+        print(domain)
         print('Unsupported website, terminating program')
         site=None
     return site
 
 #setting up commandline argument parser
 parser=argparse.ArgumentParser()
-parser.add_argument('url', help='The URL of the story you want')
+parser.add_argument('url', help='The URL of the story you want', nargs='?')
 parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
 parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
 parser.add_argument('-d','--directory', help="Directory to place output files. Default ./")
 args=parser.parse_args()
+
+stdin=False
+if not sys.stdin.isatty():
+    args.file=True
+    stdin=True
+elif not args.url:
+    print(args.url)
+    parser.error('No input')
 
 if args.directory is None:
     wd='./'
@@ -108,9 +117,14 @@ if not os.path.exists(wd):
 ftype=args.output_type
 
 if args.file:
-    f=open(args.url, 'r')
-    urls=f.readlines()
-    f.close()
+    if not stdin:
+        f=open(args.url, 'r')
+        urls=f.readlines()
+        f.close()
+    else:
+        urls=[]
+        for line in sys.stdin:
+            urls.append(line)
     for i in urls:
         #site=MakeClass(i)
         if ftype=='epub':
