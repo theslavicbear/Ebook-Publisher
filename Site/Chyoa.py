@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import sys
 from Site import Progress
+#from subprocess import Popen, PIPE
 
 class Chyoa:
 
@@ -47,6 +48,7 @@ class Chyoa:
             for i in range(len(inputs)):
                 print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
                 try:
+                    sys.stdin = open('/dev/tty')
                     newname=input()
                     self.renames.append(newname)
                 except:
