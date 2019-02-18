@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import sys
 from Site import Progress
+#from subprocess import Popen, PIPE
 
 class Chyoa:
 
@@ -47,6 +48,7 @@ class Chyoa:
             for i in range(len(inputs)):
                 print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
                 try:
+                    sys.stdin = open('/dev/tty')
                     newname=input()
                     self.renames.append(newname)
                 except:
@@ -97,7 +99,7 @@ class Chyoa:
         #TODO regular expressions go here                    
             
         for i in range(len(self.temp)):
-            self.temp[i]='<h4>by '+self.authors[i]+'</h4>'+self.temp[i]
+            self.temp[i]='\n<h4>by '+self.authors[i]+'</h4>'+self.temp[i]
             self.rawstoryhtml.append(BeautifulSoup(self.temp[i], 'html.parser'))
         #print(self.rawstoryhtml[len(self.rawstoryhtml)-1].get_text())
         self.author=self.authors[0]
@@ -118,6 +120,8 @@ class Chyoa:
             for j in self.renames:
                 self.truestoryhttml[i]=self.truestoryhttml[i].replace('\n   '+j+'\n', j)
             self.truestoryhttml[i]=self.truestoryhttml[i].replace('  </span>\n  ', '</span> ')
+            
+        self.story=self.story.replace('\n', '\n\n')
         #print(self.story)
         #print(self.truestoryhttml[len(self.truestoryhttml)-1])
         #for i in range(len(self.renames)):
