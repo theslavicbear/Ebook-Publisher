@@ -40,9 +40,17 @@ To run Ebook-Publisher, use the terminal or command prompt to execute Python3 an
       -d DIRECTORY, --directory DIRECTORY
                             Directory to place output files. Default ./
 
+Ebook-Publisher can also take input from the standard input. If using standard input, any argument for url and the -f optional argument will be ignored.
+
                         
 Sample Usage:
 
 `python3 Ebook-Publisher.py www.some.website/stories/my-story -o epub -d ~/Documents/My\ Books/`
 
 `./Ebook-Publisher.py -f -o txt to-download.txt`
+
+Using standard input:
+
+`cat list.txt | python3 Ebook-Publisher -d ./output`
+
+`echo www.some.website/stories/my-story | ./Ebook-Publisher.py -o epub -d ~/Documents/My\ Books/`
