@@ -55,6 +55,6 @@ Ebook-Publisher can also take input from the standard input. If using standard i
 
 `echo www.some.website/stories/my-story | ./Ebook-Publisher.py -o epub -d ~/Documents/My\ Books/`
 
-### Advanced Usage (Not for Windows users):
+### Advanced Usage:
 
-Create a symbolic link in `/usr/bin/` i.e. `ln -s Ebook-Publisher.py /usr/bin/Ebook-Publisher` to where you have saved the main Ebook-Publisher.py file. This will allow running Ebook-Publisher from any directory and can be used to avoid having to specify either the full path to Ebook-Publisher.py or the desired output directory given your current working directory is the desired output directory. Make sure Ebook-Publisher.py is executable first: `chmod +x Ebook-Publisher.py`
+Create a symbolic link to the binaries directory to where you have saved the main Ebook-Publisher.py file. i.e. `ln -s Ebook-Publisher.py /usr/bin/Ebook-Publisher` This will allow running Ebook-Publisher from any directory and can be used to avoid having to specify either the full path to Ebook-Publisher.py or the desired output directory given your current working directory is the desired output directory. Make sure Ebook-Publisher.py is executable first: `chmod +x Ebook-Publisher.py`
