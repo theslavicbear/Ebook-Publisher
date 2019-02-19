@@ -95,7 +95,12 @@ parser.add_argument('url', help='The URL of the story you want', nargs='?')
 parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
 parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
 parser.add_argument('-d','--directory', help="Directory to place output files. Default ./")
+parser.add_argument('-q','--quiet', help="Turns off most terminal output", action='store_true')
 args=parser.parse_args()
+
+if args.quiet:
+    sys.stdout=open(os.devnull, 'w')
+    #print('quiet enabled')
 
 stdin=False
 if not sys.stdin.isatty():
@@ -123,8 +128,8 @@ if args.file:
         f.close()
     else:
         urls=[]
-        for line in sys.stdin:
-            urls.append(line)
+        stdinput=sys.stdin.read()
+        urls=stdinput.split()
     for i in urls:
         #site=MakeClass(i)
         if ftype=='epub':
