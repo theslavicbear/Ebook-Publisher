@@ -11,8 +11,12 @@ except:
     print('Warning: No epub filetype support')
 import argparse
 import os
+import threading
+import queue
+
 
 #Master array of supported sites
+#TODO convert this to a dictionary
 sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com','chyoa.com', 'www.wattpad.com']
 
 #function for making text files
@@ -87,6 +91,8 @@ def MakeClass(url):
         print(domain)
         print('Unsupported website, terminating program')
         site=None
+    if args.t:
+        q.put(site)
     return site
 
 #setting up commandline argument parser
@@ -96,6 +102,7 @@ parser.add_argument('-o','--output-type', help='The file type you want', choices
 parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
 parser.add_argument('-d','--directory', help="Directory to place output files. Default ./")
 parser.add_argument('-q','--quiet', help="Turns off most terminal output", action='store_true')
+parser.add_argument('-t', help="Turns on multithreading mode. Recommend also enabling --quiet", action='store_true')
 args=parser.parse_args()
 
 if args.quiet:
@@ -122,6 +129,8 @@ if not os.path.exists(wd):
 ftype=args.output_type
 
 if args.file:
+    
+    #gets the list of urls
     if not stdin:
         f=open(args.url, 'r')
         urls=f.readlines()
@@ -130,12 +139,31 @@ if args.file:
         urls=[]
         stdinput=sys.stdin.read()
         urls=stdinput.split()
-    for i in urls:
-        #site=MakeClass(i)
-        if ftype=='epub':
-            MakeEpub(MakeClass(i))
-        else:
-            MakeText(MakeClass(i))
+
+    #the multithreaded variant
+    if args.t:
+        q=queue.Queue()
+        for i in urls:
+            t=threading.Thread(target=MakeClass, args=(i,), daemon=True)
+            t.start()
+        while threading.active_count()>1:
+            s=q.get()
+            if ftype=='epub':
+                #for site in s:
+                MakeEpub(s)
+            else:
+                #for site in s:
+                MakeText(s)
+            
+    else:
+        for i in urls:
+            #site=MakeClass(i)
+            if ftype=='epub':
+                MakeEpub(MakeClass(i))
+            else:
+                MakeText(MakeClass(i))
+
+#the single input version
 else:
     site=MakeClass(args.url)
     if site==None:
