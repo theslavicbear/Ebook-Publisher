@@ -44,7 +44,6 @@ To run Ebook-Publisher, use the terminal or command prompt to execute Python3 an
                             --quiet
                             
 
-Ebook-Publisher can also take input from the standard input. If using standard input, any argument for url and the -f optional argument will be ignored. (Added only to master branch, not in any releases yet)
 
                         
 ### Sample Usage:
