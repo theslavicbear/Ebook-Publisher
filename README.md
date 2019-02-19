@@ -39,6 +39,10 @@ To run Ebook-Publisher, use the terminal or command prompt to execute Python3 an
                             single URL
       -d DIRECTORY, --directory DIRECTORY
                             Directory to place output files. Default ./
+      -q, --quiet           Turns off most terminal output
+      -t                    Turns on multithreading mode. Recommend also enabling
+                            --quiet
+                            
 
 Ebook-Publisher can also take input from the standard input. If using standard input, any argument for url and the -f optional argument will be ignored. (Added only to master branch, not in any releases yet)
 
