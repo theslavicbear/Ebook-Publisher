@@ -2,7 +2,6 @@
 #from bs4 import BeautifulSoup
 #import requests
 #from time import sleep
-import curses
 import sys
 from Site import *
 import urllib.parse
