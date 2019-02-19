@@ -17,7 +17,15 @@ import queue
 
 #Master array of supported sites
 #TODO convert this to a dictionary
-sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com','chyoa.com', 'www.wattpad.com']
+# sites=['www.literotica.com', 'www.fanfiction.net', 'www.fictionpress.com','www.classicreader.com','chyoa.com', 'www.wattpad.com']
+sites={
+    'www.literotica.com':lambda x:Literotica.Literotica(x),
+    'www.fanfiction.net':lambda x:Fanfiction.Fanfiction(x),
+    'www.fictionpress.com':lambda x:Fanfiction.Fanfiction(x),
+    'www.classicreader.com':lambda x:Classicreader.Classicreader(x),
+    'chyoa.com':lambda x:Chyoa.Chyoa(x),
+    'www.wattpad.com':lambda x:Wattpad.Wattpad(x),
+}
 
 #function for making text files
 def MakeText(site):
@@ -75,22 +83,23 @@ def MakeEpub(site):
 def MakeClass(url):
     #getting url
     domain=urllib.parse.urlparse(url)[1]
-    if sites[0]==domain:
-        site=Literotica.Literotica(url)
-    elif sites[1]==domain:
-        site=Fanfiction.Fanfiction(url)
-    elif sites[2]==domain:
-        site=Fanfiction.Fanfiction(url)
-    elif sites[3]==domain:
-        site=Classicreader.Classicreader(url)
-    elif sites[4]==domain:
-        site=Chyoa.Chyoa(url)
-    elif sites[5]==domain:
-        site=Wattpad.Wattpad(url)
-    else:
-        print(domain)
-        print('Unsupported website, terminating program')
-        site=None
+    site=sites[domain](url)
+    # if sites[0]==domain:
+    #     site=Literotica.Literotica(url)
+    # elif sites[1]==domain:
+    #     site=Fanfiction.Fanfiction(url)
+    # elif sites[2]==domain:
+    #     site=Fanfiction.Fanfiction(url)
+    # elif sites[3]==domain:
+    #     site=Classicreader.Classicreader(url)
+    # elif sites[4]==domain:
+    #     site=Chyoa.Chyoa(url)
+    # elif sites[5]==domain:
+    #     site=Wattpad.Wattpad(url)
+    # else:
+    #     print(domain)
+    #     print('Unsupported website, terminating program')
+    #     site=None
     if args.t:
         q.put(site)
     return site
