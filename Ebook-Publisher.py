@@ -118,6 +118,7 @@ if not os.path.exists(wd):
     os.makedirs(wd)
 
 ftype=args.output_type
+q=queue.Queue()
 
 if args.file:
     
@@ -133,7 +134,6 @@ if args.file:
 
     #the multithreaded variant
     if args.t:
-        q=queue.Queue()
         for i in urls:
             t=threading.Thread(target=MakeClass, args=(i,), daemon=True)
             t.start()
