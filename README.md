@@ -54,6 +54,6 @@ To run Ebook-Publisher, use the terminal or command prompt to execute Python3 an
 
 ### Using standard input:
 
-`cat list.txt | python3 Ebook-Publisher -d ./output`
+`cat list.txt | python3 Ebook-Publisher.py -d ./output`
 
 `echo www.some.website/stories/my-story | ./Ebook-Publisher.py -o epub -d ~/Documents/My\ Books/`
