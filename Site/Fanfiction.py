@@ -4,7 +4,7 @@ import requests
 import re
 import urllib.parse
 import sys
-from Site import Progress
+from Site import Common
 
 #TODO clean up and comment
 class Fanfiction:
@@ -62,7 +62,7 @@ class Fanfiction:
         self.summary=soup.find_all('div', attrs={'class': 'xcontrast_txt'})[0].text.strip()
         self.author=soup.find_all('a', attrs={'class': 'xcontrast_txt'})[2].text.strip()
         self.title=soup.find('b', attrs={'class': 'xcontrast_txt'}).text.strip()
-        print(self.title+'\nby '+self.author+'\n'+self.summary)
+        Common.prnt(self.title+'\nby '+self.author+'\n'+self.summary)
         
         
         #setup progress bar
@@ -73,7 +73,7 @@ class Fanfiction:
             print("Non-first page entered. Ebook-Publisher will only add subsequent pages and chapter titles will be wrong")
         for i in soup.find_all('button', attrs={'type': 'BUTTON'}):
             if i.text.strip()=='Next >':
-                self.pbar=Progress.Progress(len(self.chapters))
+                self.pbar=Common.Progress(len(self.chapters))
                 self.pbar.Update()
                 self.AddNextPage(soup)
                 break

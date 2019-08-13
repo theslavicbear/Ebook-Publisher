@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import sys
-from Site import Progress
+from Site import Common
 class Classicreader:
     
     def __init__(self, url):
@@ -21,9 +21,9 @@ class Classicreader:
         soup=BeautifulSoup(page.content, 'html.parser')
         #grabs important metadata information
         self.title=soup.find('span', attrs={'class': 'book-header'}).get_text()
-        print(self.title)
+        Common.prnt(self.title)
         self.author=soup.find('span', attrs={'class': 'by-line'}).contents[1].get_text()
-        print(self.author)
+        Common.prnt(self.author)
         
         #looks to see if on table of contents page
         #exception handling could be removed from here
@@ -45,7 +45,7 @@ class Classicreader:
                 url='https://www.classicreader.com'+soup.find_all('a', attrs={'class':'categories'})[7].get('href')
                 page=requests.get(url)
                 soup=BeautifulSoup(page.content, 'html.parser')
-                print('got table of contents page')
+                Common.prnt('got table of contents page')
             except:
                 paragraphs=soup.find_all('p')
                 #print(paragraphs)
@@ -64,7 +64,7 @@ class Classicreader:
         
         links=soup.find_all('a', attrs={'class': 'chapter-title'})
         
-        self.pbar=Progress.Progress(len(links))
+        self.pbar=Common.Progress(len(links))
         #self.pbar.Update()
         
         for i in links:

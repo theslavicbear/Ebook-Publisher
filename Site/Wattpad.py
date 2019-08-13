@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import sys
-from Site import Progress
+from Site import Common
 from random import randint
 
 class Wattpad:
@@ -37,11 +37,11 @@ class Wattpad:
         self.summary=soup.find('p', attrs={'class': 'item-description'}).get_text()
         self.rawstoryhtml.append(soup.find('pre'))
         
-        print(self.title+'\nby '+ self.author+'\n'+self.summary)
+        Common.prnt(self.title+'\nby '+ self.author+'\n'+self.summary)
         
         self.length=len(soup.find('ul', attrs={'class':'table-of-contents'}).find_all('li'))
         
-        self.pbar=Progress.Progress(self.length)
+        self.pbar=Common.Progress(self.length)
         self.pbar.Update()
         
         #print(self.rawstoryhtml[0].prettify())
