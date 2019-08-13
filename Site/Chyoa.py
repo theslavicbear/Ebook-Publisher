@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import sys
-from Site import Progress
+from Site import Common
 import os
 
 class Chyoa:
@@ -65,10 +65,10 @@ class Chyoa:
                     sys.stdout=open(os.devnull, 'w')
         
         #if args.quiet:
-        print(self.title+'\n'+str(self.authors)+'\n'+self.summary)
+        Common.prnt(self.title+'\n'+str(self.authors)+'\n'+self.summary)
         #print(self.chapters)
         
-        self.pbar=Progress.Progress(self.length)
+        self.pbar=Common.Progress(self.length)
         
         
         #for name in self.renames:

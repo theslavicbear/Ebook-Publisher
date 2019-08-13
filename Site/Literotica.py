@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 from time import sleep
 import sys
+from Site import Common
 class Literotica:    
     def __init__(self, url):
         self.title=''
@@ -26,7 +27,7 @@ class Literotica:
         self.author=authorhtml.text.strip()
         self.rawstoryhtml[0]=soup.find('div', attrs={'class': 'b-story-body-x x-r15'})
         self.story=self.rawstoryhtml[0].text.strip()
-        print(self.title+' by '+self.author)
+        Common.prnt(self.title+' by '+self.author)
         
         if soup.find('a', attrs={'class': 'b-pager-next'}) is not None:
             self.AddNextPage(soup)

@@ -97,7 +97,8 @@ parser.add_argument('-t', help="Turns on multithreading mode. Recommend also ena
 args=parser.parse_args()
 
 if args.quiet:
-    sys.stdout=open(os.devnull, 'w')
+    Common.quiet=True
+    #sys.stdout=open(os.devnull, 'w')
     #print('quiet enabled')
 
 stdin=False
@@ -113,6 +114,7 @@ if args.directory is None:
 else:
     wd=args.directory
 cwd=os.getcwd()
+#TODO should use non-relative path
 wd=os.path.join(cwd, wd)
 if not os.path.exists(wd):
     os.makedirs(wd)
