@@ -4,6 +4,10 @@ import re
 import sys
 from Site import Common
 import os
+import time
+from threading import Lock
+
+lock = Lock()
 
 class Chyoa:
 
@@ -45,25 +49,26 @@ class Chyoa:
         
         if soup.find('form', attrs={'id':'immersion-form'}) is not None:
             inputs=soup.find('form', attrs={'id': 'immersion-form'}).find_all('input', attrs={'value':''})
-            for i in range(len(inputs)):
-                if not sys.stdout.isatty():
-                    q=True
-                    sys.stdout=open('/dev/tty', 'w')
-                else:
-                    q=False
-                print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
-                try:
-                    sys.stdin = open('/dev/tty')
-                    newname=input()
-                    self.renames.append(newname)
-                except:
-                    self.renames.append('')
-                self.oldnames.append(inputs[i].get('placeholder'))
-                if self.renames[i]=='':
-                    self.renames[i]=self.oldnames[i]
-                if q:
-                    sys.stdout=open(os.devnull, 'w')
-        
+            with lock:
+                for i in range(len(inputs)):
+                    #if not sys.stdout.isatty():
+                    #    q=True
+                    #    sys.stdout=open('/dev/tty', 'w')
+                    #else:
+                    #    q=False
+                    print(self.title)
+                    print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
+                    try:
+                    #    sys.stdin = open('/dev/tty')
+                        newname=input()
+                        self.renames.append(newname)
+                    except:
+                        self.renames.append('')
+                    self.oldnames.append(inputs[i].get('placeholder'))
+                    if self.renames[i]=='':
+                        self.renames[i]=self.oldnames[i]
+                #if q:
+                #    sys.stdout=open(os.devnull, 'w')
         #if args.quiet:
         Common.prnt(self.title+'\n'+str(self.authors)+'\n'+self.summary)
         #print(self.chapters)
