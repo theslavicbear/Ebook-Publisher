@@ -25,7 +25,8 @@ Both external libraries can be installed with pip `pip3 install beautifulsoup4 &
 
 To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py and the URL for the story you want. You can add several other arguments. Try `python3 Ebook-Publisher.py --help` for the detailed readout, or see below:
 
-'''
+```
+
 usage: ebook-publisher [-h] [-o {txt,epub}] [-f] [-d DIRECTORY] [-q] [-t] [-i]
                        [url]
 
@@ -44,7 +45,8 @@ optional arguments:
   -t                    Turns on multithreading mode. Recommend also enabling
                         --quiet
   -i, --insert-images   Downloads and inserts images for Chyoa stories
-'''
+```  
+
                             
 
 
