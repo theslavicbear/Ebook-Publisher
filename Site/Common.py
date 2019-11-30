@@ -4,6 +4,8 @@ import sys
 
 quiet = False
 
+images = False
+
 def prnt(out, f=False):
     if not quiet and not f:
         print(out)

@@ -13,7 +13,8 @@ import argparse
 import os
 import threading
 import queue
-
+import shutil
+from zipfile import ZipFile
 
 #Master dict of supported sites
 sites={
@@ -32,6 +33,11 @@ def MakeText(site):
     published.write('by '+site.author+'\n\n')
     published.write(site.story)
     published.close()
+    
+def GetImage(url):
+    req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+    return urllib.request.urlopen(req).read()
+            
     
 #This function is basically all space magic from the docs of ebooklib
 def MakeEpub(site):
@@ -61,6 +67,7 @@ def MakeEpub(site):
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
             book.add_item(c[i])
             toc=toc+(c[i],)
+            
         book.toc=toc
         book.spine.append('nav')
     
@@ -76,6 +83,15 @@ def MakeEpub(site):
     for i in c:
         book.spine.append(i)
     epub.write_epub(wd+site.title+'.epub', book, {})
+    
+    if type(site) is Chyoa.Chyoa:
+        if site.hasimages == True:
+            with ZipFile(wd+site.title+'.epub', 'a') as myfile:
+                i=1
+                for url in site.images:
+                    with myfile.open('EPUB/img'+str(i)+'.jpg', 'w') as myimg:
+                        myimg.write(GetImage(url))
+                    i=i+1
     
 
 def MakeClass(url):
@@ -94,12 +110,15 @@ parser.add_argument('-f','--file', help="Use text file containing a list of URLs
 parser.add_argument('-d','--directory', help="Directory to place output files. Default ./")
 parser.add_argument('-q','--quiet', help="Turns off most terminal output", action='store_true')
 parser.add_argument('-t', help="Turns on multithreading mode. Recommend also enabling --quiet", action='store_true')
+parser.add_argument('-i', '--insert-images', help="Downloads and inserts images for Chyoa stories", action='store_true')
 args=parser.parse_args()
 
 if args.quiet:
     Common.quiet=True
     #sys.stdout=open(os.devnull, 'w')
     #print('quiet enabled')
+if args.insert_images:
+    Common.images=True
 
 stdin=False
 if not sys.stdin.isatty():
