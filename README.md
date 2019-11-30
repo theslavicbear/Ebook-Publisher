@@ -5,7 +5,7 @@ A Python tool for converting online stories into portable formats
 * fanfiction.net
 * fictionpress.com
 * literotica.com
-* classicreader.com
+* classicreader.com (The site does not appear to be working as of 11/30/19)
 * chyoa.com (rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)
 * wattpad.com
   
@@ -25,25 +25,26 @@ Both external libraries can be installed with pip `pip3 install beautifulsoup4 &
 
 To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py and the URL for the story you want. You can add several other arguments. Try `python3 Ebook-Publisher.py --help` for the detailed readout, or see below:
 
+```
+usage: ebook-publisher [-h] [-o {txt,epub}] [-f] [-d DIRECTORY] [-q] [-t] [-i]
+                       [url]
 
-    usage: Ebook-Publisher.py [-h] [-o {txt,epub}] [-f] [-d DIRECTORY] [url]
+positional arguments:
+  url                   The URL of the story you want
 
-    positional arguments:
-      url                   The URL of the story you want
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      -o {txt,epub}, --output-type {txt,epub}
-                            The file type you want
-      -f, --file            Use text file containing a list of URLs instead of
-                            single URL
-      -d DIRECTORY, --directory DIRECTORY
-                            Directory to place output files. Default ./
-      -q, --quiet           Turns off most terminal output
-      -t                    Turns on multithreading mode (one thread for each story). Recommend also enabling
-                            --quiet
-                            
-
+optional arguments:
+  -h, --help            show this help message and exit
+  -o {txt,epub}, --output-type {txt,epub}
+                        The file type you want
+  -f, --file            Use text file containing a list of URLs instead of
+                        single URL
+  -d DIRECTORY, --directory DIRECTORY
+                        Directory to place output files. Default ./
+  -q, --quiet           Turns off most terminal output
+  -t                    Turns on multithreading mode. Recommend also enabling
+                        --quiet
+  -i, --insert-images   Downloads and inserts images for Chyoa stories
+```  
 
                         
 ### Sample Usage:

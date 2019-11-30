@@ -32,6 +32,8 @@ class Chyoa:
         self.length=1
         self.pbar=None
         self.url=url
+        self.images=[] #testing images
+        self.hasimages = False
         try:
             page=requests.get(self.url)
         except:
@@ -41,7 +43,7 @@ class Chyoa:
         self.authors.insert(0,soup.find_all('a')[7].get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
         self.summary=soup.find('p', attrs={'class': 'synopsis'}).get_text()
-        
+                
         tmp=soup.find('p', attrs={'class': 'meta'}).get_text()
         t=[s for s in tmp.split() if s.isdigit()]
         self.length=int(t[0])        
@@ -79,9 +81,20 @@ class Chyoa:
         #for name in self.renames:
             
         
+        if Common.images:
+            if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
+                for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
+                    self.images.append(simg.get('src'))
+                    simg['src']='img'+str(len(self.images))+'.jpg'
+                    self.hasimages = True
         
         
         temp=str(soup.find('div', attrs={'class': 'chapter-content'}))
+        
+        
+                    
+        
+        
         self.questions.insert(0, soup.find_all('h2')[1].get_text())
         temp+='<h2>'+self.questions[0]+'</h2>'
         self.temp.insert(0, temp)
@@ -154,6 +167,14 @@ class Chyoa:
         soup=BeautifulSoup(page.content, 'html.parser')
         self.authors.insert(0,soup.find_all('a')[7].get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
+        
+        if Common.images:
+            if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
+                for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
+                    self.images.append(simg.get('src'))
+                    simg['src']='img'+str(len(self.images))+'.jpg'
+                    self.hasimages = True
+        
         temp=str(soup.find('div', attrs={'class': 'chapter-content'}))
         self.questions.insert(0, soup.find_all('h2')[1].get_text())
         temp+='<h2>'+self.questions[0]+'</h2>'
@@ -162,6 +183,9 @@ class Chyoa:
             #self.temp[0]=self.temp[0].replace(self.oldnames[i], self.renames[i])
             #self.temp[0]=self.temp[0].replace('\n  <span class="js-immersion-receiver-c'+str(i)+'">\n   '+self.oldnames[i]+'\n  </span>\n  ',' '+self.renames[i])
         #self.rawstoryhtml.insert(0, BeautifulSoup(temp, 'html.parser'))
+        
+        
+        
         self.pbar.Update()
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter':
