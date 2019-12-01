@@ -8,6 +8,7 @@ A Python tool for converting online stories into portable formats
 * classicreader.com (The site does not appear to be working as of 11/30/19)
 * chyoa.com (rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)
 * wattpad.com
+* nhentai.net (alpha support: Epub only. Seems to have issues with multithreading multiple nhentai galleries. Also may have issues with your epub reader because images i.e. images low quality on Okular and images high quality on Calibre reader, but a blank page inserted between pages.)
   
 ## Currently supported file types:
 * plain text files
