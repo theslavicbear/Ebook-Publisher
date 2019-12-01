@@ -24,6 +24,7 @@ sites={
     'www.classicreader.com':lambda x:Classicreader.Classicreader(x),
     'chyoa.com':lambda x:Chyoa.Chyoa(x),
     'www.wattpad.com':lambda x:Wattpad.Wattpad(x),
+    'nhentai.net':lambda x:Nhentai.Nhentai(x),
 }
 
 #function for making text files
@@ -57,12 +58,14 @@ def MakeEpub(site):
     book.add_author(site.author)
     c=[]
 
-    if type(site) is not Literotica.Literotica:
+    if type(site) is not Literotica.Literotica and type(site) is not Nhentai.Nhentai:
         toc=()
         for i in range(len(site.rawstoryhtml)):
             c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
             if type(site) is Chyoa.Chyoa:
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.truestoryhttml[i]
+            elif type(site) is Nhentai.Nhentai:
+                c[i].content=site.truestoryhttml[i]
             else:
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
             book.add_item(c[i])
@@ -71,7 +74,13 @@ def MakeEpub(site):
         book.toc=toc
         book.spine.append('nav')
     
-    #fallback method
+    elif type(site) is Nhentai.Nhentai:
+        c.append(epub.EpubHtml(title='none', file_name='Chapter 1.xhtml', lang='en'))
+        c[0].content=site.truestoryhttml[0]
+        book.add_item(c[0])
+        book.spine.append('nav')
+    
+    #fallback method    
     else:
         c.append(epub.EpubHtml(title=site.title, file_name='Story.xhtml', lang='en'))
         c[0].content=site.storyhtml
@@ -84,7 +93,7 @@ def MakeEpub(site):
         book.spine.append(i)
     epub.write_epub(wd+site.title+'.epub', book, {})
     
-    if type(site) is Chyoa.Chyoa:
+    if type(site) is Chyoa.Chyoa or type(site) is Nhentai.Nhentai:
         if site.hasimages == True:
             with ZipFile(wd+site.title+'.epub', 'a') as myfile:
                 i=1
