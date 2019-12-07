@@ -12,7 +12,7 @@ A Python tool for converting online stories into portable formats
   
 ## Currently supported file types:
 * plain text files
-* epub ebook files
+* epub ebook files (With ebooklib package)
   
 Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! 
 
