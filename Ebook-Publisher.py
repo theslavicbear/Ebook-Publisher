@@ -5,10 +5,11 @@
 import sys
 from Site import *
 import urllib.parse
-try:
-    from ebooklib import epub
-except:
-    print('Warning: No epub filetype support')
+#try:
+from EpubMaker import epub as epub
+    #from ebooklib import epub
+#except:
+#    print('Warning: No epub filetype support')
 import argparse
 import os
 import threading
@@ -29,11 +30,22 @@ sites={
 
 #function for making text files
 def MakeText(site):
-    published=open(wd+site.title+'.txt', 'w')
-    published.write(site.title+'\n')
-    published.write('by '+site.author+'\n\n')
-    published.write(site.story)
-    published.close()
+    if type(site) is not Nhentai.Nhentai:
+        published=open(wd+site.title+'.txt', 'w')
+        published.write(site.title+'\n')
+        published.write('by '+site.author+'\n\n')
+        published.write(site.story)
+        published.close()
+    else:
+        if site.hasimages == True:
+            if not os.path.exists(wd+site.title):
+                os.makedirs(wd+site.title)
+            i = 1
+            zeros = '0' * (len(str(len(site.images)))-1)
+            for url in site.images:
+                with open(wd+site.title+'/'+zeros+str(i)+'.jpg', 'wb') as myimg:
+                    myimg.write(GetImage(url))
+                i=i+1
     
 def GetImage(url):
     req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
@@ -45,7 +57,7 @@ def MakeEpub(site):
     book=epub.EpubBook()
     book.set_identifier(site.url)
     titlepage=epub.EpubHtml(title='Title Page', file_name='Title.xhtml', lang='en')
-    titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+site.url+'<a>'
+    titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+site.url+'</a>'
     #add summary information
     try:
         titlepage.content+='<br /><p>'+site.summary+'</p>'
@@ -59,7 +71,7 @@ def MakeEpub(site):
     c=[]
 
     if type(site) is not Literotica.Literotica and type(site) is not Nhentai.Nhentai:
-        toc=()
+        toc=[]
         for i in range(len(site.rawstoryhtml)):
             c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
             if type(site) is Chyoa.Chyoa:
@@ -69,7 +81,7 @@ def MakeEpub(site):
             else:
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
             book.add_item(c[i])
-            toc=toc+(c[i],)
+            toc.append(c[i])
             
         book.toc=toc
         book.spine.append('nav')
@@ -85,13 +97,14 @@ def MakeEpub(site):
         c.append(epub.EpubHtml(title=site.title, file_name='Story.xhtml', lang='en'))
         c[0].content=site.storyhtml
         book.add_item(c[0])
+        #print(site.title)
     #more ebooklib space magic
     book.add_item(epub.EpubNcx())
     book.add_item(epub.EpubNav())
     #book.spine.append('nav')
     for i in c:
         book.spine.append(i)
-    epub.write_epub(wd+site.title+'.epub', book, {})
+    epub.write_epub(wd+site.title+'.epub', book)
     
     if type(site) is Chyoa.Chyoa or type(site) is Nhentai.Nhentai:
         if site.hasimages == True:
