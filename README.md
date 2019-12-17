@@ -8,11 +8,11 @@ A Python tool for converting online stories into portable formats
 * classicreader.com (The site does not appear to be working as of 11/30/19)
 * chyoa.com (rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)
 * wattpad.com
-* nhentai.net (alpha support: Epub only. Seems to have issues with multithreading multiple nhentai galleries. Also may have issues with your epub reader because images i.e. images low quality on Okular and images high quality on Calibre reader, but a blank page inserted between pages.)
+* nhentai.net (alpha support: Seems to have issues with multithreading multiple nhentai galleries. Also may have issues with your epub reader if you grabbed it in epub format. Recommend using the default or `-o txt` to simply grab all of the images and dump them in a folder.)
   
 ## Currently supported file types:
 * plain text files
-* epub ebook files (With ebooklib package)
+* epub ebook files
   
 Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! 
 
@@ -20,7 +20,7 @@ Want more sites supported? Open an Issue and ask for its support or add support 
 Ebook-Publisher requires the following:
 * Python3
 * ~~Beautiful Soup 4 (Python3 edition)~~ Now included as part of Ebook-Publisher
-* ebooklib (Only for creating epub files) Cannot be included due to license restrictions
+* ~~ebooklib (Only for creating epub files) Cannot be included due to license restrictions~~ A free alternative library has been written and is now being used. It is about 90% the same as ebooklib, but there are some downsides. For my implementation, it will work fine.
 
 Both external libraries can be installed with pip `pip3 install beautifulsoup4 && pip3 install ebooklib` or likely through your distribution's package manager
 
