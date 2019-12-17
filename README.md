@@ -22,7 +22,7 @@ Ebook-Publisher requires the following:
 * ~~Beautiful Soup 4 (Python3 edition)~~ Now included as part of Ebook-Publisher
 * ~~ebooklib (Only for creating epub files) Cannot be included due to license restrictions~~ A free alternative library has been written and is now being used. It is about 90% the same as ebooklib, but there are some downsides. For my implementation, it will work fine.
 
-~~Both external libraries can be installed with pip `pip3 install beautifulsoup4 && pip3 install ebooklib` or likely through your distribution's package manager
+~~Both external libraries can be installed with pip `pip3 install beautifulsoup4 && pip3 install ebooklib` or likely through your distribution's package manager~~
 
 To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py and the URL for the story you want. You can add several other arguments. Try `python3 Ebook-Publisher.py --help` for the detailed readout, or see below:
 
