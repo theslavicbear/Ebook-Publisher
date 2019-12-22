@@ -77,7 +77,7 @@ def write_epub(title, book):
                     j = 1
                     for item in book.toc:
                         ncxstring += '<navPoint id="chapter_'+str(j)+'">\n<navLabel>\n<text>'+item.title+'</text>\n</navLabel>\n <content src="'+item.file_name+'" />\n</navPoint>'
-                    ncxstring += '</navPoint>\n</navMap>\n</ncx>'
+                    ncxstring += '\n</navMap>\n</ncx>'
                     Zip.writestr('EPUB/toc.ncx', ncxstring)
             elif type(item) is EpubNav:
                 opf_content += '<item href="nav.xhtml" id="nav" media-type="application/xhtml+xml" properties="nav"/>\n'
