@@ -217,6 +217,7 @@ if args.file:
 
 #the single input version
 else:
+    lock = threading.Lock() #here for compatability
     site=MakeClass(args.url)
     if site==None:
         sys.exit()
@@ -224,3 +225,7 @@ else:
         MakeEpub(site)
     else:
         MakeText(site)
+    while threading.active_count()>1:
+        pass
+    #if type(site) is Nhentai.Nhentai and site.pbar is not None:
+        #site.pbar.End()

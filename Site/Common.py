@@ -21,8 +21,11 @@ def imageDL(title, url, size, num, pbar):
     #print(zeros)
     if len(zeros)>1 and num > 9:
         zeros='0'
-    elif num > 99:
+    elif len(zeros)==1 and num > 9:
         zeros = ''
+    if num > 99:
+        zeros = ''
+    #print(zeros)
     with open(wd+title+'/'+zeros+str(num)+'.jpg', 'wb') as myimg:
         myimg.write(GetImage(url))
     pbar.Update()
