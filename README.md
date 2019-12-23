@@ -8,7 +8,7 @@ A Python tool for converting online stories into portable formats
 * classicreader.com (The site does not appear to be working as of 11/30/19)
 * chyoa.com (rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)
 * wattpad.com
-* nhentai.net (alpha support: Seems to have issues with multithreading multiple nhentai galleries. Also may have issues with your epub reader if you grabbed it in epub format. Recommend using the default or `-o txt` to simply grab all of the images and dump them in a folder.)
+* nhentai.net (alpha support):  ~~Seems to have issues with multithreading multiple nhentai galleries.~~  **Multithreading now works for default gallery downloads!** Also may have issues with your epub reader if you grabbed it in epub format.
   
 ## Currently supported file types:
 * plain text files
