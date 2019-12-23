@@ -1,14 +1,36 @@
-import sys
+import sys, urllib, os
 
-#Module contains common functions needed by all sites
+#Module contains common functions needed by sites
 
 quiet = False
 
 images = False
 
+wd = './'
+
+opf = 'txt'
+
 def prnt(out, f=False):
     if not quiet and not f:
         print(out)
+
+def imageDL(title, url, size, num, pbar):
+    if not os.path.exists(wd+title):
+        os.makedirs(wd+title)
+    zeros = '0' * (len(str(size))-1)
+    #print(zeros)
+    if len(zeros)>1 and num > 9:
+        zeros='0'
+    elif num > 99:
+        zeros = ''
+    with open(wd+title+'/'+zeros+str(num)+'.jpg', 'wb') as myimg:
+        myimg.write(GetImage(url))
+    pbar.Update()
+
+
+def GetImage(url):
+    req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+    return urllib.request.urlopen(req).read()
 
 class Progress:
     

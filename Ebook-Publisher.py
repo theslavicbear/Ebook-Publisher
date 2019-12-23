@@ -36,23 +36,29 @@ def MakeText(site):
         published.write('by '+site.author+'\n\n')
         published.write(site.story)
         published.close()
-    else:
+    '''else:
         if site.hasimages == True:
             if not os.path.exists(wd+site.title):
                 os.makedirs(wd+site.title)
             i = 1
             zeros = '0' * (len(str(len(site.images)))-1)
+            print(zeros)
             for url in site.images:
+                if i > 9:
+                    zeros='0'
+                elif i > 99:
+                    zeros = ''
                 with open(wd+site.title+'/'+zeros+str(i)+'.jpg', 'wb') as myimg:
                     myimg.write(GetImage(url))
                 i=i+1
+    '''
     
 def GetImage(url):
     req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
     return urllib.request.urlopen(req).read()
             
     
-#This function is basically all space magic from the docs of ebooklib
+#This function is basically all magic from the docs of EpubMaker
 def MakeEpub(site):
     book=epub.EpubBook()
     book.set_identifier(site.url)
@@ -85,7 +91,6 @@ def MakeEpub(site):
             
         book.toc=toc
         book.spine.append('nav')
-    
     elif type(site) is Nhentai.Nhentai:
         c.append(epub.EpubHtml(title='none', file_name='Chapter 1.xhtml', lang='en'))
         c[0].content=site.truestoryhttml[0]
@@ -119,8 +124,19 @@ def MakeEpub(site):
 def MakeClass(url):
     #getting url
     domain=urllib.parse.urlparse(url)[1]
-    site=sites[domain](url)
+    if domain == 'nhentai.net' and args.t:
+        with lock:
+            site=sites[domain](url)
+    else:
+        site=sites[domain](url)
+    #site=sites[domain](url)
     if args.t:
+        if ftype=='epub':
+            #for site in s:
+            MakeEpub(site)
+        else:
+            #for site in s:
+            MakeText(site)
         q.put(site)
     return site
 
@@ -154,6 +170,11 @@ if args.directory is None:
     wd='./'
 else:
     wd=args.directory
+Common.wd = wd
+
+if args.output_type == 'epub':
+    Common.opf = 'epub'
+
 cwd=os.getcwd()
 #TODO should use non-relative path
 wd=os.path.join(cwd, wd)
@@ -177,17 +198,14 @@ if args.file:
 
     #the multithreaded variant
     if args.t:
+        lock = threading.Lock()
         for i in urls:
             t=threading.Thread(target=MakeClass, args=(i,), daemon=True)
             t.start()
-        while threading.active_count()>1:
+        siteThreads = threading.active_count()
+        while siteThreads>1:
             s=q.get()
-            if ftype=='epub':
-                #for site in s:
-                MakeEpub(s)
-            else:
-                #for site in s:
-                MakeText(s)
+            siteThreads-=1
             
     else:
         for i in urls:
