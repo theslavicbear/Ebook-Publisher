@@ -55,7 +55,7 @@ optional arguments:
 
 `python3 Ebook-Publisher.py www.some.website/stories/my-story -o epub -d ~/Documents/My\ Books/`
 
-`./Ebook-Publisher.py -f -o txt to-download.txt`
+`./Ebook-Publisher.py -o txt -f to-download.txt`
 
 ### Using standard input:
 
