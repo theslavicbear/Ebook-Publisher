@@ -19,7 +19,7 @@ Want more sites supported? Open an Issue and ask for its support or add support 
 ## Usage:
 Ebook-Publisher requires the following:
 * Python3
-As of Release 2.0, Ebook-Publisher should not requiere any external libraries, other than python3. Everything needed is either included in the repository or in python3's standard library.
+As of Release 2.0, Ebook-Publisher should not require any external libraries, other than python3. Everything needed is either included in the repository or in python3's standard library.
 
 To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py and the URL for the story you want. You can add several other arguments. Try `python3 Ebook-Publisher.py --help` for the detailed readout, or see below:
 
