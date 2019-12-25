@@ -80,7 +80,7 @@ class Nhentai:
                 zeros = ''
             self.truestoryhttml[0]=self.truestoryhttml[0]+'<p><img src="'+zeros+str(num)+'.jpg" /></p>\n'
         if Common.opf in ('txt', 'html'):
-            t=threading.Thread(target=Common.imageDL, args=(self.title, thisimage, len(self.images), size=self.isize, pbar=self.pbar), daemon=False)
+            t=threading.Thread(target=Common.imageDL, args=(self.title, thisimage, len(self.images), self.isize, self.pbar), daemon=False)
             t.start()
             #Common.imageDL(self.title, thisimage, self.isize, len(self.images))
             #self.pbar.Update()
