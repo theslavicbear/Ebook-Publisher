@@ -25,10 +25,13 @@ def imageDL(title, url, num,  size=0, pbar=None):
         zeros = ''
     if num > 99:
         zeros = ''
+    if pbar is None:
+        zeros = 'img' #TODO fix this for Chyoa stories so that image files don't have to be prepended with 'img' and no zeros
     #print(zeros)
     with open(wd+title+'/'+zeros+str(num)+'.jpg', 'wb') as myimg:
         myimg.write(GetImage(url))
-    pbar.Update()
+    if pbar is not None:
+        pbar.Update()
     #queue.put()
 
 
