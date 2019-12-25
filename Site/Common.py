@@ -14,7 +14,7 @@ def prnt(out, f=False):
     if not quiet and not f:
         print(out)
 
-def imageDL(title, url, size, num, pbar):
+def imageDL(title, url, num,  size=0, pbar=None):
     if not os.path.exists(wd+title):
         os.makedirs(wd+title)
     zeros = '0' * (len(str(size))-1)
@@ -29,6 +29,7 @@ def imageDL(title, url, size, num, pbar):
     with open(wd+title+'/'+zeros+str(num)+'.jpg', 'wb') as myimg:
         myimg.write(GetImage(url))
     pbar.Update()
+    #queue.put()
 
 
 def GetImage(url):
