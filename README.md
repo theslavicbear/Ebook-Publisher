@@ -17,6 +17,7 @@ Ebook-Publisher is my pet project, and the project that I currently have spent t
 ## Currently supported file types:
 * plain text files
 * epub ebook files
+* html files (For nhentai galleries, it will have the same output as with default/.txt output, but with an html file in the folder that easily allows viewing the gallery via a web browser. Chyoa stories don't currently grab images yet)
   
 Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! 
 
