@@ -88,11 +88,8 @@ class Chyoa:
                     simg['src']='img'+str(len(self.images))+'.jpg'
                     self.hasimages = True
         
-        
         temp=str(soup.find('div', attrs={'class': 'chapter-content'}))
         
-        
-                    
         
         
         self.questions.insert(0, soup.find_all('h2')[1].get_text())
@@ -147,6 +144,10 @@ class Chyoa:
             self.truestoryhttml[i]=self.truestoryhttml[i].replace('  </span>\n  ', '</span> ')
             
         self.story=self.story.replace('\n', '\n\n')
+        
+        if Common.images and self.hasimages and Common.opf=='html':
+            for i in range(0,len(self.images)):
+                Common.imageDL(self.title, self.images[i], i+1, size=len(self.images))
         #print(self.story)
         #print(self.truestoryhttml[len(self.truestoryhttml)-1])
         #for i in range(len(self.renames)):

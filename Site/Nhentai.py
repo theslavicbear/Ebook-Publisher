@@ -4,6 +4,7 @@ import sys
 from Site import Common
 from time import sleep
 import threading
+#import queue
 
 class Nhentai:
 
@@ -23,6 +24,7 @@ class Nhentai:
         self.images=[] #testing images
         self.hasimages = True
         self.isize=0
+        #self.q = queue.Queue()
         try:
             page=requests.get(self.url)
         except:
@@ -36,9 +38,10 @@ class Nhentai:
         
         
         self.truestoryhttml.append('')
-        if Common.opf=='txt':
+        self.isize=len(soup.find_all('a', attrs={'rel':'nofollow'}))
+
+        if Common.opf in ('html','txt'):
             
-            self.isize=len(soup.find_all('a', attrs={'rel':'nofollow'}))
             self.pbar = Common.Progress(self.isize)
         for i in soup.find_all('a', attrs={'rel':'nofollow'}):
             #print(i.get('rel'))
@@ -66,10 +69,18 @@ class Nhentai:
         except:
             print('Error in: '+url)
             #print(soup.prettify())
-        if Common.opf != 'txt':
-            self.truestoryhttml[0]=self.truestoryhttml[0]+'<p><img src="img'+str(len(self.images))+'.jpg" /></p>'
-        else:
-            t=threading.Thread(target=Common.imageDL, args=(self.title, thisimage, self.isize, len(self.images), self.pbar), daemon=True)
+        if Common.opf in ('epub', 'html'):
+            zeros = '0' * (len(str(self.isize))-1)
+            num = len(self.images)
+            if len(zeros)>1 and num > 9:
+                zeros='0'
+            elif len(zeros)==1 and num > 9:
+                zeros = ''
+            if num > 99:
+                zeros = ''
+            self.truestoryhttml[0]=self.truestoryhttml[0]+'<p><img src="'+zeros+str(num)+'.jpg" /></p>\n'
+        if Common.opf in ('txt', 'html'):
+            t=threading.Thread(target=Common.imageDL, args=(self.title, thisimage, len(self.images), self.isize, self.pbar), daemon=False)
             t.start()
             #Common.imageDL(self.title, thisimage, self.isize, len(self.images))
             #self.pbar.Update()

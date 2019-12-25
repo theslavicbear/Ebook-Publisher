@@ -1,7 +1,7 @@
 # Ebook-Publisher
 A Python tool for converting online stories into portable formats
 
-**Download Ebook-Publisher by cloning the git repository `git clone https://github.com/theslavicbear/Ebook-Publisher.git` or downloading the zip of the latest release (generally more stable, as I tend to push directly to master) and running the Ebook-Publisher.py file. At a minimum, you must supply one URL from a supported site as a command line argument. With no other options, you will receive a text file with the story contents. Please see the below help message for a list of possible options to improve your experience, e.g. multiple URL inputs, concurrent downloads, and/or EPUB formatted output files.**
+**Download Ebook-Publisher by cloning the git repository `git clone https://github.com/theslavicbear/Ebook-Publisher.git` or downloading the zip of the latest release (generally more stable, as I tend to push directly to master) and running the Ebook-Publisher.py file. At a minimum, you must supply one URL from a supported site as a command line argument. With no other options, you will receive a text file with the story contents. Please see the below help message for a list of possible options to improve your experience, e.g. multiple URL inputs, concurrent downloads, and/or EPUB/HTML formatted output files.**
 
 Ebook-Publisher is my pet project, and the project that I currently have spent the most time and effort on. As such, I welcome criticism, requests for improvement, and bug reports. Please open an issue for any of the preceding.
 
@@ -17,6 +17,7 @@ Ebook-Publisher is my pet project, and the project that I currently have spent t
 ## Currently supported file types:
 * plain text files
 * epub ebook files
+* html files (For nhentai galleries, it will have the same output as with default/.txt output, but with an html file in the folder that easily allows viewing the gallery via a web browser. Chyoa stories don't currently grab images yet)
   
 Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! 
 

@@ -16,6 +16,7 @@ import threading
 import queue
 import shutil
 from zipfile import ZipFile
+from time import sleep
 
 #Master dict of supported sites
 sites={
@@ -36,22 +37,29 @@ def MakeText(site):
         published.write('by '+site.author+'\n\n')
         published.write(site.story)
         published.close()
-    '''else:
-        if site.hasimages == True:
-            if not os.path.exists(wd+site.title):
-                os.makedirs(wd+site.title)
-            i = 1
-            zeros = '0' * (len(str(len(site.images)))-1)
-            print(zeros)
-            for url in site.images:
-                if i > 9:
-                    zeros='0'
-                elif i > 99:
-                    zeros = ''
-                with open(wd+site.title+'/'+zeros+str(i)+'.jpg', 'wb') as myimg:
-                    myimg.write(GetImage(url))
-                i=i+1
-    '''
+    
+def MakeHTML(site):
+    if (type(site) is Chyoa.Chyoa or type(site) is Nhentai.Nhentai) and site.hasimages:
+        published=open(wd+site.title+'/'+site.title+'.html', 'w')
+    else:
+        published=open(wd+site.title+'.html', 'w')
+    published.write('<!DOCTYPE html>\n')
+    published.write('<html lang="en">\n')
+    published.write('<head>\n<title>'+site.title+' by '+site.author+'</title>\n</head>\n')
+    published.write('<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href='+site.url+'>'+site.url+'</a>\n')
+    for i in range(len(site.rawstoryhtml)):
+        if type(site) is Chyoa.Chyoa:
+            published.write('<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.truestoryhttml[i])
+        elif type(site) is Nhentai.Nhentai:
+            published.write(site.truestoryhttml[i])
+        elif type(site) is Literotica.Literotica:
+            published.write(site.storyhtml)
+        else:
+            published.write('<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify())
+    published.write('</html>')
+    
+    
+    published.close()
     
 def GetImage(url):
     req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
@@ -63,7 +71,7 @@ def MakeEpub(site):
     book=epub.EpubBook()
     book.set_identifier(site.url)
     titlepage=epub.EpubHtml(title='Title Page', file_name='Title.xhtml', lang='en')
-    titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href=\'url\'>'+site.url+'</a>'
+    titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href='+site.url+'</a>'
     #add summary information
     try:
         titlepage.content+='<br /><p>'+site.summary+'</p>'
@@ -116,7 +124,14 @@ def MakeEpub(site):
             with ZipFile(wd+site.title+'.epub', 'a') as myfile:
                 i=1
                 for url in site.images:
-                    with myfile.open('EPUB/img'+str(i)+'.jpg', 'w') as myimg:
+                    zeros = '0' * (len(str(site.isize))-1)
+                    if len(zeros)>1 and i > 9:
+                        zeros='0'
+                    elif len(zeros)==1 and i > 9:
+                        zeros = ''
+                    if i > 99:
+                        zeros = ''
+                    with myfile.open('EPUB/'+zeros+str(i)+'.jpg', 'w') as myimg:
                         myimg.write(GetImage(url))
                     i=i+1
     
@@ -134,6 +149,8 @@ def MakeClass(url):
         if ftype=='epub':
             #for site in s:
             MakeEpub(site)
+        elif ftype=='html':
+            MakeHTML(site)
         else:
             #for site in s:
             MakeText(site)
@@ -143,7 +160,7 @@ def MakeClass(url):
 #setting up commandline argument parser
 parser=argparse.ArgumentParser()
 parser.add_argument('url', help='The URL of the story you want', nargs='?')
-parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub'])
+parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub', 'html'], default='txt')
 parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
 parser.add_argument('-d','--directory', help="Directory to place output files. Default ./")
 parser.add_argument('-q','--quiet', help="Turns off most terminal output", action='store_true')
@@ -172,8 +189,7 @@ else:
     wd=args.directory
 Common.wd = wd
 
-if args.output_type == 'epub':
-    Common.opf = 'epub'
+Common.opf = args.output_type
 
 cwd=os.getcwd()
 #TODO should use non-relative path
@@ -199,19 +215,24 @@ if args.file:
     #the multithreaded variant
     if args.t:
         lock = threading.Lock()
+        threads = 0
         for i in urls:
             t=threading.Thread(target=MakeClass, args=(i,), daemon=True)
             t.start()
-        siteThreads = threading.active_count()
-        while siteThreads>1:
+            threads +=1
+        #siteThreads = threading.active_count()
+        while threads>0:
             s=q.get()
-            siteThreads-=1
-            
+            #threading.active_count()-=1
+            #sleep(.01)
+            threads -=1
     else:
         for i in urls:
             #site=MakeClass(i)
             if ftype=='epub':
                 MakeEpub(MakeClass(i))
+            elif ftype=='html':
+                MakeHTML(MakeClass(i))
             else:
                 MakeText(MakeClass(i))
 
@@ -223,9 +244,9 @@ else:
         sys.exit()
     if ftype=='epub':
         MakeEpub(site)
+    elif ftype=='html':
+        MakeHTML(site)
     else:
         MakeText(site)
     while threading.active_count()>1:
-        pass
-    #if type(site) is Nhentai.Nhentai and site.pbar is not None:
-        #site.pbar.End()
+        sleep(.01)
