@@ -12,12 +12,12 @@ Ebook-Publisher is my pet project, and the project that I currently have spent t
 * classicreader.com (The site does not appear to be working as of 11/30/19)
 * chyoa.com (rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)
 * wattpad.com
-* nhentai.net (alpha support):  ~~Seems to have issues with multithreading multiple nhentai galleries.~~  **Multithreading now works for default gallery downloads!** Also may have issues with your epub reader if you grabbed it in epub format (i.e. low quality images in Okular).
+* nhentai.net (alpha support):  ~~Seems to have issues with multithreading multiple nhentai galleries.~~  **Multithreading now works for default gallery downloads!** Also may have issues with your epub reader if you grabbed it in epub format (i.e. low quality images in Okular)
   
 ## Currently supported file types:
 * plain text files
 * epub ebook files
-* html files (For nhentai galleries, it will have the same output as with default/.txt output, but with an html file in the folder that easily allows viewing the gallery via a web browser. Chyoa stories don't currently grab images yet)
+* html files (For nhentai galleries, it will have the same output as with default/.txt output, but with an html file in the folder that easily allows viewing the gallery via a web browser)
   
 Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! 
 
