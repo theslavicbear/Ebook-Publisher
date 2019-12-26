@@ -40,6 +40,7 @@ class Nhentai:
                     #print('HERE')
                     self.author=au2.get('href')[8:-1]
                     #print(self.author)
+        Common.prnt(self.title+' by '+self.author)
         
         self.truestoryhttml.append('')
         self.isize=len(soup.find_all('a', attrs={'rel':'nofollow'}))
