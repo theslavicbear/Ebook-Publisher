@@ -32,10 +32,14 @@ class Nhentai:
         soup=BeautifulSoup(page.content, 'html.parser')
         
         self.title = soup.find('meta', attrs={'itemprop':'name'}).get('content')
-        for au in soup.find_all('a', attrs={'class':'tag'}):
-            if au.get('href')[6:]=='/artist':
-                self.author=au.get_text()
-        
+        for au in soup.find_all('div', attrs={'class':'tag-container'}):
+            #print('HERE1')
+            for au2 in au.find_all('a'):
+                #print('HERE2')
+                if au2.get('href')[:7]=='/artist':
+                    #print('HERE')
+                    self.author=au2.get('href')[8:-1]
+                    print(self.author)
         
         self.truestoryhttml.append('')
         self.isize=len(soup.find_all('a', attrs={'rel':'nofollow'}))
