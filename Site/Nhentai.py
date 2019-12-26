@@ -39,7 +39,7 @@ class Nhentai:
                 if au2.get('href')[:7]=='/artist':
                     #print('HERE')
                     self.author=au2.get('href')[8:-1]
-                    print(self.author)
+                    #print(self.author)
         
         self.truestoryhttml.append('')
         self.isize=len(soup.find_all('a', attrs={'rel':'nofollow'}))
