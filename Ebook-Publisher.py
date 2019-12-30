@@ -47,15 +47,19 @@ def MakeHTML(site):
     published.write('<html lang="en">\n')
     published.write('<head>\n<title>'+site.title+' by '+site.author+'</title>\n</head>\n')
     published.write('<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href='+site.url+'>'+site.url+'</a>\n')
+    if type(site) not in (Nhentai.Nhentai, Literotica.Literotica):
+        published.write('<h2>Table of Contents</h2>\n')
+        for i in range(len(site.rawstoryhtml)):
+            published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
     for i in range(len(site.rawstoryhtml)):
         if type(site) is Chyoa.Chyoa:
-            published.write('<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.truestoryhttml[i])
+            published.write('<h2 id="Chapter '+str(i)+'">\n'+site.chapters[i]+'\n</h2>\n'+site.truestoryhttml[i])
         elif type(site) is Nhentai.Nhentai:
             published.write(site.truestoryhttml[i])
         elif type(site) is Literotica.Literotica:
             published.write(site.storyhtml)
         else:
-            published.write('<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify())
+            published.write('<h2 id="Chapter '+str(i)+'">\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify())
     published.write('</html>')
     
     
