@@ -28,6 +28,8 @@ Ebook-Publisher requires the following:
 
 As of Release 2.0, Ebook-Publisher should not require any external libraries, other than python3. Everything needed is either included in the repository or in python3's standard library.
 
+On the small amount of testing I have done under Windows 8.1, I did need to install the requests package, which only reqired a quick `C:\Python34\Scripts\pip.exe install requests` From there, if you do not have the python3 executable on your PATH, you can run like `C:\Python34\python.exe C:\Path\To\Ebook-Publisher.py` Obviously, use the folder name of your installed version of python3. 
+
 To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py and the URL for the story you want. You can add several other arguments. Try `python3 Ebook-Publisher.py --help` for the detailed readout, or see below:
 
 ```
