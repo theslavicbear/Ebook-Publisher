@@ -10,6 +10,7 @@ wd = './'
 
 opf = 'txt'
 
+mt = False
 def prnt(out, f=False):
     if not quiet and not f:
         print(out)
@@ -36,9 +37,15 @@ def imageDL(title, url, num,  size=0, pbar=None):
 
 
 def GetImage(url):
-    req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
-    return urllib.request.urlopen(req).read()
-
+    try:
+        req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+        return urllib.request.urlopen(req).read()
+    except:
+        if url[-4:]=='.jpg':
+            req = urllib.request.Request(url[:-4]+'.png', headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+        elif url[-4:]=='.png':
+            req = urllib.request.Request(url[:-4]+'.jpg', headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+        return urllib.request.urlopen(req).read()
 class Progress:
     
     #toolbar_width=40

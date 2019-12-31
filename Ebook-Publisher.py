@@ -68,9 +68,9 @@ def MakeHTML(site):
     
     published.close()
     
-def GetImage(url):
-    req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
-    return urllib.request.urlopen(req).read()
+#def GetImage(url):
+    #req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+    #return urllib.request.urlopen(req).read()
             
     
 #This function is basically all magic from the docs of EpubMaker
@@ -135,7 +135,7 @@ def MakeEpub(site):
                     if i > 99:
                         zeros = ''
                     with myfile.open('EPUB/'+zeros+str(i)+'.jpg', 'w') as myimg:
-                        myimg.write(GetImage(url))
+                        myimg.write(Common.GetImage(url))
                     i=i+1
     
 
@@ -186,6 +186,8 @@ else:
 Common.wd = wd
 
 Common.opf = args.output_type.lower()
+
+Common.mt = args.t
 
 cwd=os.getcwd()
 #TODO should use non-relative path

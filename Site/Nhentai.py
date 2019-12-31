@@ -46,54 +46,52 @@ class Nhentai:
         self.isize=len(soup.find_all('a', attrs={'rel':'nofollow'}))
 
         if Common.opf in ('html','txt'):
-            
             self.pbar = Common.Progress(self.isize)
+        
         for i in soup.find_all('a', attrs={'rel':'nofollow'}):
-            #print(i.get('rel'))
-            #if i.get('rel')==['nofollow']:
-                #print('new page')
-            self.AddPage(i.get('href'))
+            self.GetURLS(i.get('href'))
+            break
+        self.AddPage()
+        
         if self.pbar is not None:
             self.pbar.End()
-            #sleep(1)
-                
-    def AddPage(self, url):
-        #print('https://nhentai.net'+url.rstrip())
-        #print('https://nhentai.net/g/53671/1/')
+            
+            
+    def GetURLS(self, url):
         try:
             page=requests.get('https://nhentai.net'+url.rstrip(), headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         except:
             print('Error accessing website: try checking internet connection and url')
         soup=BeautifulSoup(page.content, 'html.parser')
-        #print(soup.prettify())
-        
-        #print(soup.find('img').get('src').prettify())
         try:
             thisimage=soup.find('section', attrs={'id':'image-container'}).find('img').get('src')
             self.images.append(thisimage)
         except:
             print('Error in: '+url)
-            #print(soup.prettify())
-        if Common.opf in ('epub', 'html'):
-            zeros = '0' * (len(str(self.isize))-1)
-            num = len(self.images)
-            if len(zeros)>1 and num > 9:
-                zeros='0'
-            elif len(zeros)==1 and num > 9:
-                zeros = ''
-            if num > 99:
-                zeros = ''
-            self.truestoryhttml[0]=self.truestoryhttml[0]+'<p><img src="'+zeros+str(num)+'.jpg" /></p>\n'
-        if Common.opf in ('txt', 'html'):
-            t=threading.Thread(target=Common.imageDL, args=(self.title, thisimage, len(self.images), self.isize, self.pbar), daemon=False)
-            t.start()
-            #Common.imageDL(self.title, thisimage, self.isize, len(self.images))
-            #self.pbar.Update()
-        
-        #if Common.images:
-            #if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
-                #for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
-                    #self.images.append(simg.get('src'))
-                    #simg['src']='img'+str(len(self.images))+'.jpg'
-                    #self.hasimages = True
-        
+            
+        for i in range(2, self.isize+1):
+            self.images.append(thisimage[:-5]+str(i)+thisimage[-4:])
+            
+            
+                
+    def AddPage(self):
+        i = 1
+        for thisimage in self.images:      
+            #print(thisimage)
+            if Common.opf in ('epub', 'html'):
+                zeros = '0' * (len(str(self.isize))-1)
+                num = i
+                if len(zeros)>1 and num > 9:
+                    zeros='0'
+                elif len(zeros)==1 and num > 9:
+                    zeros = ''
+                if num > 99:
+                    zeros = ''
+                self.truestoryhttml[0]=self.truestoryhttml[0]+'<p><img src="'+zeros+str(num)+'.jpg" /></p>\n'
+            if Common.opf in ('txt', 'html'):
+                if Common.mt:
+                    t=threading.Thread(target=Common.imageDL, args=(self.title, thisimage, i, self.isize, self.pbar), daemon=False)
+                    t.start()
+                else:
+                    Common.imageDL(self.title, thisimage, i, self.isize, self.pbar)
+            i+=1
