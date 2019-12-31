@@ -28,6 +28,11 @@ sites={
     'www.wattpad.com':lambda x:Wattpad.Wattpad(x),
     'nhentai.net':lambda x:Nhentai.Nhentai(x),
 }
+formats={
+    'epub':lambda x:MakeEpub(x),
+    'html':lambda x:MakeHTML(x),
+    'txt' :lambda x:MakeText(x),
+}
 
 #function for making text files
 def MakeText(site):
@@ -52,14 +57,12 @@ def MakeHTML(site):
         for i in range(len(site.rawstoryhtml)):
             published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
     for i in range(len(site.rawstoryhtml)):
-        if type(site) is Chyoa.Chyoa:
-            published.write('<h2 id="Chapter '+str(i)+'">\n'+site.chapters[i]+'\n</h2>\n'+site.truestoryhttml[i])
-        elif type(site) is Nhentai.Nhentai:
+        if type(site) is Nhentai.Nhentai:
             published.write(site.truestoryhttml[i])
         elif type(site) is Literotica.Literotica:
             published.write(site.storyhtml)
         else:
-            published.write('<h2 id="Chapter '+str(i)+'">\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify())
+            published.write('<h2 id="Chapter '+str(i)+'">\n'+site.chapters[i]+'\n</h2>\n'+str(site.rawstoryhtml[i]))
     published.write('</html>')
     
     
@@ -77,10 +80,8 @@ def MakeEpub(site):
     titlepage=epub.EpubHtml(title='Title Page', file_name='Title.xhtml', lang='en')
     titlepage.content='<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href='+site.url+'</a>'
     #add summary information
-    try:
+    if hasattr(site, 'summary'):
         titlepage.content+='<br /><p>'+site.summary+'</p>'
-    except:
-        pass
     book.add_item(titlepage)
     book.spine=[titlepage]
     book.set_title(site.title)
@@ -92,12 +93,10 @@ def MakeEpub(site):
         toc=[]
         for i in range(len(site.rawstoryhtml)):
             c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
-            if type(site) is Chyoa.Chyoa:
-                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.truestoryhttml[i]
-            elif type(site) is Nhentai.Nhentai:
+            if type(site) is Nhentai.Nhentai:
                 c[i].content=site.truestoryhttml[i]
             else:
-                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+site.rawstoryhtml[i].prettify()
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+str(site.rawstoryhtml[i])
             book.add_item(c[i])
             toc.append(c[i])
             
@@ -150,14 +149,7 @@ def MakeClass(url):
         site=sites[domain](url)
     #site=sites[domain](url)
     if args.t:
-        if ftype=='epub':
-            #for site in s:
-            MakeEpub(site)
-        elif ftype=='html':
-            MakeHTML(site)
-        else:
-            #for site in s:
-            MakeText(site)
+        formats[ftype](site)
         q.put(site)
     return site
 
@@ -193,7 +185,7 @@ else:
     wd=args.directory
 Common.wd = wd
 
-Common.opf = args.output_type
+Common.opf = args.output_type.lower()
 
 cwd=os.getcwd()
 #TODO should use non-relative path
@@ -201,7 +193,7 @@ wd=os.path.join(cwd, wd)
 if not os.path.exists(wd):
     os.makedirs(wd)
 
-ftype=args.output_type
+ftype=args.output_type.lower()
 q=queue.Queue()
 
 if args.file:
@@ -233,12 +225,7 @@ if args.file:
     else:
         for i in urls:
             #site=MakeClass(i)
-            if ftype=='epub':
-                MakeEpub(MakeClass(i))
-            elif ftype=='html':
-                MakeHTML(MakeClass(i))
-            else:
-                MakeText(MakeClass(i))
+            formats[ftype](MakeClass(i))
 
 #the single input version
 else:
@@ -246,11 +233,6 @@ else:
     site=MakeClass(args.url)
     if site==None:
         sys.exit()
-    if ftype=='epub':
-        MakeEpub(site)
-    elif ftype=='html':
-        MakeHTML(site)
-    else:
-        MakeText(site)
+    formats[ftype](site)
     while threading.active_count()>1:
         sleep(.01)

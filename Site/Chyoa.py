@@ -96,13 +96,7 @@ class Chyoa:
         temp+='<h2>'+self.questions[0]+'</h2>'
         self.temp.insert(0, temp)
         self.pbar.Update()
-        #print(self.temp[0])
-        #for i in range(len(self.renames)):
-            #self.temp[0]=self.temp[0].replace(self.oldnames[i], self.renames[i])
-            #self.temp[0]=self.temp[0].replace('\n  <span class="js-immersion-receiver-c'+str(i)+'">\n   '+self.oldnames[i]+'\n  </span>\n  ',' '+self.renames[i])
-        #print(self.temp[0])
-        #self.rawstoryhtml.insert(0, BeautifulSoup(temp, 'html.parser'))
-        #print(self.rawstoryhtml[0])
+
         
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter':
@@ -145,20 +139,13 @@ class Chyoa:
             
         self.story=self.story.replace('\n', '\n\n')
         
+        for i in range(0,len(self.truestoryhttml)):
+            self.rawstoryhtml[i]=BeautifulSoup(self.truestoryhttml[i], 'html.parser')
+        
         if Common.images and self.hasimages and Common.opf=='html':
             for i in range(0,len(self.images)):
                 Common.imageDL(self.title, self.images[i], i+1, size=len(self.images))
-        #print(self.story)
-        #print(self.truestoryhttml[len(self.truestoryhttml)-1])
-        #for i in range(len(self.renames)):
-            #self.story=self.story.replace('\r   '+self.renames[i]+'\r', self.renames[i])
-            #for j in i.contents:
-                #try:
-                    #self.story+=re.sub(r'\n\s*', r'', j.get_text(), flags=re.M)+'\n'
-                #except:
-                    #self.story+=re.sub(r'\n\s*', r'', j, flags=re.M)+' '
-                    #print('stringobject found')
-                #self.story+='\n'
+
                 
     def AddNextPage(self, url):
         try:
@@ -180,11 +167,6 @@ class Chyoa:
         self.questions.insert(0, soup.find_all('h2')[1].get_text())
         temp+='<h2>'+self.questions[0]+'</h2>'
         self.temp.insert(0, temp)
-        #for i in range(len(self.renames)):
-            #self.temp[0]=self.temp[0].replace(self.oldnames[i], self.renames[i])
-            #self.temp[0]=self.temp[0].replace('\n  <span class="js-immersion-receiver-c'+str(i)+'">\n   '+self.oldnames[i]+'\n  </span>\n  ',' '+self.renames[i])
-        #self.rawstoryhtml.insert(0, BeautifulSoup(temp, 'html.parser'))
-        
         
         
         self.pbar.Update()
