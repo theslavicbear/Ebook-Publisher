@@ -143,21 +143,35 @@ def MakeClass(url):
     #getting url
     domain=urllib.parse.urlparse(url)[1]
     if domain == 'nhentai.net' and args.t:
+        #TODO the lock should be in the Nhentai class definitions
         with lock:
             site=sites[domain](url)
     else:
-        site=sites[domain](url)
+        try:
+            site=sites[domain](url)
+        except KeyError as e:
+            print('Unsupported site: '+domain)
+            return
     #site=sites[domain](url)
     if args.t:
         formats[ftype](site)
         q.put(site)
     return site
 
+#grabs all of the urls if the argument is a file, or assumes the argument is a single URL
+def ListURLs(url):
+    if os.path.isfile(os.path.join(cwd,url)):
+        with open(cwd+'/'+url, 'r') as fi:
+            return fi.read().splitlines()
+    else:
+        return (url,)
+
+
 #setting up commandline argument parser
 parser=argparse.ArgumentParser()
-parser.add_argument('url', help='The URL of the story you want', nargs='?')
+parser.add_argument('url', help='The URL of the story you want', nargs='*')
 parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub', 'html'], default='txt')
-parser.add_argument('-f','--file', help="Use text file containing a list of URLs instead of single URL", action='store_true')
+parser.add_argument('-f','--file', help="Does nothing! Previously denoted the use of a text file containing a list of URLs instead of single URL", action='store_true')
 parser.add_argument('-d','--directory', help="Directory to place output files. Default ./")
 parser.add_argument('-q','--quiet', help="Turns off most terminal output", action='store_true')
 parser.add_argument('-t', help="Turns on multithreading mode. Recommend also enabling --quiet", action='store_true')
@@ -170,14 +184,16 @@ if args.quiet:
     #print('quiet enabled')
 if args.insert_images:
     Common.images=True
-
+args.file=True
 stdin=False
 if not sys.stdin.isatty():
-    args.file=True
     stdin=True
 elif not args.url:
     print(args.url)
     parser.error('No input')
+
+    
+
 
 if args.directory is None:
     wd='./'
@@ -194,19 +210,21 @@ cwd=os.getcwd()
 wd=os.path.join(cwd, wd)
 if not os.path.exists(wd):
     os.makedirs(wd)
+    
+
+
 
 ftype=args.output_type.lower()
 q=queue.Queue()
 
 if args.file:
     
+    urls=[]
     #gets the list of urls
     if not stdin:
-        f=open(args.url, 'r')
-        urls=f.readlines()
-        f.close()
+        for arg in args.url:
+            urls.extend(ListURLs(arg))
     else:
-        urls=[]
         stdinput=sys.stdin.read()
         urls=stdinput.split()
 
@@ -215,26 +233,29 @@ if args.file:
         lock = threading.Lock()
         threads = 0
         for i in urls:
-            t=threading.Thread(target=MakeClass, args=(i,), daemon=True)
+            t=threading.Thread(target=MakeClass, args=(i,), daemon=False)
             t.start()
-            threads +=1
+            #threads +=1
         #siteThreads = threading.active_count()
-        while threads>0:
-            s=q.get()
+        #while threads>0:
+            #s=q.get()
             #threading.active_count()-=1
             #sleep(.01)
-            threads -=1
+            #threads -=1
     else:
         for i in urls:
             #site=MakeClass(i)
-            formats[ftype](MakeClass(i))
+            clas=MakeClass(i)
+            if clas is not None:
+                formats[ftype](clas)
+            #formats[ftype](MakeClass(i))
 
-#the single input version
-else:
-    lock = threading.Lock() #here for compatability
-    site=MakeClass(args.url)
-    if site==None:
-        sys.exit()
-    formats[ftype](site)
-    while threading.active_count()>1:
-        sleep(.01)
+#the nonfile input version
+#else:
+    #lock = threading.Lock() #here for compatability
+    #site=MakeClass(args.url)
+    #if site==None:
+        #sys.exit()
+    #formats[ftype](site)
+    #while threading.active_count()>1:
+        #sleep(.01)

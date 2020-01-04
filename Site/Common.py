@@ -17,7 +17,10 @@ def prnt(out, f=False):
 
 def imageDL(title, url, num,  size=0, pbar=None):
     if not os.path.exists(wd+title):
-        os.makedirs(wd+title)
+        try:
+            os.makedirs(wd+title)
+        except FileExistsError as fee:
+            pass
     zeros = '0' * (len(str(size))-1)
     #print(zeros)
     if len(zeros)>1 and num > 9:
