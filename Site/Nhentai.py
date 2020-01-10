@@ -24,6 +24,7 @@ class Nhentai:
         self.images=[] #testing images
         self.hasimages = True
         self.isize=0
+        self.duplicate = False
         #self.q = queue.Queue()
         try:
             page=requests.get(self.url)
@@ -32,6 +33,12 @@ class Nhentai:
         soup=BeautifulSoup(page.content, 'html.parser')
         
         self.title = soup.find('meta', attrs={'itemprop':'name'}).get('content')
+        
+        if Common.dup:
+            if Common.CheckDuplicate(self.title):
+                self.duplicate = True
+                return None
+        
         for au in soup.find_all('div', attrs={'class':'tag-container'}):
             #print('HERE1')
             for au2 in au.find_all('a'):

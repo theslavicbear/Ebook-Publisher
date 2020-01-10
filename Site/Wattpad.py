@@ -23,6 +23,7 @@ class Wattpad:
         self.url=url
         self.chapters=[]
         self.page=None
+        self.duplicate = False
         #try:
           #  page=requests.get(self.url)
         #except:
@@ -32,6 +33,12 @@ class Wattpad:
         soup=BeautifulSoup(self.requestPage(self.url).content, 'html.parser')
         #print(soup.prettify())
         self.title=soup.find('h1').get_text()
+        
+        if Common.dup:
+            if Common.CheckDuplicate(self.title):
+                self.duplicate = True
+                return None
+        
         self.author=soup.find('span', attrs={'class': 'author h6'}).get_text()[3:]
         self.chapters.append(soup.find('h2').get_text())
         self.summary=soup.find('p', attrs={'class': 'item-description'}).get_text()

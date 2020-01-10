@@ -12,6 +12,7 @@ class Literotica:
         self.rawstoryhtml=[0]
         self.storyhtml=''
         self.url=url
+        self.duplicate = False
         try:
             page=requests.get(self.url)
         except:
@@ -23,7 +24,14 @@ class Literotica:
         soup = BeautifulSoup(page.content, 'html.parser')
         titlehtml=soup.find('h1')
         self.title=titlehtml.text.strip()
+        
+        if Common.dup:
+            if Common.CheckDuplicate(self.title):
+                self.duplicate = True
+                return None
+        
         authorhtml=soup.find('span', attrs={'class': 'b-story-user-y x-r22'})
+        #print(authorhtml.prettify())
         self.author=authorhtml.text.strip()
         self.rawstoryhtml[0]=soup.find('div', attrs={'class': 'b-story-body-x x-r15'})
         self.story=self.rawstoryhtml[0].text.strip()
@@ -42,7 +50,7 @@ class Literotica:
             page=requests.get(nexturl)
         except:
             print('Error accessing website: try checking internet connection and url')
-            sys.exit()
+            #sys.exit()
         soup=BeautifulSoup(page.content, 'html.parser')
         self.rawstoryhtml.append(soup.find('div', attrs={'class': 'b-story-body-x x-r15'}))
         self.story+=soup.find('div', attrs={'class': 'b-story-body-x x-r15'}).text.strip()

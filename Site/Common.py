@@ -10,6 +10,8 @@ wd = './'
 
 opf = 'txt'
 
+dup = False
+
 mt = False
 def prnt(out, f=False):
     if not quiet and not f:
@@ -39,6 +41,15 @@ def imageDL(title, url, num,  size=0, pbar=None):
     #queue.put()
 
 
+def CheckDuplicate(title):
+    if opf == 'epub':
+        return os.path.isfile(wd+title+'.epub')
+    elif opf == 'txt':
+        return os.path.isfile(wd+title+'.txt') or os.path.exists(wd+title)
+    elif opf == 'html':
+        return os.path.isfile(wd+title+'.html') or os.path.exists(wd+title)
+    
+    
 def GetImage(url):
     try:
         req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})

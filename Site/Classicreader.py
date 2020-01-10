@@ -13,6 +13,7 @@ class Classicreader:
         self.chapters=[]
         self.pbar=None
         self.url=url
+        self.duplicate = False
         try:
             page=requests.get(self.url)
         except:
@@ -21,6 +22,13 @@ class Classicreader:
         soup=BeautifulSoup(page.content, 'html.parser')
         #grabs important metadata information
         self.title=soup.find('span', attrs={'class': 'book-header'}).get_text()
+        
+        if Common.dup:
+            if Common.CheckDuplicate(self.title):
+                self.duplicate = True
+                return None
+        
+        
         Common.prnt(self.title)
         self.author=soup.find('span', attrs={'class': 'by-line'}).contents[1].get_text()
         Common.prnt(self.author)

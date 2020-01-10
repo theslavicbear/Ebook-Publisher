@@ -27,6 +27,8 @@ class Fanfiction:
         self.summary=''
         self.pbar=None
         self.url=url
+        self.duplicate = False
+        
         try:
             page=requests.get(self.url)
         except:
@@ -62,6 +64,12 @@ class Fanfiction:
         self.summary=soup.find_all('div', attrs={'class': 'xcontrast_txt'})[0].text.strip()
         self.author=soup.find_all('a', attrs={'class': 'xcontrast_txt'})[2].text.strip()
         self.title=soup.find('b', attrs={'class': 'xcontrast_txt'}).text.strip()
+        
+        if Common.dup:
+            if Common.CheckDuplicate(self.title):
+                self.duplicate = True
+                return None
+        
         Common.prnt(self.title+'\nby '+self.author+'\n'+self.summary)
         
         

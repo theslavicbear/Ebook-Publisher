@@ -34,12 +34,19 @@ class Chyoa:
         self.url=url
         self.images=[] #testing images
         self.hasimages = False
+        self.duplicate = False
         try:
             page=requests.get(self.url)
         except:
             print('Error accessing website: try checking internet connection and url')
         soup=BeautifulSoup(page.content, 'html.parser')
         self.title=soup.find('h3').get_text()
+        
+        if Common.dup:
+            if Common.CheckDuplicate(self.title):
+                self.duplicate = True
+                return None
+        
         self.authors.insert(0,soup.find_all('a')[7].get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
         self.summary=soup.find('p', attrs={'class': 'synopsis'}).get_text()
@@ -53,15 +60,9 @@ class Chyoa:
             inputs=soup.find('form', attrs={'id': 'immersion-form'}).find_all('input', attrs={'value':''})
             with lock:
                 for i in range(len(inputs)):
-                    #if not sys.stdout.isatty():
-                    #    q=True
-                    #    sys.stdout=open('/dev/tty', 'w')
-                    #else:
-                    #    q=False
                     print(self.title)
                     print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
                     try:
-                    #    sys.stdin = open('/dev/tty')
                         newname=input()
                         self.renames.append(newname)
                     except:

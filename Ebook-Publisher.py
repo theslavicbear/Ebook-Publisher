@@ -154,8 +154,11 @@ def MakeClass(url):
             return
     #site=sites[domain](url)
     if args.t:
-        formats[ftype](site)
-        q.put(site)
+        if not site.duplicate:
+            formats[ftype](site)
+            q.put(site)
+        else:
+            return
     return site
 
 #grabs all of the urls if the argument is a file, or assumes the argument is a single URL
@@ -176,6 +179,7 @@ parser.add_argument('-d','--directory', help="Directory to place output files. D
 parser.add_argument('-q','--quiet', help="Turns off most terminal output", action='store_true')
 parser.add_argument('-t', help="Turns on multithreading mode. Recommend also enabling --quiet", action='store_true')
 parser.add_argument('-i', '--insert-images', help="Downloads and inserts images for Chyoa stories", action='store_true')
+parser.add_argument('-n', '--no-duplicates', help='Skips stories if they have already been downloaded', action='store_true') 
 args=parser.parse_args()
 
 if args.quiet:
@@ -192,6 +196,8 @@ elif not args.url:
     print(args.url)
     parser.error('No input')
 
+if args.no_duplicates:
+    Common.dup = True
     
 
 
@@ -235,27 +241,13 @@ if args.file:
         for i in urls:
             t=threading.Thread(target=MakeClass, args=(i,), daemon=False)
             t.start()
-            #threads +=1
-        #siteThreads = threading.active_count()
-        #while threads>0:
-            #s=q.get()
-            #threading.active_count()-=1
-            #sleep(.01)
-            #threads -=1
+
     else:
         for i in urls:
-            #site=MakeClass(i)
             clas=MakeClass(i)
             if clas is not None:
-                formats[ftype](clas)
-            #formats[ftype](MakeClass(i))
+                if not clas.duplicate:
+                    formats[ftype](clas)
 
-#the nonfile input version
-#else:
-    #lock = threading.Lock() #here for compatability
-    #site=MakeClass(args.url)
-    #if site==None:
-        #sys.exit()
-    #formats[ftype](site)
-    #while threading.active_count()>1:
-        #sleep(.01)
+    while threading.active_count()>1:
+        sleep(.01)
