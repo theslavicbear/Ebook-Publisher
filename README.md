@@ -51,6 +51,7 @@ optional arguments:
   -t                    Turns on multithreading mode. Recommend also enabling
                         --quiet
   -i, --insert-images   Downloads and inserts images for Chyoa stories
+  -n, --no-duplicates   Skips stories if they have already been downloaded
 ```  
 
                         
