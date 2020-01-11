@@ -9,7 +9,7 @@ Ebook-Publisher is my pet project, and the project that I currently have spent t
 * fanfiction.net
 * fictionpress.com
 * literotica.com
-* classicreader.com (The site does not appear to be working as of 11/30/19)
+* classicreader.com
 * chyoa.com (rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)
 * wattpad.com
 * nhentai.net (alpha support):  ~~Seems to have issues with multithreading multiple nhentai galleries.~~  **Multithreading now works for default gallery downloads!** Also may have issues with your epub reader if you grabbed it in epub format (i.e. low quality images in Okular)
