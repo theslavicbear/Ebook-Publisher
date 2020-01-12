@@ -35,6 +35,7 @@ class Chyoa:
         self.images=[] #testing images
         self.hasimages = False
         self.duplicate = False
+        self.backwards = True
         try:
             page=requests.get(self.url)
         except:
@@ -44,6 +45,8 @@ class Chyoa:
         if self.title=='Log In':
             try:
                 self.title=soup.find('h1').get_text()
+                self.backwards = False
+                
             except:
                 pass
         
@@ -52,7 +55,10 @@ class Chyoa:
                 self.duplicate = True
                 return None
         
-        self.authors.insert(0,soup.find_all('a')[7].get_text())
+        if self.backwards:
+            self.authors.insert(0,soup.find_all('a')[7].get_text())
+        else:
+            self.authors.insert(0,soup.find_all('a')[5].get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
         self.summary=soup.find('p', attrs={'class': 'synopsis'}).get_text()
                 
@@ -105,11 +111,19 @@ class Chyoa:
 
         
         #if soup.find('a').text.strip()==
-        
+        self.backwards = False
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter':
                 self.AddNextPage(i.get('href'))
+                self.backwards = True
                 break
+            
+        #Gets here if it's the intro page that is used
+        if not self.backwards:
+            pass
+            
+            
+            
             
         self.pbar.End()
             
