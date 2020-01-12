@@ -41,6 +41,11 @@ class Chyoa:
             print('Error accessing website: try checking internet connection and url')
         soup=BeautifulSoup(page.content, 'html.parser')
         self.title=soup.find('h3').get_text()
+        if self.title=='Log In':
+            try:
+                self.title=soup.find('h1').get_text()
+            except:
+                pass
         
         if Common.dup:
             if Common.CheckDuplicate(self.title):
@@ -99,10 +104,13 @@ class Chyoa:
         self.pbar.Update()
 
         
+        #if soup.find('a').text.strip()==
+        
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter':
                 self.AddNextPage(i.get('href'))
                 break
+            
         self.pbar.End()
             
         #band-aid fix for names in chapter titles
