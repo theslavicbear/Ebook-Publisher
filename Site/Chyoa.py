@@ -36,6 +36,7 @@ class Chyoa:
         self.hasimages = False
         self.duplicate = False
         self.backwards = True
+        self.depth = []
         try:
             page=requests.get(self.url)
         except:
@@ -86,8 +87,8 @@ class Chyoa:
         #if args.quiet:
         Common.prnt(self.title+'\n'+str(self.authors)+'\n'+self.summary)
         #print(self.chapters)
-        
-        self.pbar=Common.Progress(self.length)
+        if self.backwards:
+            self.pbar=Common.Progress(self.length)
         
         
         #for name in self.renames:
@@ -107,25 +108,31 @@ class Chyoa:
         self.questions.insert(0, soup.find_all('h2')[1].get_text())
         temp+='<h2>'+self.questions[0]+'</h2>'
         self.temp.insert(0, temp)
-        self.pbar.Update()
+        if self.backwards:
+            self.pbar.Update()
 
         
         #if soup.find('a').text.strip()==
         self.backwards = False
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter':
-                self.AddNextPage(i.get('href'))
+                self.AddPrevPage(i.get('href'))
                 self.backwards = True
                 break
             
         #Gets here if it's the intro page that is used
         if not self.backwards:
-            pass
+            j = 1
+            for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
+                if i.get_text().strip() != 'Add a new chapter':
+                    self.temp[0]+='\n<a href="#'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />\n'
+                    self.AddNextPage(i.get('href'), j)
+                    j+=1
             
             
             
-            
-        self.pbar.End()
+        if self.backwards:
+            self.pbar.End()
             
         #band-aid fix for names in chapter titles
         #WARNING DO NOT PUT THIS TO PRODUCTION
@@ -164,13 +171,14 @@ class Chyoa:
         
         for i in range(0,len(self.truestoryhttml)):
             self.rawstoryhtml[i]=BeautifulSoup(self.truestoryhttml[i], 'html.parser')
+            
         
         if Common.images and self.hasimages and Common.opf=='html':
             for i in range(0,len(self.images)):
                 Common.imageDL(self.title, self.images[i], i+1, size=len(self.images))
 
                 
-    def AddNextPage(self, url):
+    def AddPrevPage(self, url):
         try:
             page=requests.get(url)
         except:
@@ -185,7 +193,6 @@ class Chyoa:
                     self.images.append(simg.get('src'))
                     simg['src']='img'+str(len(self.images))+'.jpg'
                     self.hasimages = True
-        
         temp=str(soup.find('div', attrs={'class': 'chapter-content'}))
         self.questions.insert(0, soup.find_all('h2')[1].get_text())
         temp+='<h2>'+self.questions[0]+'</h2>'
@@ -195,8 +202,54 @@ class Chyoa:
         self.pbar.Update()
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter':
-                self.AddNextPage(i.get('href'))
+                self.AddPrevPage(i.get('href'))
                 return
         #gets author name if on last/first page I guess
         self.authors[0]=soup.find_all('a')[5].get_text()
+        #print(self.authors)
+        
+        
+    def AddNextPage(self, url, depth):
+        try:
+            page=requests.get(url)
+        except:
+            print('Error accessing website: try checking internet connection and url')
+        soup=BeautifulSoup(page.content, 'html.parser')
+        self.authors.append(soup.find_all('a')[7].get_text())
+        self.chapters.append(soup.find('h1').get_text())
+        
+        if Common.images:
+            if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
+                for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
+                    self.images.append(simg.get('src'))
+                    simg['src']='img'+str(len(self.images))+'.jpg'
+                    self.hasimages = True
+        
+        temp2 = soup.find('div', attrs={'class': 'chapter-content'})
+        self.depth.append(str(depth))
+        temp='<div id="'+str(depth)+'">'+str(temp2)     
+        self.questions.append(soup.find_all('h2')[1].get_text())
+        temp+='<h2>'+self.questions[-1]+'</h2>\n</div>'
+        print(str(depth))
+        j = 1
+        
+        nextpages=[]
+        nextpagesurl=[]
+        nextpagesdepth=[]
+        for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
+            if i.get_text().strip() != 'Add a new chapter':
+                nextpages.append('<a href="#'+str(depth)+'.'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />')
+                nextpagesurl.append(i)
+                nextpagesdepth.append(j)
+                j+=1
+                
+        for j in nextpages:
+            temp+=j
+        self.temp.append(temp)
+        for i,j in zip(nextpagesurl, nextpagesdepth):
+            self.AddNextPage(i.get('href'), str(depth)+'.'+str(j))
+
+
+        #gets author name if on last/first page I guess
+        #self.authors[0]=soup.find_all('a')[5].get_text()
         #print(self.authors)
