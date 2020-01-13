@@ -160,7 +160,7 @@ class Chyoa:
             for j in range(len(self.renames)):
                 for k in i.find_all('span', attrs={'class': 'js-immersion-receiver-c'+str(j)}):
                     k.string=self.renames[j]
-            self.story+=i.get_text()
+            self.story+=self.chapters[self.rawstoryhtml.index(i)]+i.get_text()
             
             self.truestoryhttml.append(str(i))
         
