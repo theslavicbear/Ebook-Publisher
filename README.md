@@ -10,7 +10,7 @@ Ebook-Publisher is my pet project, and the project that I currently have spent t
 * fictionpress.com
 * literotica.com
 * classicreader.com
-* chyoa.com (rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)
+* chyoa.com ~~(rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)~~ You can now either input the first page of a story, and Ebook-Publisher will grab the whole story, or input the last page you want included and Ebook-Publisher will work backwards and grab the story from the beginning to your input page. You will be asked for customizable names, etc. before the story is grabbed.
 * wattpad.com
 * nhentai.net (alpha support):  ~~Seems to have issues with multithreading multiple nhentai galleries.~~  **Multithreading now works for default gallery downloads!** Also may have issues with your epub reader if you grabbed it in epub format (i.e. low quality images in Okular)
   
