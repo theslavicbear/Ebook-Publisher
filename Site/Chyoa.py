@@ -125,7 +125,10 @@ class Chyoa:
             j = 1
             for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
                 if i.get_text().strip() != 'Add a new chapter':
-                    self.temp[0]+='\n<a href="#'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />\n'
+                    if Common.opf == 'epub':
+                        self.temp[0]+='\n<a href="'+str(j)+'.xhtml">'+i.get_text().strip()+'</a>\n<br />\n'
+                    else:
+                        self.temp[0]+='\n<a href="#'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />\n'                        
                     self.AddNextPage(i.get('href'), j)
                     j+=1
             
@@ -230,7 +233,7 @@ class Chyoa:
         temp='<div id="'+str(depth)+'">'+str(temp2)     
         self.questions.append(soup.find_all('h2')[1].get_text())
         temp+='<h2>'+self.questions[-1]+'</h2>\n</div>'
-        print(str(depth))
+        Common.prnt(str(depth))
         j = 1
         
         nextpages=[]
@@ -238,7 +241,10 @@ class Chyoa:
         nextpagesdepth=[]
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
             if i.get_text().strip() != 'Add a new chapter':
-                nextpages.append('<a href="#'+str(depth)+'.'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />')
+                if Common.opf == 'epub':
+                    nextpages.append('<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+i.get_text().strip()+'</a>\n<br />')
+                else:
+                    nextpages.append('<a href="#'+str(depth)+'.'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />')
                 nextpagesurl.append(i)
                 nextpagesdepth.append(j)
                 j+=1
