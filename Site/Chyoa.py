@@ -123,6 +123,7 @@ class Chyoa:
         #Gets here if it's the intro page that is used
         if not self.backwards:
             j = 1
+            self.temp[0]+='\n<br />'
             for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
                 if i.get_text().strip() != 'Add a new chapter':
                     if Common.opf == 'epub':
@@ -239,12 +240,13 @@ class Chyoa:
         nextpages=[]
         nextpagesurl=[]
         nextpagesdepth=[]
+        temp+='<br />'
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
             if i.get_text().strip() != 'Add a new chapter':
                 if Common.opf == 'epub':
-                    nextpages.append('<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+i.get_text().strip()+'</a>\n<br />')
+                    nextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+i.get_text().strip()+'</a>\n<br />')
                 else:
-                    nextpages.append('<a href="#'+str(depth)+'.'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />')
+                    nextpages.append('\n<a href="#'+str(depth)+'.'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />')
                 nextpagesurl.append(i)
                 nextpagesdepth.append(j)
                 j+=1
