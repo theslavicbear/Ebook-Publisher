@@ -92,10 +92,17 @@ def MakeEpub(site):
     if type(site) is not Literotica.Literotica and type(site) is not Nhentai.Nhentai:
         toc=[]
         for i in range(len(site.rawstoryhtml)):
-            c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
-            if type(site) is Nhentai.Nhentai:
+            if type(site) is Chyoa.Chyoa and not site.backwards:
+                if i == 0:
+                    c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
+                else:
+                    c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en'))
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+str(site.rawstoryhtml[i])
+            elif type(site) is Nhentai.Nhentai:
+                c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
                 c[i].content=site.truestoryhttml[i]
             else:
+                c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+str(site.rawstoryhtml[i])
             book.add_item(c[i])
             toc.append(c[i])
