@@ -4,7 +4,7 @@ import sys
 from Site import Common
 from time import sleep
 import threading
-#import queue
+import queue
 
 class Nhentai:
 
@@ -25,7 +25,7 @@ class Nhentai:
         self.hasimages = True
         self.isize=0
         self.duplicate = False
-        #self.q = queue.Queue()
+        self.queue = queue.Queue()
         try:
             page=requests.get(self.url)
         except:
@@ -59,6 +59,10 @@ class Nhentai:
             self.GetURLS(i.get('href'))
             break
         self.AddPage()
+        
+        if Common.opf in ('txt', 'html') and Common.mt:
+            for i in range(0, len(self.images)):
+                self.queue.get()
         
         if self.pbar is not None:
             self.pbar.End()
@@ -97,7 +101,7 @@ class Nhentai:
                 self.truestoryhttml[0]=self.truestoryhttml[0]+'<p><img src="'+zeros+str(num)+'.jpg" /></p>\n'
             if Common.opf in ('txt', 'html'):
                 if Common.mt:
-                    t=threading.Thread(target=Common.imageDL, args=(self.title, thisimage, i, self.isize, self.pbar), daemon=False)
+                    t=threading.Thread(target=Common.imageDL, args=(self.title, thisimage, i, self.isize, self.pbar, self.queue), daemon=False)
                     t.start()
                 else:
                     Common.imageDL(self.title, thisimage, i, self.isize, self.pbar)
