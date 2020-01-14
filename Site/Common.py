@@ -17,7 +17,7 @@ def prnt(out, f=False):
     if not quiet and not f:
         print(out)
 
-def imageDL(title, url, num,  size=0, pbar=None):
+def imageDL(title, url, num,  size=0, pbar=None, queue=None):
     if not os.path.exists(wd+title):
         try:
             os.makedirs(wd+title)
@@ -38,7 +38,8 @@ def imageDL(title, url, num,  size=0, pbar=None):
         myimg.write(GetImage(url))
     if pbar is not None:
         pbar.Update()
-    #queue.put()
+    if queue is not None:
+        queue.put(num)
 
 
 def CheckDuplicate(title):
