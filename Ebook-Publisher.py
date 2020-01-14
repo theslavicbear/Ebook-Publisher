@@ -54,15 +54,31 @@ def MakeHTML(site):
     published.write('<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href='+site.url+'>'+site.url+'</a>\n')
     if type(site) not in (Nhentai.Nhentai, Literotica.Literotica):
         published.write('<h2>Table of Contents</h2>\n')
-        for i in range(len(site.rawstoryhtml)):
-            published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
+        if not type(site) is Chyoa.Chyoa:
+            for i in range(len(site.rawstoryhtml)):
+                published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
+        elif not site.backwards:
+            for i in range(len(site.rawstoryhtml)):
+                if i!=0:
+                    published.write('<p><a href="#'+str(site.depth[i-1])+'">'+site.chapters[i]+'</a></p>\n')
+                else:
+                    published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
+        else:
+            for i in range(len(site.rawstoryhtml)):
+                published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
     for i in range(len(site.rawstoryhtml)):
         if type(site) is Nhentai.Nhentai:
             published.write(site.truestoryhttml[i])
         elif type(site) is Literotica.Literotica:
             published.write(site.storyhtml)
         else:
-            published.write('<h2 id="Chapter '+str(i)+'">\n'+site.chapters[i]+'\n</h2>\n'+str(site.rawstoryhtml[i]))
+            if type(site) is Chyoa.Chyoa and not site.backwards:
+                if i !=0:
+                    published.write('<h2 id = "'+site.depth[i-1]+'">'+site.chapters[i]+'\n</h2>\n'+str(site.rawstoryhtml[i]))
+                else:
+                    published.write('<h2 id="Chapter '+str(i)+'">\n'+site.chapters[i]+'\n</h2>\n'+str(site.rawstoryhtml[i]))
+            else:    
+                published.write('<h2 id="Chapter '+str(i)+'">\n'+site.chapters[i]+'\n</h2>\n'+str(site.rawstoryhtml[i]))
     published.write('</html>')
     
     
@@ -257,4 +273,4 @@ if args.file:
                     formats[ftype](clas)
 
     while threading.active_count()>1:
-        sleep(.01)
+        q.get()
