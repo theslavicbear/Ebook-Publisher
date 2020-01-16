@@ -262,7 +262,7 @@ class Chyoa:
                 
                 
                 if Common.opf == 'epub':
-                    nextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+linkstrip()+'</a>\n<br />')
+                    nextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />')
                 else:
                     nextpages.append('\n<a href="#'+str(depth)+'.'+str(j)+'">'+link.strip()+'</a>\n<br />')
                 nextpagesurl.append(i)
