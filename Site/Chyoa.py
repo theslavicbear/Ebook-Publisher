@@ -128,11 +128,19 @@ class Chyoa:
             j = 1
             self.temp[0]+='\n<br />'
             for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
-                if i.get_text().strip() != 'Add a new chapter':
+                link= i.get_text()
+                if link.strip() != 'Add a new chapter':
+                    
+                    #Band aid fix for replaceable text in the next chapter links
+                    
+                    for l in range(len(self.renames)):
+                        link=link.replace(self.oldnames[l], self.renames[l])
+                    
+                    
                     if Common.opf == 'epub':
-                        self.temp[0]+='\n<a href="'+str(j)+'.xhtml">'+i.get_text().strip()+'</a>\n<br />\n'
+                        self.temp[0]+='\n<a href="'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />\n'
                     else:
-                        self.temp[0]+='\n<a href="#'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />\n'                        
+                        self.temp[0]+='\n<a href="#'+str(j)+'">'+link.strip()+'</a>\n<br />\n'                        
                     self.AddNextPage(i.get('href'), j)
                     j+=1
             
@@ -246,10 +254,17 @@ class Chyoa:
         temp+='<br />'
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
             if i.get_text().strip() != 'Add a new chapter':
+                
+                link = i.get_text()
+                #Band aid fix for replaceable text in the next chapter links
+                for l in range(len(self.renames)):
+                        link=link.replace(self.oldnames[l], self.renames[l])
+                
+                
                 if Common.opf == 'epub':
-                    nextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+i.get_text().strip()+'</a>\n<br />')
+                    nextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+linkstrip()+'</a>\n<br />')
                 else:
-                    nextpages.append('\n<a href="#'+str(depth)+'.'+str(j)+'">'+i.get_text().strip()+'</a>\n<br />')
+                    nextpages.append('\n<a href="#'+str(depth)+'.'+str(j)+'">'+link.strip()+'</a>\n<br />')
                 nextpagesurl.append(i)
                 nextpagesdepth.append(j)
                 j+=1
