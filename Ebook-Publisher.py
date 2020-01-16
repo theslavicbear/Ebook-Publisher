@@ -60,9 +60,9 @@ def MakeHTML(site):
         elif not site.backwards:
             for i in range(len(site.rawstoryhtml)):
                 if i!=0:
-                    published.write('<p><a href="#'+str(site.depth[i-1])+'">'+str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+1))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]+'</a></p>\n')
+                    published.write('<p><a href="#'+str(site.depth[i-1])+'">'+str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]+'</a></p>\n')
                 else:
-                    published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
+                    published.write('<p><a href="#Chapter '+str(i)+'">'+'1.1 '+site.chapters[i]+'</a></p>\n')
         else:
             for i in range(len(site.rawstoryhtml)):
                 published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
