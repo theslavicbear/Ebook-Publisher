@@ -104,8 +104,11 @@ class Chyoa:
         temp=str(soup.find('div', attrs={'class': 'chapter-content'}))
         
         
-        
-        self.questions.insert(0, soup.find_all('h2')[1].get_text())
+        #The second H2 tag may not exist if there is no sub title on a story, so we grab the first in such an event
+        try:
+            self.questions.insert(0, soup.find_all('h2')[1].get_text())
+        except IndexError as IE:
+            self.questions.insert(0, soup.find_all('h2')[0].get_text())
         temp+='<h2>'+self.questions[0]+'</h2>'
         self.temp.insert(0, temp)
         if self.backwards:
