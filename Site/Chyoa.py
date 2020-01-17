@@ -37,6 +37,7 @@ class Chyoa:
         self.duplicate = False
         self.backwards = True
         self.depth = []
+        self.quiet = Common.quiet
         try:
             page=requests.get(self.url)
         except:
@@ -71,6 +72,8 @@ class Chyoa:
         if soup.find('form', attrs={'id':'immersion-form'}) is not None:
             inputs=soup.find('form', attrs={'id': 'immersion-form'}).find_all('input', attrs={'value':''})
             with lock:
+                if Common.mt == True:
+                    Common.quiet = True
                 for i in range(len(inputs)):
                     print(self.title)
                     print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
@@ -82,6 +85,8 @@ class Chyoa:
                     self.oldnames.append(inputs[i].get('placeholder'))
                     if self.renames[i]=='':
                         self.renames[i]=self.oldnames[i]
+            if Common.mt == True:
+                Common.quiet = self.quiet
                 #if q:
                 #    sys.stdout=open(os.devnull, 'w')
         #if args.quiet:
