@@ -52,7 +52,7 @@ class Nhentai:
         self.truestoryhttml.append('')
         self.isize=len(soup.find_all('a', attrs={'rel':'nofollow'}))
 
-        if Common.opf in ('html','txt'):
+        if any(x in ('html', 'HTML', 'txt', 'TXT') for x in Common.opf):
             self.pbar = Common.Progress(self.isize)
         
         for i in soup.find_all('a', attrs={'rel':'nofollow'}):
@@ -60,7 +60,7 @@ class Nhentai:
             break
         self.AddPage()
         
-        if Common.opf in ('txt', 'html') and Common.mt:
+        if any(x in ('txt', 'html', 'TXT', 'HTML') for x in Common.opf) and Common.mt:
             for i in range(0, len(self.images)):
                 self.queue.get()
         
@@ -89,7 +89,7 @@ class Nhentai:
         i = 1
         for thisimage in self.images:      
             #print(thisimage)
-            if Common.opf in ('epub', 'html'):
+            if any(x in ('html', 'HTML', 'epub', 'EPUB') for x in Common.opf):
                 zeros = '0' * (len(str(self.isize))-1)
                 num = i
                 if len(zeros)>1 and num > 9:
@@ -99,7 +99,7 @@ class Nhentai:
                 if num > 99:
                     zeros = ''
                 self.truestoryhttml[0]=self.truestoryhttml[0]+'<p><img src="'+zeros+str(num)+'.jpg" /></p>\n'
-            if Common.opf in ('txt', 'html'):
+            if any(x in ('html', 'HTML', 'txt', 'TXT') for x in Common.opf):
                 if Common.mt:
                     t=threading.Thread(target=Common.imageDL, args=(self.title, thisimage, i, self.isize, self.pbar, self.queue), daemon=False)
                     t.start()

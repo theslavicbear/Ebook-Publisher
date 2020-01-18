@@ -8,7 +8,7 @@ images = False
 
 wd = './'
 
-opf = 'txt'
+opf = ('txt',)
 
 dup = False
 

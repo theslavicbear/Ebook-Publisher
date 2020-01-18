@@ -178,7 +178,8 @@ def MakeClass(url):
     #site=sites[domain](url)
     if args.t:
         if not site.duplicate:
-            formats[ftype](site)
+            for ft in ftype:
+                formats[ft](site)
             q.put(site)
         else:
             return
@@ -196,7 +197,7 @@ def ListURLs(url):
 #setting up commandline argument parser
 parser=argparse.ArgumentParser()
 parser.add_argument('url', help='The URL of the story you want', nargs='*')
-parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub', 'html'], default='txt')
+parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub', 'html', 'TXT', 'EPUB', 'HTML'], default=['txt'] , action='append')
 parser.add_argument('-f','--file', help="Does nothing! Previously denoted the use of a text file containing a list of URLs instead of single URL", action='store_true')
 parser.add_argument('-d','--directory', help="Directory to place output files. Default ./")
 parser.add_argument('-q','--quiet', help="Turns off most terminal output", action='store_true')
@@ -204,6 +205,8 @@ parser.add_argument('-t', help="Turns on multithreading mode. Recommend also ena
 parser.add_argument('-i', '--insert-images', help="Downloads and inserts images for Chyoa stories", action='store_true')
 parser.add_argument('-n', '--no-duplicates', help='Skips stories if they have already been downloaded', action='store_true') 
 args=parser.parse_args()
+
+#print(args.output_type)
 
 if args.quiet:
     Common.quiet=True
@@ -216,7 +219,7 @@ stdin=False
 if not sys.stdin.isatty():
     stdin=True
 elif not args.url:
-    print(args.url)
+    #print(args.url)
     parser.error('No input')
 
 if args.no_duplicates:
@@ -230,7 +233,7 @@ else:
     wd=args.directory
 Common.wd = wd
 
-Common.opf = args.output_type.lower()
+Common.opf = args.output_type
 
 Common.mt = args.t
 
@@ -243,7 +246,7 @@ if not os.path.exists(wd):
 
 
 
-ftype=args.output_type.lower()
+ftype=args.output_type
 q=queue.Queue()
 
 if args.file:
@@ -270,7 +273,8 @@ if args.file:
             clas=MakeClass(i)
             if clas is not None:
                 if not clas.duplicate:
-                    formats[ftype](clas)
+                    for ft in ftype:
+                        formats[ft](clas)
 
     while threading.active_count()>1:
         q.get()
