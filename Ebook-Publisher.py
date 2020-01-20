@@ -32,6 +32,9 @@ formats={
     'epub':lambda x:MakeEpub(x),
     'html':lambda x:MakeHTML(x),
     'txt' :lambda x:MakeText(x),
+    'EPUB':lambda x:MakeEpub(x),
+    'HTML':lambda x:MakeHTML(x),
+    'TXT' :lambda x:MakeText(x),
 }
 
 #function for making text files
@@ -113,7 +116,7 @@ def MakeEpub(site):
                     c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
                 else:
                     c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en'))
-                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+str(site.rawstoryhtml[i])
+                c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+str(site.epubrawstoryhtml[i])
             elif type(site) is Nhentai.Nhentai:
                 c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
                 c[i].content=site.truestoryhttml[i]
@@ -197,7 +200,7 @@ def ListURLs(url):
 #setting up commandline argument parser
 parser=argparse.ArgumentParser()
 parser.add_argument('url', help='The URL of the story you want', nargs='*')
-parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub', 'html', 'TXT', 'EPUB', 'HTML'], default=['txt'] , action='append')
+parser.add_argument('-o','--output-type', help='The file type you want', choices=['txt', 'epub', 'html', 'TXT', 'EPUB', 'HTML'], action='append')
 parser.add_argument('-f','--file', help="Does nothing! Previously denoted the use of a text file containing a list of URLs instead of single URL", action='store_true')
 parser.add_argument('-d','--directory', help="Directory to place output files. Default ./")
 parser.add_argument('-q','--quiet', help="Turns off most terminal output", action='store_true')
@@ -234,6 +237,8 @@ else:
 Common.wd = wd
 
 Common.opf = args.output_type
+if Common.opf == None:
+    Common.opf = ['txt']
 
 Common.mt = args.t
 
@@ -247,7 +252,10 @@ if not os.path.exists(wd):
 
 
 ftype=args.output_type
+if ftype == None:
+    ftype = ['txt']
 q=queue.Queue()
+
 
 if args.file:
     

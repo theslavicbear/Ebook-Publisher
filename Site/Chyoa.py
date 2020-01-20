@@ -22,13 +22,16 @@ class Chyoa:
         self.chapters=[]
         self.story=''
         self.temp=[]
+        self.epubtemp = []
         self.rawstoryhtml=[]
+        self.epubrawstoryhtml = []
         #the question at the end of each page
         self.questions=[]
         self.summary=''
         self.renames=[]
         self.oldnames=[]
         self.truestoryhttml=[]
+        self.epubtruestoryhttml = []
         self.length=1
         self.pbar=None
         self.url=url
@@ -38,6 +41,7 @@ class Chyoa:
         self.backwards = True
         self.depth = []
         self.quiet = Common.quiet
+        self.epubnextpages = []
         try:
             page=requests.get(self.url)
         except:
@@ -132,6 +136,7 @@ class Chyoa:
         if not self.backwards:
             j = 1
             self.temp[0]+='\n<br />'
+            self.epubtemp=self.temp.copy()
             for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
                 link= i.get_text()
                 if link.strip() != 'Add a new chapter':
@@ -142,10 +147,9 @@ class Chyoa:
                         link=link.replace(self.oldnames[l], self.renames[l])
                     
                     
-                    if Common.opf == 'epub':
-                        self.temp[0]+='\n<a href="'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />\n'
-                    else:
-                        self.temp[0]+='\n<a href="#'+str(j)+'">'+link.strip()+'</a>\n<br />\n'                        
+                    if any(x in ('epub', 'EPUB') for x in Common.opf):
+                        self.epubtemp[0]+='\n<a href="'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />\n'
+                    self.temp[0]+='\n<a href="#'+str(j)+'">'+link.strip()+'</a>\n<br />\n'                        
                     self.AddNextPage(i.get('href'), j)
                     j+=1
             
@@ -153,6 +157,7 @@ class Chyoa:
             
         if self.backwards:
             self.pbar.End()
+            self.epubtemp=self.temp.copy()
             
         #band-aid fix for names in chapter titles
         #WARNING DO NOT PUT THIS TO PRODUCTION
@@ -164,9 +169,14 @@ class Chyoa:
             
         #TODO regular expressions go here                    
             
+        
         for i in range(len(self.temp)):
             self.temp[i]='\n<h4>by '+self.authors[i]+'</h4>'+self.temp[i]
+            if any(x in ('epub', 'EPUB') for x in Common.opf):
+                self.epubtemp[i]='\n<h4>by '+self.authors[i]+'</h4>'+self.epubtemp[i]
             self.rawstoryhtml.append(BeautifulSoup(self.temp[i], 'html.parser'))
+            if any(x in ('epub', 'EPUB') for x in Common.opf):
+                self.epubrawstoryhtml.append(BeautifulSoup(self.epubtemp[i], 'html.parser'))
         #print(self.rawstoryhtml[len(self.rawstoryhtml)-1].get_text())
         self.author=self.authors[0]
         #print(self.chapters)
@@ -179,6 +189,12 @@ class Chyoa:
             self.story+=self.chapters[self.rawstoryhtml.index(i)]+i.get_text()
             
             self.truestoryhttml.append(str(i))
+        if any(x in ('epub', 'EPUB') for x in Common.opf): 
+            for i in self.epubrawstoryhtml:
+                for j in range(len(self.renames)):
+                    for l in i.find_all('span', attrs={'class': 'js-immersion-receiver-c'+str(j)}):
+                        l.string=self.renames[j]
+                self.epubtruestoryhttml.append(str(i))
         
         for i in range(len(self.truestoryhttml)):
             self.truestoryhttml[i]=self.truestoryhttml[i].replace('\n  <span', '<span')
@@ -187,13 +203,27 @@ class Chyoa:
                 self.truestoryhttml[i]=self.truestoryhttml[i].replace('\n   '+j+'\n', j)
             self.truestoryhttml[i]=self.truestoryhttml[i].replace('  </span>\n  ', '</span> ')
             
+        if any(x in ('epub', 'EPUB') for x in Common.opf):
+            for i in range(len(self.epubtruestoryhttml)):
+                self.epubtruestoryhttml[i]=self.epubtruestoryhttml[i].replace('\n <span', '<span')
+                self.epubtruestoryhttml[i]=self.epubtruestoryhttml[i].replace('<span', ' <span')
+                for j in self.renames:
+                    self.epubtruestoryhttml[i]=self.epubtruestoryhttml[i].replace('\n   '+j+'\n', j)
+                self.epubtruestoryhttml[i]=self.epubtruestoryhttml[i].replace('  </span>\n  ', '</span> ')
+            
+            
+            
         self.story=self.story.replace('\n', '\n\n')
         
         for i in range(0,len(self.truestoryhttml)):
             self.rawstoryhtml[i]=BeautifulSoup(self.truestoryhttml[i], 'html.parser')
             
         
-        if Common.images and self.hasimages and Common.opf=='html':
+        if any(x in ('epub', 'EPUB') for x in Common.opf):
+            for i in range(0, len(self.epubtruestoryhttml)):
+                self.epubrawstoryhtml[i]=BeautifulSoup(self.epubtruestoryhttml[i], 'html.parser')
+        
+        if Common.images and self.hasimages and any(x in ('html', 'HTML') for x in Common.opf):
             for i in range(0,len(self.images)):
                 Common.imageDL(self.title, self.images[i], i+1, size=len(self.images))
 
@@ -226,7 +256,6 @@ class Chyoa:
                 return
         #gets author name if on last/first page I guess
         self.authors[0]=soup.find_all('a')[5].get_text()
-        #print(self.authors)
         
         
     def AddNextPage(self, url, depth):
@@ -254,9 +283,11 @@ class Chyoa:
         j = 1
         
         nextpages=[]
+        epubnextpages=[]
         nextpagesurl=[]
         nextpagesdepth=[]
         temp+='<br />'
+        epubtemp=temp
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
             if i.get_text().strip() != 'Add a new chapter':
                 
@@ -266,14 +297,19 @@ class Chyoa:
                         link=link.replace(self.oldnames[l], self.renames[l])
                 
                 
-                if Common.opf == 'epub':
-                    nextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />')
-                else:
-                    nextpages.append('\n<a href="#'+str(depth)+'.'+str(j)+'">'+link.strip()+'</a>\n<br />')
+                if any(x in ('epub', 'EPUB') for x in Common.opf):
+                    epubnextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />')
+                nextpages.append('\n<a href="#'+str(depth)+'.'+str(j)+'">'+link.strip()+'</a>\n<br />')
                 nextpagesurl.append(i)
                 nextpagesdepth.append(j)
                 j+=1
-                
+        
+        if any(x in ('epub', 'EPUB') for x in Common.opf):
+            
+            for j in epubnextpages:
+                epubtemp+=j
+            self.epubtemp.append(epubtemp)            
+        
         for j in nextpages:
             temp+=j
         self.temp.append(temp)
@@ -281,6 +317,3 @@ class Chyoa:
             self.AddNextPage(i.get('href'), str(depth)+'.'+str(j))
 
 
-        #gets author name if on last/first page I guess
-        #self.authors[0]=soup.find_all('a')[5].get_text()
-        #print(self.authors)
