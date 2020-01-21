@@ -134,6 +134,18 @@ class Chyoa:
             
         #Gets here if it's the intro page that is used
         if not self.backwards:
+            
+            #Starting the Progress Bar
+            numChaptersTempTemp = soup.find_all('li')
+            for i in numChaptersTempTemp:
+                if i.find('i', attrs={'class':'bt-book-open'}):
+                    numChapters=i.get_text().split()[0]
+            try:
+                self.pbar=Common.Progress(int(numChapters))
+                self.pbar.Update()
+            except:
+                pass
+            
             j = 1
             self.temp[0]+='\n<br />'
             self.epubtemp=self.temp.copy()
@@ -153,10 +165,12 @@ class Chyoa:
                     self.AddNextPage(i.get('href'), j)
                     j+=1
             
-            
-            
-        if self.backwards:
+        try:
             self.pbar.End()
+        except:
+            pass
+        if self.backwards:
+            
             self.epubtemp=self.temp.copy()
             
         #band-aid fix for names in chapter titles
@@ -279,7 +293,7 @@ class Chyoa:
         temp='<div id="'+str(depth)+'">'+str(temp2)     
         self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
         temp+='<h2>'+self.questions[-1]+'</h2>\n</div>'
-        Common.prnt(str(depth))
+        #Common.prnt(str(depth))
         j = 1
         
         nextpages=[]
@@ -313,6 +327,10 @@ class Chyoa:
         for j in nextpages:
             temp+=j
         self.temp.append(temp)
+        try:
+            self.pbar.Update()
+        except:
+            pass
         for i,j in zip(nextpagesurl, nextpagesdepth):
             self.AddNextPage(i.get('href'), str(depth)+'.'+str(j))
 

@@ -63,10 +63,7 @@ def GetImage(url):
         return urllib.request.urlopen(req).read()
 class Progress:
     
-    #toolbar_width=40
     size=0
-    point=0
-    step=0
     
     def __init__(self, size):
         if quiet:
@@ -86,4 +83,3 @@ class Progress:
         if quiet:
             return
         sys.stdout.write('\n')
-
