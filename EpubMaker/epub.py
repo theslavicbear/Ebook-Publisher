@@ -16,6 +16,8 @@ class EpubBook():
         #self.authors = []
         self.toc = []
         self.author = ''
+        #self.hasStyle=False
+        self.styleString = ''
    
     def set_identifier(self, identifier):
         self.identifier=identifier
@@ -32,6 +34,8 @@ class EpubBook():
     def add_author(self, author):
         self.author = author
    
+    def add_style_sheet(self, styleString):
+        self.styleString=styleString
    
    
 class EpubHtml:
@@ -65,7 +69,7 @@ def write_epub(title, book):
         i = 0
         for item in book.item_list:
             if type(item) is not EpubNav and type(item) is not EpubNcx:
-                Zip.writestr('EPUB/'+item.file_name,'<?xml version="1.0" encoding="utf-8"?>\n                                        <!DOCTYPE html>\n                                        <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" epub:prefix="z3998: http://www.daisy.org/z3998/2012/vocab/structure/#" lang="'+item.lang+'" xml:lang="'+item.lang+'">\n                                        <head>\n                                        <title>'+item.title+'</title>\n                                        </head>\n                                        <body>'+item.content+'</body>\n                                        </html>''')
+                Zip.writestr('EPUB/'+item.file_name,'<?xml version="1.0" encoding="utf-8"?>\n                                        <!DOCTYPE html>\n                                        <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" epub:prefix="z3998: http://www.daisy.org/z3998/2012/vocab/structure/#" lang="'+item.lang+'" xml:lang="'+item.lang+'">\n                                        <head>\n                                        <title>'+item.title+'</title>\n                                        <link rel="stylesheet" type="text/css" href="style.css" />\n                                        </head>\n                                        <body>'+item.content+'</body>\n                                        </html>''')
                 opf_content +='<item href="'+item.file_name+'" id="chapter_'+str(i)+'" media-type="application/xhtml+xml"/>\n'
                 i += 1
             elif type(item) is EpubNcx:
@@ -82,9 +86,9 @@ def write_epub(title, book):
             elif type(item) is EpubNav:
                 opf_content += '<item href="nav.xhtml" id="nav" media-type="application/xhtml+xml" properties="nav"/>\n'
                 if not isTOC:
-                    Zip.writestr('EPUB/nav.xhtml', '<?xml version="1.0" encoding="utf-8"?>\n                                <!DOCTYPE html>\n                                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">\n                                <head>\n                                    <title>'+book.title+'</title>\n                                </head>\n                                <body>\n                                    <nav id="id" role="doc-toc" epub:type="toc">\n                                    <h2>'+book.title+'</h2>\n                                    <ol/>\n                                    </nav>\n                                </body>\n                                </html>\n                                ')
+                    Zip.writestr('EPUB/nav.xhtml', '<?xml version="1.0" encoding="utf-8"?>\n                                <!DOCTYPE html>\n                                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">\n                                <head>\n                                    <title>'+book.title+'</title>\n <link rel="stylesheet" type="text/css" href="style.css" />\n                               </head>\n                                <body>\n                                    <nav id="id" role="doc-toc" epub:type="toc">\n                                    <h2>'+book.title+'</h2>\n                                    <ol/>\n                                    </nav>\n                                </body>\n                                </html>\n                                ')
                 elif isTOC:
-                    navstring = '<?xml version="1.0" encoding="utf-8"?>\n                                <!DOCTYPE html>\n                                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">\n                                <head>\n                                    <title>'+book.title+'</title>\n                                </head>\n                                <body>\n                                    <nav id="id" role="doc-toc" epub:type="toc">\n                                    <h2>'+book.title+'</h2>\n                                    <ol>\n'
+                    navstring = '<?xml version="1.0" encoding="utf-8"?>\n                                <!DOCTYPE html>\n                                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">\n                                <head>\n                                    <title>'+book.title+'</title>\n  <link rel="stylesheet" type="text/css" href="style.css" />\n                              </head>\n                                <body>\n                                    <nav id="id" role="doc-toc" epub:type="toc">\n                                    <h2>'+book.title+'</h2>\n                                    <ol>\n'
                     for item in book.toc:
                         navstring += '<li>\n<a href="'+item.file_name+'">'+item.title+'</a>\n</li>\n'
                     navstring += '</ol>\n</nav>\n</body>\n</html>'
@@ -99,7 +103,8 @@ def write_epub(title, book):
                 opf_content += '<itemref idref="chapter_'+str(i)+'"/>\n'
                 i+=1
         opf_content += '</spine>\n</package>'
+        Zip.writestr('EPUB/style.css', book.styleString)
         Zip.writestr('EPUB/content.opf', opf_content)
         
 if __name__ == '__main__':
-    pass
+    print('You have mistakenly run this file, epub.py. It is not meant to be run. It must be impported by another python file (or an implementation can be added to this __main__ section).')

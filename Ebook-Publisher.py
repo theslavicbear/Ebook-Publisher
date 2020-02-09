@@ -53,6 +53,7 @@ def MakeHTML(site):
         published=open(wd+site.title+'.html', 'w')
     published.write('<!DOCTYPE html>\n')
     published.write('<html lang="en">\n')
+    published.write('<style>\n'+styleSheet+'\n</style>')
     published.write('<head>\n<title>'+site.title+' by '+site.author+'</title>\n</head>\n')
     published.write('<h1>'+site.title+'</h1><h3>by '+site.author+'</h3><br /><a href='+site.url+'>'+site.url+'</a>\n')
     if type(site) not in (Nhentai.Nhentai, Literotica.Literotica):
@@ -106,6 +107,7 @@ def MakeEpub(site):
     book.set_title(site.title)
     book.set_language('en')
     book.add_author(site.author)
+    book.add_style_sheet(styleSheet)
     c=[]
 
     if type(site) is not Literotica.Literotica and type(site) is not Nhentai.Nhentai:
@@ -195,6 +197,12 @@ def ListURLs(url):
             return fi.read().splitlines()
     else:
         return (url,)
+def getCSS():
+    if os.path.isfile(os.path.join(cwd,args.css)):
+        with open(cwd+'/'+args.css, 'r') as fi:
+            return fi.read()
+    else:
+        return args.css
 
 
 #setting up commandline argument parser
@@ -207,6 +215,7 @@ parser.add_argument('-q','--quiet', help="Turns off most terminal output", actio
 parser.add_argument('-t', help="Turns on multithreading mode. Recommend also enabling --quiet", action='store_true')
 parser.add_argument('-i', '--insert-images', help="Downloads and inserts images for Chyoa stories", action='store_true')
 parser.add_argument('-n', '--no-duplicates', help='Skips stories if they have already been downloaded', action='store_true') 
+parser.add_argument('-s', '--css', '--style-sheet', help='either a CSS string or a .css file to use for formatting', default='')
 args=parser.parse_args()
 
 #print(args.output_type)
@@ -249,7 +258,7 @@ if not os.path.exists(wd):
     os.makedirs(wd)
     
 
-
+styleSheet=getCSS()
 
 ftype=args.output_type
 if ftype == None:
