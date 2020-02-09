@@ -1,6 +1,6 @@
 from zipfile import ZipFile
 #import datetime
-version = 'Epub-Maker 0.1'
+version = 'Epub-Maker 0.2'
 MIMETYPE = 'application/epub+zip'
 container = '''<container xmlns="urn:oasis:names:tc:opendocument:xmlns:container" version="1.0">
 <rootfiles>
