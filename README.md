@@ -43,7 +43,6 @@ optional arguments:
   -h, --help            show this help message and exit
   -o {txt,epub}, --output-type {txt,epub}
                         The file type you want
-  -f, --file            Use text file containing a list of URLs instead of
                         single URL
   -d DIRECTORY, --directory DIRECTORY
                         Directory to place output files. Default ./
@@ -52,6 +51,10 @@ optional arguments:
                         --quiet
   -i, --insert-images   Downloads and inserts images for Chyoa stories
   -n, --no-duplicates   Skips stories if they have already been downloaded
+  -s CSS, --css CSS, --style-sheet CSS
+                        either a CSS string or a .css file to use for
+                        formatting
+
 ```  
 
                         
