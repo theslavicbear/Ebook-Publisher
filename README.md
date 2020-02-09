@@ -10,14 +10,14 @@ Ebook-Publisher is my pet project, and the project that I currently have spent t
 * fictionpress.com
 * literotica.com
 * classicreader.com
-* chyoa.com ~~(rudimentary support: Input the last page you wish to include, and the code will work backwards towards the beginning of the story. You will be asked to input customizable names if they are found)~~ You can now either input the first page of a story, and Ebook-Publisher will grab the whole story, or input the last page you want included and Ebook-Publisher will work backwards and grab the story from the beginning to your input page. You will be asked for customizable names, etc. before the story is grabbed.
+* chyoa.com (You may either input the first page of a story, and Ebook-Publisher will grab the whole story, or input the last page you want included and Ebook-Publisher will work backwards and grab the story from the beginning to your input page. You will be asked for customizable names, etc. before the story is grabbed.)
 * wattpad.com
-* nhentai.net (alpha support):  ~~Seems to have issues with multithreading multiple nhentai galleries.~~  **Multithreading now works for default gallery downloads!** Also may have issues with your epub reader if you grabbed it in epub format (i.e. low quality images in Okular)
+* nhentai.net (Either grabs every image and dumps in a folder for TXT and HTML (HTML adds an HTML file for easy reading via web browser), or tries to add every image to an EPUB file)
   
 ## Currently supported file types:
 * plain text files
 * epub ebook files
-* html files (For nhentai galleries, it will have the same output as with default/.txt output, but with an html file in the folder that easily allows viewing the gallery via a web browser)
+* html files
   
 Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! 
 
@@ -25,8 +25,6 @@ Want more sites supported? Open an Issue and ask for its support or add support 
 
 Ebook-Publisher requires the following:
 * Python3
-
-As of Release 2.0, Ebook-Publisher should not require any external libraries, other than python3. Everything needed is either included in the repository or in python3's standard library.
 
 On the small amount of testing I have done under Windows 8.1, I did need to install the requests package, which only reqired a quick `C:\Python34\Scripts\pip.exe install requests` From there, if you do not have the python3 executable on your PATH, you can run like `C:\Python34\python.exe C:\Path\To\Ebook-Publisher.py` Obviously, use the folder name of your installed version of python3. 
 
