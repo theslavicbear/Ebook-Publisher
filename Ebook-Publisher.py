@@ -107,6 +107,7 @@ def MakeEpub(site):
     book.set_title(site.title)
     book.set_language('en')
     book.add_author(site.author)
+    book.add_style_sheet(styleSheet)
     c=[]
 
     if type(site) is not Literotica.Literotica and type(site) is not Nhentai.Nhentai:
