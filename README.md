@@ -13,14 +13,17 @@ Ebook-Publisher is my pet project, and the project that I currently have spent t
 * chyoa.com (You may either input the first page of a story, and Ebook-Publisher will grab the whole story, or input the last page you want included and Ebook-Publisher will work backwards and grab the story from the beginning to your input page. You will be asked for customizable names, etc. before the story is grabbed.)
 * wattpad.com
 * nhentai.net (Either grabs every image and dumps in a folder for TXT and HTML (HTML adds an HTML file for easy reading via web browser), or tries to add every image to an EPUB file)
+
+Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! 
+
   
 ## Currently supported file types:
 * plain text files
 * epub ebook files
 * html files
   
-Want more sites supported? Open an Issue and ask for its support or add support for the site yourself! 
-
+Want more formats supported? Open an Issue or try using a tool like Pandoc to convert one of the already supported file types.
+ 
 ## Usage:
 
 Ebook-Publisher requires the following:
