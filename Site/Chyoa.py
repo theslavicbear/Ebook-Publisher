@@ -143,6 +143,8 @@ class Chyoa:
             for i in numChaptersTempTemp:
                 if i.find('i', attrs={'class':'bt-book-open'}):
                     numChapters=i.get_text().split()[0]
+                    #Removes commas from stories with over 999 pages
+                    numChapters=numChapters.replace(',','')
             try:
                 if not Common.mt:
                     self.pbar=Common.Progress(int(numChapters))
