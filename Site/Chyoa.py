@@ -6,7 +6,8 @@ from Site import Common
 import os
 import time
 from threading import Lock
-
+import threading
+import queue
 lock = Lock()
 
 class Chyoa:
@@ -134,6 +135,8 @@ class Chyoa:
             
         #Gets here if it's the intro page that is used
         if not self.backwards:
+            self.Pages=[]
+            urls=[]
             
             #Starting the Progress Bar
             numChaptersTempTemp = soup.find_all('li')
@@ -141,10 +144,13 @@ class Chyoa:
                 if i.find('i', attrs={'class':'bt-book-open'}):
                     numChapters=i.get_text().split()[0]
             try:
-                self.pbar=Common.Progress(int(numChapters))
-                self.pbar.Update()
+                if not Common.mt:
+                    self.pbar=Common.Progress(int(numChapters))
+                    self.pbar.Update()
             except:
                 pass
+            
+            q=queue.Queue()
             
             j = 1
             self.temp[0]+='\n<br />'
@@ -161,9 +167,26 @@ class Chyoa:
                     
                     if any(x in ('epub', 'EPUB') for x in Common.opf):
                         self.epubtemp[0]+='\n<a href="'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />\n'
-                    self.temp[0]+='\n<a href="#'+str(j)+'">'+link.strip()+'</a>\n<br />\n'                        
-                    self.AddNextPage(i.get('href'), j)
+                    self.temp[0]+='\n<a href="#'+str(j)+'">'+link.strip()+'</a>\n<br />\n'    
+                    
+                    urls.append(i.get('href'))
                     j+=1
+            self.Pages.extend(urls)
+            j=1
+            for u in urls:
+                if Common.mt:
+                    threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames, q), daemon=True).start()
+                else:
+                    self.AddNextPage(url, j)
+                j+=1
+            if Common.mt:
+                i = int(numChapters)-1
+                while i >0:
+                    q.get()
+                    i-=1
+                for page in self.Pages:
+                    self.addPage(page)
+                
             
         try:
             self.pbar.End()
@@ -333,5 +356,112 @@ class Chyoa:
             pass
         for i,j in zip(nextpagesurl, nextpagesdepth):
             self.AddNextPage(i.get('href'), str(depth)+'.'+str(j))
+        
+    def ThreadAdd(self, url, depth, renames, oldnames, q):
+        self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, q))
+    
+    def addPage(self, page):
+        self.depth.append(page.depth)
+        self.authors.append(page.author)
+        self.chapters.append(page.chapter)
+        self.images.extend(page.images)
+        if page.hasimages:
+            self.hasimages=True
+        self.questions.append(page.questions)
+        self.epubtemp.extend(page.epubtemp)
+        self.temp.extend(page.temp)
+        
+        if page.children !=[]:
+            for child in page.children:
+                self.addPage(child)
+        
+class Page:
+    
+    def __init__(self, url, depth, renames, oldnames, q):
+        self.children=[]
+        self.depth=str(depth)
+        self.author=''
+        self.chapter=''
+        self.images=[]
+        self.hasimages=False
+        self.questions=[]
+        self.epubtemp=[]
+        self.temp=[]
+        self.renames = renames
+        self.oldnames = oldnames
+        self.q=q
+        
+        self.AddNextPage(url, depth)
+        self.q.put(self)
+                
+    
+    def AddNextPage(self, url, depth):
+        try:
+            page=requests.get(url)
+        except:
+            print('Error accessing website: try checking internet connection and url')
+        soup=BeautifulSoup(page.content, 'html.parser')
+        self.author=(soup.find_all('a')[7].get_text())
+        self.chapter=(soup.find('h1').get_text())
+        
+        if Common.images:
+            if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
+                for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
+                    self.images.append(simg.get('src'))
+                    simg['src']='img'+str(len(self.images))+'.jpg'
+                    self.hasimages = True
+        
+        temp2 = soup.find('div', attrs={'class': 'chapter-content'})
+        #self.depth+=(str(depth))
+        Common.prnt(str(depth))
+        temp='<div id="'+str(depth)+'">'+str(temp2)     
+        self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
+        temp+='<h2>'+self.questions[-1]+'</h2>\n</div>'
+        #Common.prnt(str(depth))
+        j = 1
+        
+        nextpages=[]
+        epubnextpages=[]
+        nextpagesurl=[]
+        nextpagesdepth=[]
+        urls=[]
+        temp+='<br />'
+        epubtemp=temp
+        for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
+            if i.get_text().strip() != 'Add a new chapter':
+                
+                link = i.get_text()
+                #Band aid fix for replaceable text in the next chapter links
+                for l in range(len(self.renames)):
+                        link=link.replace(self.oldnames[l], self.renames[l])
+                
+                
+                if any(x in ('epub', 'EPUB') for x in Common.opf):
+                    epubnextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />')
+                nextpages.append('\n<a href="#'+str(depth)+'.'+str(j)+'">'+link.strip()+'</a>\n<br />')
+                nextpagesurl.append(i)
+                urls.append(i.get('href'))
+                nextpagesdepth.append(j)
+                j+=1
+        
+        if any(x in ('epub', 'EPUB') for x in Common.opf):
+            
+            for j in epubnextpages:
+                epubtemp+=j
+            self.epubtemp.append(epubtemp)            
+        
+        for j in nextpages:
+            temp+=j
+        self.temp.append(temp)
+        try:
+            self.pbar.Update()
+        except:
+            pass
+        
+        self.children.extend(urls)
+        for i,j in zip(nextpagesurl, nextpagesdepth):
+            threading.Thread(target=self.ThreadAdd, args=(i.get('href'), str(depth)+'.'+str(j), self.renames, self.oldnames), daemon=True).start()
+    def ThreadAdd(self, url, depth, renames, oldnames):
+        self.children[self.children.index(url)]=(self.__class__(url, depth, renames, oldnames, self.q))
 
 
