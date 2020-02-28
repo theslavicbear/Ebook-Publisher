@@ -280,7 +280,7 @@ if args.file:
     #the multithreaded variant
     if args.t:
         lock = threading.Lock()
-        threads = 0
+        threads = len(urls)
         for i in urls:
             t=threading.Thread(target=MakeClass, args=(i,), daemon=False)
             t.start()
@@ -293,5 +293,6 @@ if args.file:
                     for ft in ftype:
                         formats[ft](clas)
 
-    while threading.active_count()>1:
+    while threads>1:
         q.get()
+        threads-=1
