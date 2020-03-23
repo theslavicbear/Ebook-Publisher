@@ -277,6 +277,7 @@ if args.file:
         stdinput=sys.stdin.read()
         urls=stdinput.split()
 
+    threads=0
     #the multithreaded variant
     if args.t:
         lock = threading.Lock()
