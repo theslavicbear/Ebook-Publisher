@@ -152,8 +152,9 @@ class Chyoa:
             except:
                 pass
             
-            q=queue.Queue()
-            
+            self.q=queue.Queue()
+            print(threading.active_count())
+
             j = 1
             self.temp[0]+='\n<br />'
             self.epubtemp=self.temp.copy()
@@ -177,15 +178,18 @@ class Chyoa:
             j=1
             for u in urls:
                 if Common.mt:
-                    threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames, q), daemon=True).start()
+                    threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames), daemon=True).start()
                 else:
                     self.AddNextPage(url, j)
                 j+=1
             if Common.mt:
                 i = int(numChapters)-1
+                print("Pages to add: "+str(i))
                 while i >0:
-                    q.get()
+                    #print(str(i))
+                    self.q.get()
                     i-=1
+                #print(threading.active_count())
                 for page in self.Pages:
                     self.addPage(page)
                 
@@ -359,11 +363,19 @@ class Chyoa:
         for i,j in zip(nextpagesurl, nextpagesdepth):
             self.AddNextPage(i.get('href'), str(depth)+'.'+str(j))
         
-    def ThreadAdd(self, url, depth, renames, oldnames, q):
-        self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, q))
+    def ThreadAdd(self, url, depth, renames, oldnames):
+        if self.Pages.count(url)>1:
+            print("found issue at" + str(url))
+        self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, self.q))
     
     def addPage(self, page):
+        #print('adding page: '+str(page))
+        #while isinstance(page, str):
+            #self.q.get()
+        #try:
         self.depth.append(page.depth)
+        #except AttributeError as E:
+            #print(page)
         self.authors.append(page.author)
         self.chapters.append(page.chapter)
         self.images.extend(page.images)
@@ -374,8 +386,15 @@ class Chyoa:
         self.temp.extend(page.temp)
         
         if page.children !=[]:
-            for child in page.children:
-                self.addPage(child)
+            for zzz in range(0, len(page.children)):
+                #try:
+                while isinstance(page.children[zzz], str):
+                    self.q.get()
+                    #print('waiting for thread to finish')
+
+                self.addPage(page.children[zzz])
+                #except AttributeError as E:
+                    #print('Error after '+ str(self.depth))
         
 class Page:
     
@@ -394,10 +413,11 @@ class Page:
         self.q=q
         
         self.AddNextPage(url, depth)
-        self.q.put(self)
-                
+        self.q.put(self, False)
+
     
     def AddNextPage(self, url, depth):
+        #print(url)
         try:
             page=requests.get(url)
         except:
@@ -464,6 +484,8 @@ class Page:
         for i,j in zip(nextpagesurl, nextpagesdepth):
             threading.Thread(target=self.ThreadAdd, args=(i.get('href'), str(depth)+'.'+str(j), self.renames, self.oldnames), daemon=True).start()
     def ThreadAdd(self, url, depth, renames, oldnames):
+        #if self.children.count(url)>1:
+            #print("found issue at" + str(url))
         self.children[self.children.index(url)]=(self.__class__(url, depth, renames, oldnames, self.q))
 
 
