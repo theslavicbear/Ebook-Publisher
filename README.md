@@ -31,20 +31,20 @@ Ebook-Publisher requires the following:
 
 On the small amount of testing I have done under Windows 8.1, I did need to install the requests package, which only reqired a quick `C:\Python34\Scripts\pip.exe install requests` From there, if you do not have the python3 executable on your PATH, you can run like `C:\Python34\python.exe C:\Path\To\Ebook-Publisher.py` Obviously, use the folder name of your installed version of python3. 
 
-To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py and the URL for the story you want. The URL can either be the link to a story on a supported webpage, or a text file containing a list of webpage URLs. You do not need to distinguish between the two. You can add several other arguments. Try `python3 Ebook-Publisher.py --help` for the detailed readout, or see below:
+To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py and the URL for the story you want. The URL can either be one or more links to a story on a supported webpage, or one or more text files containing a list of webpage URLs. You do not need to distinguish between the two. You can add several other arguments. Try `python3 Ebook-Publisher.py --help` for the detailed readout, or see below:
 
 ```
-usage: ebook-publisher [-h] [-o {txt,epub}] [-f] [-d DIRECTORY] [-q] [-t] [-i]
-                       [url]
+usage: ebook-publisher [-h] [-o {txt,epub,html,TXT,EPUB,HTML}] [-d DIRECTORY]
+                       [-q] [-t] [-i] [-n] [-s CSS]
+                       [url [url ...]]
 
 positional arguments:
   url                   The URL of the story you want
 
 optional arguments:
   -h, --help            show this help message and exit
-  -o {txt,epub}, --output-type {txt,epub}
+  -o {txt,epub,html,TXT,EPUB,HTML}, --output-type {txt,epub,html,TXT,EPUB,HTML}
                         The file type you want
-                        single URL
   -d DIRECTORY, --directory DIRECTORY
                         Directory to place output files. Default ./
   -q, --quiet           Turns off most terminal output
