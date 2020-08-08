@@ -1,4 +1,4 @@
-import sys, urllib, os
+import sys, urllib, os, requests
 
 #Module contains common functions needed by sites
 
@@ -83,3 +83,26 @@ class Progress:
         if quiet:
             return
         sys.stdout.write('\n')
+
+def RequestSend(url, headers=None):
+    if headers is None:
+        response = requests.get(url)
+    else:
+        response = requests.get(url, headers=headers)
+    return response
+
+def RequestPage(url, headers=None):
+    response = RequestSend(url, headers)
+    
+    attempts = 0
+    while response.status_code != 200 and attempts < 4:
+            response = RequestSend(url, headers)
+            attempts +=1
+    if attempts => 5:
+        print("Server returned status code: " + response.status_code)
+        return None
+    return response
+    
+        
+        
+        

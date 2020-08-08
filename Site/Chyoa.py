@@ -43,10 +43,13 @@ class Chyoa:
         self.depth = []
         self.quiet = Common.quiet
         self.epubnextpages = []
-        try:
-            page=requests.get(self.url)
-        except:
-            print('Error accessing website: try checking internet connection and url')
+        
+        page = Common.RequestPage(url)
+        
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+        
         soup=BeautifulSoup(page.content, 'html.parser')
         self.title=soup.find('h3').get_text()
         if self.title=='Log In':
@@ -272,10 +275,12 @@ class Chyoa:
 
                 
     def AddPrevPage(self, url):
-        try:
-            page=requests.get(url)
-        except:
-            print('Error accessing website: try checking internet connection and url')
+        page = Common.RequestPage(url)
+        
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None            
+
         soup=BeautifulSoup(page.content, 'html.parser')
         self.authors.insert(0,soup.find_all('a')[7].get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
@@ -302,10 +307,12 @@ class Chyoa:
         
         
     def AddNextPage(self, url, depth):
-        try:
-            page=requests.get(url)
-        except:
-            print('Error accessing website: try checking internet connection and url')
+        page = Common.RequestPage(url)
+
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+
         soup=BeautifulSoup(page.content, 'html.parser')
         self.authors.append(soup.find_all('a')[7].get_text())
         self.chapters.append(soup.find('h1').get_text())
@@ -418,10 +425,12 @@ class Page:
     
     def AddNextPage(self, url, depth):
         #print(url)
-        try:
-            page=requests.get(url)
-        except:
-            print('Error accessing website: try checking internet connection and url')
+        page = Common.RequestPage(url)
+        
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+
         soup=BeautifulSoup(page.content, 'html.parser')
         self.author=(soup.find_all('a')[7].get_text())
         self.chapter=(soup.find('h1').get_text())
