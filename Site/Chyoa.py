@@ -156,7 +156,7 @@ class Chyoa:
                 pass
             
             self.q=queue.Queue()
-            print(threading.active_count())
+            #print(threading.active_count())
 
             j = 1
             self.temp[0]+='\n<br />'
@@ -181,9 +181,10 @@ class Chyoa:
             j=1
             for u in urls:
                 if Common.mt:
-                    threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames), daemon=True).start()
+                    chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
+                    threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames, chapNum), daemon=True).start()
                 else:
-                    self.AddNextPage(url, j)
+                    self.AddNextPage(u, j)
                 j+=1
             if Common.mt:
                 i = int(numChapters)-1
@@ -306,7 +307,7 @@ class Chyoa:
         self.authors[0]=soup.find_all('a')[5].get_text()
         
         
-    def AddNextPage(self, url, depth):
+    def AddNextPage(self, url, depth, prevChapNum=1):
         page = Common.RequestPage(url)
 
         if page is None:
@@ -367,13 +368,21 @@ class Chyoa:
             self.pbar.Update()
         except:
             pass
-        for i,j in zip(nextpagesurl, nextpagesdepth):
-            self.AddNextPage(i.get('href'), str(depth)+'.'+str(j))
         
-    def ThreadAdd(self, url, depth, renames, oldnames):
+        #Checks if new page was a link backwards and exits if so
+        chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
+        
+        if prevChapNum >= chapNum:
+            return None
+        
+        for i,j in zip(nextpagesurl, nextpagesdepth):
+            self.AddNextPage(i.get('href'), str(depth)+'.'+str(j), chapNum)
+        
+    def ThreadAdd(self, url, depth, renames, oldnames, chapNum):
         if self.Pages.count(url)>1:
             print("found issue at" + str(url))
-        self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, self.q))
+            return None
+        self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, self.q, chapNum))
     
     def addPage(self, page):
         #print('adding page: '+str(page))
@@ -405,7 +414,7 @@ class Chyoa:
         
 class Page:
     
-    def __init__(self, url, depth, renames, oldnames, q):
+    def __init__(self, url, depth, renames, oldnames, q, prevChapNum):
         self.children=[]
         self.depth=str(depth)
         self.author=''
@@ -418,6 +427,8 @@ class Page:
         self.renames = renames
         self.oldnames = oldnames
         self.q=q
+        self.chapNum=0
+        self.prevChapNum=prevChapNum
         
         self.AddNextPage(url, depth)
         self.q.put(self, False)
@@ -434,6 +445,7 @@ class Page:
         soup=BeautifulSoup(page.content, 'html.parser')
         self.author=(soup.find_all('a')[7].get_text())
         self.chapter=(soup.find('h1').get_text())
+        
         
         if Common.images:
             if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
@@ -489,12 +501,19 @@ class Page:
         except:
             pass
         
+        
+        #Checks if new page was a link backwards and exits if so
+        self.chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
+        
+        if self.prevChapNum >= self.chapNum:
+            return None
+        
         self.children.extend(urls)
         for i,j in zip(nextpagesurl, nextpagesdepth):
             threading.Thread(target=self.ThreadAdd, args=(i.get('href'), str(depth)+'.'+str(j), self.renames, self.oldnames), daemon=True).start()
     def ThreadAdd(self, url, depth, renames, oldnames):
         #if self.children.count(url)>1:
             #print("found issue at" + str(url))
-        self.children[self.children.index(url)]=(self.__class__(url, depth, renames, oldnames, self.q))
+        self.children[self.children.index(url)]=(self.__class__(url, depth, renames, oldnames, self.q, self.chapNum))
 
 
