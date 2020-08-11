@@ -1,4 +1,4 @@
-import sys, urllib, os, requests
+import sys, urllib, os, requests, time
 
 #Module contains common functions needed by sites
 
@@ -61,6 +61,7 @@ def GetImage(url):
         elif url[-4:]=='.png':
             req = urllib.request.Request(url[:-4]+'.jpg', headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         return urllib.request.urlopen(req).read()
+    
 class Progress:
     
     size=0
@@ -93,13 +94,13 @@ def RequestSend(url, headers=None):
 
 def RequestPage(url, headers=None):
     response = RequestSend(url, headers)
-    
     attempts = 0
     while response.status_code != 200 and attempts < 4:
+            time.sleep(2)
             response = RequestSend(url, headers)
             attempts +=1
-    if attempts => 5:
-        print("Server returned status code: " + response.status_code)
+    if attempts >= 4:
+        print("Server returned status code " + str(response.status_code) +' for page: ' +url)
         return None
     return response
     
