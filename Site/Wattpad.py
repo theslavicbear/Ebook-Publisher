@@ -10,7 +10,7 @@ class Wattpad:
         headerlist=['Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0','Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/41.0','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586','Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36']
         
         header={'user-agent':headerlist[randint(0,len(headerlist)-1)]}
-        return requests.get(url, headers=header)
+        return Common.RequestPage(url, headers=header)
     
     def __init__(self, url):
         self.title=''

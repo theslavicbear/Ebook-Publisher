@@ -13,11 +13,12 @@ class Literotica:
         self.storyhtml=''
         self.url=url
         self.duplicate = False
-        try:
-            page=requests.get(self.url)
-        except:
-            print('Error accessing website: try checking internet connection and url')
-            sys.exit()
+        page = Common.RequestPage(url)
+        
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+        
         #while page.status_code!=200:
             #print("Error getting page, trying again: status code: "+str(page.status_code))
             #time.sleep(5)
@@ -46,11 +47,12 @@ class Literotica:
     #TODO Clean up this mess a bit
     def AddNextPage(self, soup):
         nexturl=soup.find('a', attrs={'class': 'b-pager-next'}).get('href')
-        try:
-            page=requests.get(nexturl)
-        except:
-            print('Error accessing website: try checking internet connection and url')
-            #sys.exit()
+        page = Common.RequestPage(nexturl)
+        
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+        
         soup=BeautifulSoup(page.content, 'html.parser')
         self.rawstoryhtml.append(soup.find('div', attrs={'class': 'b-story-body-x x-r15'}))
         self.story+=soup.find('div', attrs={'class': 'b-story-body-x x-r15'}).text.strip()

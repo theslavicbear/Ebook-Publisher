@@ -14,11 +14,11 @@ class Classicreader:
         self.pbar=None
         self.url=url
         self.duplicate = False
-        try:
-            page=requests.get(self.url)
-        except:
-            print('Error accessing website: try checking internet connection and url')
-            sys.exit()
+        page=Common.RequestPage(url)
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+        
         soup=BeautifulSoup(page.content, 'html.parser')
         #grabs important metadata information
         self.title=soup.find('span', attrs={'class': 'book-header'}).get_text()
@@ -84,7 +84,12 @@ class Classicreader:
         #print(self.chapters)
             
     def AddNextPage(self, link):
-        page=requests.get(link)
+        page=Common.RequestPage(link)
+        
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+        
         soup=BeautifulSoup(page.content, 'html.parser')
         paragraphs=soup.find_all('p')
         #print(paragraphs)

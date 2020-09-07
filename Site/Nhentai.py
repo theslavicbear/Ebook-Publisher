@@ -26,12 +26,14 @@ class Nhentai:
         self.isize=0
         self.duplicate = False
         self.queue = queue.Queue()
-        try:
-            page=requests.get(self.url)
-        except:
-            print('Error accessing website: try checking internet connection and url')
-        soup=BeautifulSoup(page.content, 'html.parser')
         
+        page = Common.RequestPage(url)
+        
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+        
+        soup=BeautifulSoup(page.content, 'html.parser')
         self.title = soup.find('meta', attrs={'itemprop':'name'}).get('content')
         
         if Common.dup:
@@ -69,10 +71,12 @@ class Nhentai:
             
             
     def GetURLS(self, url):
-        try:
-            page=requests.get('https://nhentai.net'+url.rstrip(), headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
-        except:
-            print('Error accessing website: try checking internet connection and url')
+        page=Common.RequestPage('https://nhentai.net'+url.rstrip(), headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+
         soup=BeautifulSoup(page.content, 'html.parser')
         try:
             thisimage=soup.find('section', attrs={'id':'image-container'}).find('img').get('src')

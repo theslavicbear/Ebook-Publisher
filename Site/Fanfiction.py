@@ -29,11 +29,12 @@ class Fanfiction:
         self.url=url
         self.duplicate = False
         
-        try:
-            page=requests.get(self.url)
-        except:
-            print('Error accessing website: try checking internet connection and url')
-            sys.exit()
+        page = Common.RequestPage(url)
+        
+        if page is None:
+            print('Could not complete request for page: ' + url)
+            return None
+        
         soup=BeautifulSoup(page.content, 'html.parser')
         self.rawstoryhtml[0]=soup.find('div', attrs={'id': 'storytext'})
         #self.chapters=soup.find_all('option', attrs={'selected':''})
@@ -99,7 +100,7 @@ class Fanfiction:
                     self.storyhtml+=j
         #print(self.storyhtml)
         self.story=self.storyhtml
-        self.story=BeautifulSoup(self.story, 'lxml').text
+        self.story=BeautifulSoup(self.story, 'html.parser').text
         self.story=re.sub(r'\n\s*\n', r'\n\n', self.story, flags=re.M)
         #print(self.chapters)
         
@@ -112,11 +113,12 @@ class Fanfiction:
                 else:
                     nexturl='https://www.fictionpress.com'+rawnexturl[15:-1]
                 #print(nexturl)
-                try:
-                    page=requests.get(nexturl)
-                except:
-                    print('Error accessing website: try checking internet connection and url')
-                    sys.exit()
+                page = Common.RequestPage(nexturl)
+                
+                if page is None:
+                    print('Could not complete request for page: ' + url)
+                    return None
+        
                 soup=BeautifulSoup(page.content, 'html.parser')
                 self.rawstoryhtml.append(soup.find('div', attrs={'id': 'storytext'}))
                 self.pbar.Update()
