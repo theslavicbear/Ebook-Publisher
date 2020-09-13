@@ -27,6 +27,7 @@ sites={
     'chyoa.com':lambda x:Chyoa.Chyoa(x),
     'www.wattpad.com':lambda x:Wattpad.Wattpad(x),
     'nhentai.net':lambda x:Nhentai.Nhentai(x),
+    #'e-hentai.org':lambda x:Ehentai.Ehentai(x),
 }
 formats={
     'epub':lambda x:MakeEpub(x),
@@ -150,12 +151,12 @@ def MakeEpub(site):
         book.spine.append(i)
     epub.write_epub(wd+site.title+'.epub', book)
     
-    if type(site) is Chyoa.Chyoa or type(site) is Nhentai.Nhentai:
+    if type(site) is Nhentai.Nhentai:
         if site.hasimages == True:
             with ZipFile(wd+site.title+'.epub', 'a') as myfile:
                 i=1
                 for url in site.images:
-                    zeros = '0' * (len(str(site.isize))-1)
+                    zeros = '0' * (len(str(len(site.images)))-1)
                     if len(zeros)>1 and i > 9:
                         zeros='0'
                     elif len(zeros)==1 and i > 9:
@@ -163,6 +164,14 @@ def MakeEpub(site):
                     if i > 99:
                         zeros = ''
                     with myfile.open('EPUB/'+zeros+str(i)+'.jpg', 'w') as myimg:
+                        myimg.write(Common.GetImage(url))
+                    i=i+1
+    elif type(site) is Chyoa.Chyoa:
+        if site.hasimages == True:
+            with ZipFile(wd+site.title+'.epub', 'a') as myfile:
+                i=1
+                for url in site.images:
+                    with myfile.open('EPUB/img'+str(i)+'.jpg', 'w') as myimg:
                         myimg.write(Common.GetImage(url))
                     i=i+1
     
