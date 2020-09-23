@@ -27,7 +27,6 @@ sites={
     'chyoa.com':lambda x:Chyoa.Chyoa(x),
     'www.wattpad.com':lambda x:Wattpad.Wattpad(x),
     'nhentai.net':lambda x:Nhentai.Nhentai(x),
-    #'e-hentai.org':lambda x:Ehentai.Ehentai(x),
 }
 formats={
     'epub':lambda x:MakeEpub(x),

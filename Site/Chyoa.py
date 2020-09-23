@@ -43,6 +43,7 @@ class Chyoa:
         self.depth = []
         self.quiet = Common.quiet
         self.epubnextpages = []
+        self.nextLinks=[]
         
         page = Common.RequestPage(url)
         
@@ -172,9 +173,11 @@ class Chyoa:
                     
                     
                     if any(x in ('epub', 'EPUB') for x in Common.opf):
-                        self.epubtemp[0]+='\n<a href="'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />\n'
-                    self.temp[0]+='\n<a href="#'+str(j)+'">'+link.strip()+'</a>\n<br />\n'    
+                        self.epubtemp[0]+='\n<a href="'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />'
                     
+                    nextLink='\n<a href="#'+str(j)+'">'+'Previous Chapter'+'</a>\n<br />'    
+                    self.temp[0]+='\n<a href="#'+str(j)+'">'+link.strip()+'</a>\n<br />' 
+                    self.nextLinks.append(nextLink)
                     urls.append(i.get('href'))
                     j+=1
             self.Pages.extend(urls)
@@ -182,7 +185,7 @@ class Chyoa:
             for u in urls:
                 if Common.mt:
                     chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
-                    threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames, chapNum), daemon=True).start()
+                    threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames, chapNum, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1]), daemon=True).start() #TODO 
                 else:
                     self.AddNextPage(u, j)
                 j+=1
@@ -378,11 +381,11 @@ class Chyoa:
         for i,j in zip(nextpagesurl, nextpagesdepth):
             self.AddNextPage(i.get('href'), str(depth)+'.'+str(j), chapNum)
         
-    def ThreadAdd(self, url, depth, renames, oldnames, chapNum):
+    def ThreadAdd(self, url, depth, renames, oldnames, chapNum, currLink, epubCurrLink, nextLink):
         if self.Pages.count(url)>1:
             print("found issue at" + str(url))
             return None
-        self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, self.q, chapNum))
+        self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, self.q, chapNum, currLink, epubCurrLink, nextLink))
     
     def addPage(self, page):
         #print('adding page: '+str(page))
@@ -414,7 +417,7 @@ class Chyoa:
         
 class Page:
     
-    def __init__(self, url, depth, renames, oldnames, q, prevChapNum):
+    def __init__(self, url, depth, renames, oldnames, q, prevChapNum, prevLink, epubPrevLink, currLink):
         self.children=[]
         self.depth=str(depth)
         self.author=''
@@ -429,6 +432,9 @@ class Page:
         self.q=q
         self.chapNum=0
         self.prevChapNum=prevChapNum
+        self.prevLink=prevLink
+        self.currLink=currLink
+        self.epubPrevLink=epubPrevLink
         
         self.AddNextPage(url, depth)
         self.q.put(self, False)
@@ -470,6 +476,13 @@ class Page:
         urls=[]
         temp+='<br />'
         epubtemp=temp
+        nextLinks=[]
+        #epubNextLinks=[]
+        epubCurrLink='\n<a href="'+str(depth)+'.xhtml">'+'Previous Chapter'+'</a>\n<br />'
+        
+        temp+= self.prevLink
+        
+        
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
             if i.get_text().strip() != 'Add a new chapter':
                 
@@ -481,6 +494,8 @@ class Page:
                 
                 if any(x in ('epub', 'EPUB') for x in Common.opf):
                     epubnextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />')
+                nextLink='\n<a href="#'+str(depth)+'.'+str(j)+'">'+'Previous Chapter'+'</a>\n<br />'
+                nextLinks.append(nextLink)
                 nextpages.append('\n<a href="#'+str(depth)+'.'+str(j)+'">'+link.strip()+'</a>\n<br />')
                 nextpagesurl.append(i)
                 urls.append(i.get('href'))
@@ -488,7 +503,7 @@ class Page:
                 j+=1
         
         if any(x in ('epub', 'EPUB') for x in Common.opf):
-            
+            epubtemp+=self.epubPrevLink
             for j in epubnextpages:
                 epubtemp+=j
             self.epubtemp.append(epubtemp)            
@@ -509,11 +524,11 @@ class Page:
             return None
         
         self.children.extend(urls)
-        for i,j in zip(nextpagesurl, nextpagesdepth):
-            threading.Thread(target=self.ThreadAdd, args=(i.get('href'), str(depth)+'.'+str(j), self.renames, self.oldnames), daemon=True).start()
-    def ThreadAdd(self, url, depth, renames, oldnames):
+        for i in range(0, len(nextpagesurl)): #zip(nextpagesurl, nextpagesdepth):
+            threading.Thread(target=self.ThreadAdd, args=(nextpagesurl[i].get('href'), str(depth)+'.'+str(nextpagesdepth[i]), self.renames, self.oldnames, self.currLink, epubCurrLink, nextLinks[i]), daemon=True).start()
+    def ThreadAdd(self, url, depth, renames, oldnames, currLink, epubCurrLink, nextLink):
         #if self.children.count(url)>1:
             #print("found issue at" + str(url))
-        self.children[self.children.index(url)]=(self.__class__(url, depth, renames, oldnames, self.q, self.chapNum))
+        self.children[self.children.index(url)]=(self.__class__(url, depth, renames, oldnames, self.q, self.chapNum, currLink, epubCurrLink, nextLink))
 
 
