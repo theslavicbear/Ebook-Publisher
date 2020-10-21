@@ -10,6 +10,8 @@ wd = './'
 
 opf = ('txt',)
 
+epub = ('epub', 'Epub', 'EPUB')
+
 dup = False
 
 mt = False

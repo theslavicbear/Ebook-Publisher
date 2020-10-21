@@ -187,7 +187,7 @@ class Chyoa:
                     chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
                     threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames, chapNum, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1]), daemon=True).start() #TODO 
                 else:
-                    self.AddNextPage(u, j)
+                    self.AddNextPage(u, j, 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1])
                 j+=1
             if Common.mt:
                 i = int(numChapters)-1
@@ -310,7 +310,7 @@ class Chyoa:
         self.authors[0]=soup.find_all('a')[5].get_text()
         
         
-    def AddNextPage(self, url, depth, prevChapNum=1):
+    def AddNextPage(self, url, depth, prevChapNum, prevLink, epubPrevLink, currLink):
         page = Common.RequestPage(url)
 
         if page is None:
@@ -320,6 +320,8 @@ class Chyoa:
         soup=BeautifulSoup(page.content, 'html.parser')
         self.authors.append(soup.find_all('a')[7].get_text())
         self.chapters.append(soup.find('h1').get_text())
+        
+        epubCurrLink='\n<a href="'+str(depth)+'.xhtml">'+'Previous Chapter'+'</a>\n<br />'
         
         if Common.images:
             if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
@@ -340,6 +342,7 @@ class Chyoa:
         epubnextpages=[]
         nextpagesurl=[]
         nextpagesdepth=[]
+        nextLinks=[]
         temp+='<br />'
         epubtemp=temp
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
@@ -349,17 +352,20 @@ class Chyoa:
                 #Band aid fix for replaceable text in the next chapter links
                 for l in range(len(self.renames)):
                         link=link.replace(self.oldnames[l], self.renames[l])
-                
+                nextLink='\n<a href="#'+str(depth)+'.'+str(j)+'">'+'Previous Chapter'+'</a>\n<br />'
+                #nextLinks.append(nextLink)
                 
                 if any(x in ('epub', 'EPUB') for x in Common.opf):
                     epubnextpages.append('\n<a href="'+str(depth)+'.'+str(j)+'.xhtml">'+link.strip()+'</a>\n<br />')
                 nextpages.append('\n<a href="#'+str(depth)+'.'+str(j)+'">'+link.strip()+'</a>\n<br />')
+                #nextpages.append(prevLink)
                 nextpagesurl.append(i)
                 nextpagesdepth.append(j)
                 j+=1
-        
+        temp+=prevLink
+
         if any(x in ('epub', 'EPUB') for x in Common.opf):
-            
+            epubtemp+=epubPrevLink
             for j in epubnextpages:
                 epubtemp+=j
             self.epubtemp.append(epubtemp)            
@@ -371,7 +377,6 @@ class Chyoa:
             self.pbar.Update()
         except:
             pass
-        
         #Checks if new page was a link backwards and exits if so
         chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
         
@@ -379,7 +384,7 @@ class Chyoa:
             return None
         
         for i,j in zip(nextpagesurl, nextpagesdepth):
-            self.AddNextPage(i.get('href'), str(depth)+'.'+str(j), chapNum)
+            self.AddNextPage(i.get('href'), str(depth)+'.'+str(j), chapNum, currLink, epubCurrLink, nextLink)
         
     def ThreadAdd(self, url, depth, renames, oldnames, chapNum, currLink, epubCurrLink, nextLink):
         if self.Pages.count(url)>1:
