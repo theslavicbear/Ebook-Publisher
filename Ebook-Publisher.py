@@ -40,7 +40,7 @@ formats={
 #function for making text files
 def MakeText(site):
     if type(site) is not Nhentai.Nhentai:
-        published=open(wd+site.title+'.txt', 'w')
+        published=open(wd+site.title+'.txt', 'w', encoding="utf-8")
         published.write(site.title+'\n')
         published.write('by '+site.author+'\n\n')
         published.write(site.story)
@@ -48,9 +48,9 @@ def MakeText(site):
     
 def MakeHTML(site):
     if (type(site) is Chyoa.Chyoa or type(site) is Nhentai.Nhentai) and site.hasimages:
-        published=open(wd+site.title+'/'+site.title+'.html', 'w')
+        published=open(wd+site.title+'/'+site.title+'.html', 'w', encoding="utf-8")
     else:
-        published=open(wd+site.title+'.html', 'w')
+        published=open(wd+site.title+'.html', 'w', encoding="utf-8")
     published.write('<!DOCTYPE html>\n')
     published.write('<html lang="en">\n')
     published.write('<style>\n'+styleSheet+'\n</style>')
