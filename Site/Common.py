@@ -14,7 +14,12 @@ epub = ('epub', 'Epub', 'EPUB')
 
 dup = False
 
+chyoa_force_forwards=False
+
 mt = False
+
+urlDict=  {}
+
 def prnt(out, f=False):
     if not quiet and not f:
         print(out)
@@ -97,6 +102,7 @@ def RequestSend(url, headers=None):
 def RequestPage(url, headers=None):
     response = RequestSend(url, headers)
     attempts = 0
+    #print(response.url)
     while response.status_code != 200 and attempts < 4:
             time.sleep(2)
             response = RequestSend(url, headers)

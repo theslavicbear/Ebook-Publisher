@@ -8,7 +8,11 @@ import time
 from threading import Lock
 import threading
 import queue
+import copy
+import urllib.parse
 lock = Lock()
+lock2 = Lock()
+
 
 class Chyoa:
 
@@ -44,6 +48,7 @@ class Chyoa:
         self.quiet = Common.quiet
         self.epubnextpages = []
         self.nextLinks=[]
+        
         
         page = Common.RequestPage(url)
         
@@ -110,10 +115,13 @@ class Chyoa:
         
         if Common.images:
             if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
-                for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
-                    self.images.append(simg.get('src'))
-                    simg['src']='img'+str(len(self.images))+'.jpg'
-                    self.hasimages = True
+                with lock2:
+                    for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
+                        
+                        imgtemp=simg.get('src')
+                        simg['src']='img'+str(len(Common.urlDict[self.ogUrl])+1)+'.jpg'
+                        Common.urlDict[self.ogUrl][len(Common.urlDict[self.ogUrl])]=imgtemp
+                self.hasimages = True
         
         temp=str(soup.find('div', attrs={'class': 'chapter-content'}))
         
@@ -185,9 +193,10 @@ class Chyoa:
             for u in urls:
                 if Common.mt:
                     chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
-                    threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames, chapNum, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1]), daemon=True).start() #TODO 
+                    firstLinkId=None
+                    threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames, chapNum, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], firstLinkId, self.url), daemon=True).start() #TODO 
                 else:
-                    self.AddNextPage(u, j, 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1])
+                    self.AddNextPage(u, j, 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], None)
                 j+=1
             if Common.mt:
                 i = int(numChapters)-1
@@ -274,8 +283,12 @@ class Chyoa:
                 self.epubrawstoryhtml[i]=BeautifulSoup(self.epubtruestoryhttml[i], 'html.parser')
         
         if Common.images and self.hasimages and any(x in ('html', 'HTML') for x in Common.opf):
-            for i in range(0,len(self.images)):
-                Common.imageDL(self.title, self.images[i], i+1, size=len(self.images))
+            for i in range(0,len(Common.urlDict[self.url])):
+                Common.prnt("Getting image "+str(i+1) +" at: "+str(Common.urlDict[self.url][i]))
+                try:
+                    Common.imageDL(self.title, Common.urlDict[self.url][i], i+1, size=len(Common.urlDict[self.url]))
+                except urllib.error.HTTPError as FE:
+                    continue
 
                 
     def AddPrevPage(self, url):
@@ -310,7 +323,7 @@ class Chyoa:
         self.authors[0]=soup.find_all('a')[5].get_text()
         
         
-    def AddNextPage(self, url, depth, prevChapNum, prevLink, epubPrevLink, currLink):
+    def AddNextPage(self, url, depth, prevChapNum, prevLink, epubPrevLink, currLink, prevLinkId):
         page = Common.RequestPage(url)
 
         if page is None:
@@ -383,14 +396,28 @@ class Chyoa:
         if prevChapNum >= chapNum:
             return None
         
-        for i,j in zip(nextpagesurl, nextpagesdepth):
-            self.AddNextPage(i.get('href'), str(depth)+'.'+str(j), chapNum, currLink, epubCurrLink, nextLink)
+        #Other check if current page is a link and doesn't continue if so
+        prevLinkCheck1=soup.find('span', attrs={'class':'controls-left'})
+        prevLinkCheck2=prevLinkCheck1.find_all('a')[0].get('href')
+        prevLinkId1=urllib.parse.urlparse(prevLinkCheck2)[2].split('.')[1]
         
-    def ThreadAdd(self, url, depth, renames, oldnames, chapNum, currLink, epubCurrLink, nextLink):
+        currLinkId=urllib.parse.urlparse(url)[2].split('.')[1]
+        if prevLinkId is not None and prevLinkId1 != prevLinkId:
+            #print(prevLinkId1)
+            #print(prevLinkId)
+            
+
+            return
+        
+        
+        for i,j in zip(nextpagesurl, nextpagesdepth):
+            self.AddNextPage(i.get('href'), str(depth)+'.'+str(j), chapNum, currLink, epubCurrLink, nextLink, currLinkId)
+        
+    def ThreadAdd(self, url, depth, renames, oldnames, chapNum, currLink, epubCurrLink, nextLink, currLinkId, ogUrl):
         if self.Pages.count(url)>1:
             print("found issue at" + str(url))
             return None
-        self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, self.q, chapNum, currLink, epubCurrLink, nextLink))
+        self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, self.q, chapNum, currLink, epubCurrLink, nextLink, currLinkId, ogUrl))
     
     def addPage(self, page):
         #print('adding page: '+str(page))
@@ -422,7 +449,14 @@ class Chyoa:
         
 class Page:
     
-    def __init__(self, url, depth, renames, oldnames, q, prevChapNum, prevLink, epubPrevLink, currLink):
+    visitedPages={}
+    
+    def __init__(self, url, depth, renames, oldnames, q, prevChapNum, prevLink, epubPrevLink, currLink, prevLinkId, ogUrl):
+        #if url in self.visitedPages:
+        #    self.__dict__ = copy.deepcopy(self.visitedPages[url].__dict__)
+        #    return
+        #else:
+        #    self.visitedPages[url]=self
         self.children=[]
         self.depth=str(depth)
         self.author=''
@@ -440,6 +474,9 @@ class Page:
         self.prevLink=prevLink
         self.currLink=currLink
         self.epubPrevLink=epubPrevLink
+        self.prevLinkId=prevLinkId
+        
+        self.ogUrl=ogUrl
         
         self.AddNextPage(url, depth)
         self.q.put(self, False)
@@ -460,10 +497,13 @@ class Page:
         
         if Common.images:
             if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
-                for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
-                    self.images.append(simg.get('src'))
-                    simg['src']='img'+str(len(self.images))+'.jpg'
-                    self.hasimages = True
+                with lock2:
+                    for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
+                        
+                        imgtemp=simg.get('src')
+                        simg['src']='img'+str(len(Common.urlDict[self.ogUrl])+1)+'.jpg'
+                        Common.urlDict[self.ogUrl][len(Common.urlDict[self.ogUrl])]=imgtemp
+                self.hasimages = True
         
         temp2 = soup.find('div', attrs={'class': 'chapter-content'})
         #self.depth+=(str(depth))
@@ -513,6 +553,7 @@ class Page:
                 epubtemp+=j
             self.epubtemp.append(epubtemp)            
         
+        
         for j in nextpages:
             temp+=j
         self.temp.append(temp)
@@ -522,18 +563,33 @@ class Page:
             pass
         
         
+        
         #Checks if new page was a link backwards and exits if so
         self.chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
         
         if self.prevChapNum >= self.chapNum:
             return None
+            
+        #Other check if current page is a link and doesn't continue if so
+        prevLinkCheck1=soup.find('span', attrs={'class':'controls-left'})
+        prevLinkCheck2=prevLinkCheck1.find_all('a')[0].get('href')
+        prevLinkId=urllib.parse.urlparse(prevLinkCheck2)[2].split('.')[1]
+        
+        currLinkId=urllib.parse.urlparse(url)[2].split('.')[1]
+        if self.prevLinkId is not None and prevLinkId!=self.prevLinkId:
+            #print(self.prevLinkId)
+            #print(prevLinkId)
+            
+
+            return
+        
         
         self.children.extend(urls)
         for i in range(0, len(nextpagesurl)): #zip(nextpagesurl, nextpagesdepth):
-            threading.Thread(target=self.ThreadAdd, args=(nextpagesurl[i].get('href'), str(depth)+'.'+str(nextpagesdepth[i]), self.renames, self.oldnames, self.currLink, epubCurrLink, nextLinks[i]), daemon=True).start()
-    def ThreadAdd(self, url, depth, renames, oldnames, currLink, epubCurrLink, nextLink):
+            threading.Thread(target=self.ThreadAdd, args=(nextpagesurl[i].get('href'), str(depth)+'.'+str(nextpagesdepth[i]), self.renames, self.oldnames, self.currLink, epubCurrLink, nextLinks[i], currLinkId), daemon=True).start()
+    def ThreadAdd(self, url, depth, renames, oldnames, currLink, epubCurrLink, nextLink, currLinkId):
         #if self.children.count(url)>1:
             #print("found issue at" + str(url))
-        self.children[self.children.index(url)]=(self.__class__(url, depth, renames, oldnames, self.q, self.chapNum, currLink, epubCurrLink, nextLink))
+        self.children[self.children.index(url)]=(self.__class__(url, depth, renames, oldnames, self.q, self.chapNum, currLink, epubCurrLink, nextLink, currLinkId, self.ogUrl))
 
 

@@ -169,10 +169,13 @@ def MakeEpub(site):
         if site.hasimages == True:
             with ZipFile(wd+site.title+'.epub', 'a') as myfile:
                 i=1
-                for url in site.images:
-                    with myfile.open('EPUB/img'+str(i)+'.jpg', 'w') as myimg:
-                        myimg.write(Common.GetImage(url))
-                    i=i+1
+                for num in Common.urlDict[site.url]:
+                    try:
+                        i=i+1
+                        with myfile.open('EPUB/img'+str(i-1)+'.jpg', 'w') as myimg:
+                            myimg.write(Common.GetImage(Common.urlDict[site.url][num]))
+                    except urllib.error.HTTPError as FE:
+                        continue
     
 
 def MakeClass(url):
@@ -224,6 +227,7 @@ parser.add_argument('-t', help="Turns on multithreading mode. Recommend also ena
 parser.add_argument('-i', '--insert-images', help="Downloads and inserts images for Chyoa stories", action='store_true')
 parser.add_argument('-n', '--no-duplicates', help='Skips stories if they have already been downloaded', action='store_true') 
 parser.add_argument('-s', '--css', '--style-sheet', help='either a CSS string or a .css file to use for formatting', default='')
+parser.add_argument('--chyoa-force-forwards', help='Force Chyoa stories to be scraped forwards if not given page 1', action='store_true')
 args=parser.parse_args()
 
 #print(args.output_type)
@@ -245,6 +249,8 @@ elif not args.url:
 if args.no_duplicates:
     Common.dup = True
     
+if args.chyoa_force_forwards:
+    Common.chyoa_force_forwards=True
 
 
 if args.directory is None:
@@ -256,6 +262,8 @@ Common.wd = wd
 Common.opf = args.output_type
 if Common.opf == None:
     Common.opf = ['txt']
+
+
 
 Common.mt = args.t
 
@@ -284,6 +292,11 @@ if args.file:
     else:
         stdinput=sys.stdin.read()
         urls=stdinput.split()
+    
+    urls=list(set(urls))
+    
+    for url in urls:
+        Common.urlDict[url]={}
 
     threads=0
     #the multithreaded variant
