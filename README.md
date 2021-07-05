@@ -74,5 +74,4 @@ optional arguments:
 ### Known Issues
 
 * Image downloading can fail without alerting the user.
-* Chyoa stories that have chapters that link to previous chapters will run through the same chapters endlessly.
 * Progress bar behaves poorly when there are a large number of chapters/pages in a story.
