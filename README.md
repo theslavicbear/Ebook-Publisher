@@ -7,7 +7,7 @@ Ebook-Publisher is my pet project, and the project that I currently have spent t
 
 ## Currently supported sites:
 * ~~fanfiction.net~~
-* ~~fictionpress.com~~ (fanfiction and fictionpress currently cannot be scraped due to updates in the sites that I can't work around)
+* ~~fictionpress.com~~ (fanfiction and fictionpress currently cannot be scraped due to updates in the sites that I can't work around. Probably won't be fixed as honestly you can find better downloaders for the sites)
 * literotica.com
 * classicreader.com
 * chyoa.com (You may either input the first page of a story, and Ebook-Publisher will grab the whole story, or input the last page you want included and Ebook-Publisher will work backwards and grab the story from the beginning to your input page. You will be asked for customizable names, etc. before the story is grabbed.)
