@@ -75,3 +75,4 @@ optional arguments:
 
 * Image downloading can fail without alerting the user.
 * Progress bar behaves poorly when there are a large number of chapters/pages in a story.
+* Fanfiction and Fictionpress links currently do not work.
