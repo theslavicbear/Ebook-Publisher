@@ -2,6 +2,8 @@ import sys, urllib, os, requests, time
 
 #Module contains common functions needed by sites
 
+lineEnding = '\n\n'
+
 quiet = False
 
 images = False

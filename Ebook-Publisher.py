@@ -75,6 +75,7 @@ def MakeHTML(site):
             published.write(site.truestoryhttml[i])
         elif type(site) is Literotica.Literotica:
             published.write(site.storyhtml)
+            break
         else:
             if type(site) is Chyoa.Chyoa and not site.backwards:
                 if i !=0:
