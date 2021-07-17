@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
-#from bs4 import BeautifulSoup
-#import requests
-#from time import sleep
 import sys
 from Site import *
 import urllib.parse
-#try:
 from EpubMaker import epub as epub
-    #from ebooklib import epub
-#except:
-#    print('Warning: No epub filetype support')
 import argparse
 import os
 import threading
 import queue
 import shutil
 from zipfile import ZipFile
-from time import sleep
 
 #Master dict of supported sites
 sites={

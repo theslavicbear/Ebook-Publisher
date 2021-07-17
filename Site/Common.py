@@ -72,27 +72,34 @@ def GetImage(url):
         return urllib.request.urlopen(req).read()
     
 class Progress:
-    
-    size=0
+
     
     def __init__(self, size):
-        if quiet:
+        #size=0
+        self.it=0
+        if quiet or mt:
             return
         self.size=size
-        sys.stdout.write("[%s]" % (" " *  self.size))
-        sys.stdout.flush()
-        sys.stdout.write("\b" * (self.size+1))
+        #sys.stdout.write('\r')
+        #sys.stdout.write("[%s]" % (" " *  self.size))
+        #sys.stdout.flush()
+        #sys.stdout.write("\b" * (self.size+1))
         
     def Update(self):
-        if quiet:
+        if quiet or mt:
             return
-        sys.stdout.write("=")
+        self.it+=1
+        sys.stdout.write('\r')
+        sys.stdout.write("%d/%d %d%%" % (self.it, self.size, (self.it/self.size)*100))
         sys.stdout.flush()
         
+        
     def End(self):
-        if quiet:
-            return
+        if quiet or mt:
+            return        
         sys.stdout.write('\n')
+        sys.stdout.flush()
+        self.it=0
 
 def RequestSend(url, headers=None):
     if headers is None:
@@ -114,6 +121,3 @@ def RequestPage(url, headers=None):
         return None
     return response
     
-        
-        
-        
