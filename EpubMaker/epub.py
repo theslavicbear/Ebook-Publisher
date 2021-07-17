@@ -40,11 +40,15 @@ class EpubBook():
    
 class EpubHtml:
     
-    def __init__(self, title='Title', file_name='file_name.xhtml', lang='lang'):
+    def __init__(self, title='Title', file_name='file_name.xhtml', lang='lang', tocTitle=None):
         self.title = title
         self.file_name = file_name
         self.lang = lang
         self.content=''
+        if tocTitle is None:
+            self.tocTitle=self.title
+        else:
+            self.tocTitle=tocTitle
         
 #These classes do nothing, but maintain compatibility with my current implementation
 class EpubNcx:
@@ -90,7 +94,7 @@ def write_epub(title, book):
                 elif isTOC:
                     navstring = '<?xml version="1.0" encoding="utf-8"?>\n                                <!DOCTYPE html>\n                                <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" lang="en" xml:lang="en">\n                                <head>\n                                    <title>'+book.title+'</title>\n  <link rel="stylesheet" type="text/css" href="style.css" />\n                              </head>\n                                <body>\n                                    <nav id="id" role="doc-toc" epub:type="toc">\n                                    <h2>'+book.title+'</h2>\n                                    <ol>\n'
                     for item in book.toc:
-                        navstring += '<li>\n<a href="'+item.file_name+'">'+item.title+'</a>\n</li>\n'
+                        navstring += '<li>\n<a href="'+item.file_name+'">'+item.tocTitle+'</a>\n</li>\n'
                     navstring += '</ol>\n</nav>\n</body>\n</html>'
                     Zip.writestr('EPUB/nav.xhtml', navstring)
         opf_content +='</manifest>\n<spine toc="ncx">\n'
@@ -107,4 +111,4 @@ def write_epub(title, book):
         Zip.writestr('EPUB/content.opf', opf_content)
         
 if __name__ == '__main__':
-    print('You have mistakenly run this file, epub.py. It is not meant to be run. It must be impported by another python file (or an implementation can be added to this __main__ section).')
+    print('You have mistakenly run this file, epub.py. It is not meant to be run. It must be imported by another python file (or an implementation can be added to this __main__ section).')
