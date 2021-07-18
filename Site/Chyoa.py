@@ -85,6 +85,7 @@ class Chyoa:
             #print(timestamp)
             if not Common.CheckDuplicateTime(self.title, timestamp):
                 Common.prnt('Story not updated: '+self.url, f=True)
+                self.duplicate= True
                 return None
         
         #check duplicate with timestamp
