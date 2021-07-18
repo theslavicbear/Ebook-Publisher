@@ -33,8 +33,8 @@ formats={
 def MakeText(site):
     if type(site) is not Nhentai.Nhentai:
         published=open(wd+site.title+'.txt', 'w', encoding="utf-8")
-        published.write(site.title+'\n')
-        published.write('by '+site.author+'\n\n')
+        published.write(site.title+Common.lineEnding)
+        published.write('by '+site.author+Common.lineEnding)
         published.write(site.story)
         published.close()
     
@@ -221,6 +221,7 @@ parser.add_argument('-i', '--insert-images', help="Downloads and inserts images 
 parser.add_argument('-n', '--no-duplicates', help='Skips stories if they have already been downloaded', action='store_true') 
 parser.add_argument('-s', '--css', '--style-sheet', help='either a CSS string or a .css file to use for formatting', default='')
 parser.add_argument('--chyoa-force-forwards', help='Force Chyoa stories to be scraped forwards if not given page 1', action='store_true')
+parser.add_argument('--eol', help='end of line character for .txt output format, must be enclosed in single quotes', default='\n\n')
 args=parser.parse_args()
 
 #print(args.output_type)
@@ -245,6 +246,7 @@ if args.no_duplicates:
 if args.chyoa_force_forwards:
     Common.chyoa_force_forwards=True
 
+Common.lineEnding=args.eol.encode('latin-1', 'backslashreplace').decode('unicode-escape')
 
 if args.directory is None:
     wd='./'

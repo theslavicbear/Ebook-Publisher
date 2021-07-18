@@ -272,7 +272,7 @@ class Chyoa:
             
             
             
-        self.story=self.story.replace('\n', '\n\n')
+        self.story=self.story.replace('\n', Common.lineEnding)
         
         for i in range(0,len(self.truestoryhttml)):
             self.rawstoryhtml[i]=BeautifulSoup(self.truestoryhttml[i], 'html.parser')

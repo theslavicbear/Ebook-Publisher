@@ -67,7 +67,7 @@ class Wattpad:
         for i in range(0, len(self.rawstoryhtml)):
             self.story=self.story+self.chapters[i]+'\n'
             self.story=self.story+self.rawstoryhtml[i].get_text()
-        self.story=self.story.replace('\n', '\n\n')
+        self.story=self.story.replace('\n', Common.lineEnding)
             
     def addNextPage(self, url):
         soup=BeautifulSoup(self.requestPage(url).content, 'html.parser')
