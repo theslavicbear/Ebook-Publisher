@@ -78,7 +78,7 @@ class Chyoa:
             
             
         #get update timestamp:
-        if self.backwards or self.partial:
+        if (self.backwards or self.partial) and Common.chyoaDupCheck:
             date=soup.find('p', attrs={'class':'dates'}).strong.get_text()
             #date='Jun 18, 2022'
             timestamp=datetime.strptime(date, "%b %d, %Y")
