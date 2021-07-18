@@ -43,12 +43,13 @@ class Chyoa:
         self.images=[] #testing images
         self.hasimages = False
         self.duplicate = False
-        self.backwards = True
+        self.backwards = not Common.chyoa_force_forwards
         self.depth = []
         self.quiet = Common.quiet
         self.epubnextpages = []
         self.nextLinks=[]
-        
+        self.partial = False
+        self.partialStart=1
         
         page = Common.RequestPage(url)
         
@@ -66,12 +67,15 @@ class Chyoa:
             except:
                 pass
         
+        elif not self.backwards:
+            self.partial = True
+        
         if Common.dup:
             if Common.CheckDuplicate(self.title):
                 self.duplicate = True
                 return None
         
-        if self.backwards:
+        if self.backwards or self.partial:
             self.authors.insert(0,soup.find_all('a')[7].get_text())
         else:
             self.authors.insert(0,soup.find_all('a')[5].get_text())
@@ -80,7 +84,8 @@ class Chyoa:
                 
         tmp=soup.find('p', attrs={'class': 'meta'}).get_text()
         t=[s for s in tmp.split() if s.isdigit()]
-        self.length=int(t[0])        
+        self.length=int(t[0])
+        self.partialStart=self.length
       
         
         if soup.find('form', attrs={'id':'immersion-form'}) is not None:
@@ -138,9 +143,9 @@ class Chyoa:
 
         
         #if soup.find('a').text.strip()==
-        self.backwards = False
+        #self.backwards = not Common.chyoa_force_forwards
         for i in soup.find_all('a'):
-            if i.text.strip()=='Previous Chapter':
+            if i.text.strip()=='Previous Chapter' and self.backwards:
                 self.AddPrevPage(i.get('href'))
                 self.backwards = True
                 break
@@ -159,8 +164,11 @@ class Chyoa:
                     numChapters=numChapters.replace(',','')
             try:
                 if not Common.mt:
-                    self.pbar=Common.Progress(int(numChapters))
-                    self.pbar.Update()
+                    if self.partial:
+                        print('Downloading an unknown number of pages')
+                    else:
+                        self.pbar=Common.Progress(int(numChapters))
+                        self.pbar.Update()
             except:
                 pass
             
@@ -191,14 +199,17 @@ class Chyoa:
             self.Pages.extend(urls)
             j=1
             for u in urls:
-                if Common.mt:
+                if Common.mt and not self.partial:
                     chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
                     firstLinkId=None
                     threading.Thread(target=self.ThreadAdd, args=(u, j, self.renames, self.oldnames, chapNum, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], firstLinkId, self.url), daemon=True).start() #TODO 
                 else:
+                    if Common.mt:
+                        Common.prnt('Warning: Cannot multithread partial Chyoa story: '+self.url+'\nUsing default method to download an unknown number of pages')
+                        
                     self.AddNextPage(u, j, 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], None)
                 j+=1
-            if Common.mt:
+            if Common.mt and not self.partial:
                 i = int(numChapters)-1
                 print("Pages to add: "+str(i))
                 while i >0:
@@ -348,7 +359,8 @@ class Chyoa:
         temp='<div id="'+str(depth)+'">'+str(temp2)     
         self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
         temp+='<h2>'+self.questions[-1]+'</h2>\n</div>'
-        #Common.prnt(str(depth))
+        if self.partial:
+            Common.prnt(str(depth))
         j = 1
         
         nextpages=[]
@@ -414,9 +426,9 @@ class Chyoa:
             self.AddNextPage(i.get('href'), str(depth)+'.'+str(j), chapNum, currLink, epubCurrLink, nextLink, currLinkId)
         
     def ThreadAdd(self, url, depth, renames, oldnames, chapNum, currLink, epubCurrLink, nextLink, currLinkId, ogUrl):
-        if self.Pages.count(url)>1:
-            print("found issue at" + str(url))
-            return None
+        #if self.Pages.count(url)>1:
+        #    print("found issue at" + str(url))
+        #    return None
         self.Pages[self.Pages.index(url)]=(Page(url, depth, renames, oldnames, self.q, chapNum, currLink, epubCurrLink, nextLink, currLinkId, ogUrl))
     
     def addPage(self, page):

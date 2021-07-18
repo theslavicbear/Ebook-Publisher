@@ -54,11 +54,20 @@ def MakeHTML(site):
             for i in range(len(site.rawstoryhtml)):
                 published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
         elif not site.backwards:
+            j=0
             for i in range(len(site.rawstoryhtml)):
                 if i!=0:
-                    published.write('<p><a href="#'+str(site.depth[i-1])+'">'+str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]+'</a></p>\n')
+                    if site.partial:
+                        published.write('<p><a href="#'+str(site.depth[i-1])+'">'+str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((site.partialStart+len(site.depth[i-1])/2)+1))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]+'</a></p>\n')
+                    else:
+                        published.write('<p><a href="#'+str(site.depth[i-1])+'">'+str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]+'</a></p>\n')
                 else:
-                    published.write('<p><a href="#Chapter '+str(i)+'">'+'1.1 '+site.chapters[i]+'</a></p>\n')
+                    if site.partial:
+                        j=site.partialStart
+                        published.write('<p><a href="#Chapter '+str(i)+'">'+str(j)+'. '+site.chapters[i]+'</a></p>\n')
+                        j+=1
+                    else:
+                        published.write('<p><a href="#Chapter '+str(i)+'">'+'1.1 '+site.chapters[i]+'</a></p>\n')
         else:
             for i in range(len(site.rawstoryhtml)):
                 published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
@@ -110,7 +119,10 @@ def MakeEpub(site):
                 if i == 0:
                     c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
                 else:
-                    c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
+                    if not site.partial:
+                        c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
+                    else:
+                        c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((site.partialStart+len(site.depth[i-1])/2)+1))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+str(site.epubrawstoryhtml[i])
             elif type(site) is Nhentai.Nhentai:
                 c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
