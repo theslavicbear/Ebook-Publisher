@@ -33,8 +33,8 @@ formats={
 def MakeText(site):
     if type(site) is not Nhentai.Nhentai:
         published=open(wd+site.title+'.txt', 'w', encoding="utf-8")
-        published.write(site.title+'\n')
-        published.write('by '+site.author+'\n\n')
+        published.write(site.title+Common.lineEnding)
+        published.write('by '+site.author+Common.lineEnding)
         published.write(site.story)
         published.close()
     
@@ -54,11 +54,20 @@ def MakeHTML(site):
             for i in range(len(site.rawstoryhtml)):
                 published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
         elif not site.backwards:
+            j=0
             for i in range(len(site.rawstoryhtml)):
                 if i!=0:
-                    published.write('<p><a href="#'+str(site.depth[i-1])+'">'+str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]+'</a></p>\n')
+                    if site.partial:
+                        published.write('<p><a href="#'+str(site.depth[i-1])+'">'+str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((site.partialStart+len(site.depth[i-1])/2)+1))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]+'</a></p>\n')
+                    else:
+                        published.write('<p><a href="#'+str(site.depth[i-1])+'">'+str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]+'</a></p>\n')
                 else:
-                    published.write('<p><a href="#Chapter '+str(i)+'">'+'1.1 '+site.chapters[i]+'</a></p>\n')
+                    if site.partial:
+                        j=site.partialStart
+                        published.write('<p><a href="#Chapter '+str(i)+'">'+str(j)+'. '+site.chapters[i]+'</a></p>\n')
+                        j+=1
+                    else:
+                        published.write('<p><a href="#Chapter '+str(i)+'">'+'1.1 '+site.chapters[i]+'</a></p>\n')
         else:
             for i in range(len(site.rawstoryhtml)):
                 published.write('<p><a href="#Chapter '+str(i)+'">'+site.chapters[i]+'</a></p>\n')
@@ -110,7 +119,10 @@ def MakeEpub(site):
                 if i == 0:
                     c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
                 else:
-                    c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
+                    if not site.partial:
+                        c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
+                    else:
+                        c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((site.partialStart+len(site.depth[i-1])/2)+1))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+str(site.epubrawstoryhtml[i])
             elif type(site) is Nhentai.Nhentai:
                 c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
@@ -221,6 +233,8 @@ parser.add_argument('-i', '--insert-images', help="Downloads and inserts images 
 parser.add_argument('-n', '--no-duplicates', help='Skips stories if they have already been downloaded', action='store_true') 
 parser.add_argument('-s', '--css', '--style-sheet', help='either a CSS string or a .css file to use for formatting', default='')
 parser.add_argument('--chyoa-force-forwards', help='Force Chyoa stories to be scraped forwards if not given page 1', action='store_true')
+parser.add_argument('--eol', help='end of line character for .txt output format, must be enclosed in single quotes', default='\n\n')
+parser.add_argument('--chyoa-update', help='Checks if story already exists in output directory, and skips it if it has not been updated on the server since file was created.', action='store_true')
 args=parser.parse_args()
 
 #print(args.output_type)
@@ -245,6 +259,10 @@ if args.no_duplicates:
 if args.chyoa_force_forwards:
     Common.chyoa_force_forwards=True
 
+if args.chyoa_update:
+    Common.chyoaDupCheck=True
+
+Common.lineEnding=args.eol.encode('latin-1', 'backslashreplace').decode('unicode-escape')
 
 if args.directory is None:
     wd='./'
