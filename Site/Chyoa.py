@@ -10,6 +10,7 @@ import threading
 import queue
 import copy
 import urllib.parse
+from datetime import datetime
 lock = Lock()
 lock2 = Lock()
 
@@ -50,6 +51,7 @@ class Chyoa:
         self.nextLinks=[]
         self.partial = False
         self.partialStart=1
+        self.ogUrl=self.url
         
         page = Common.RequestPage(url)
         
@@ -67,8 +69,25 @@ class Chyoa:
             except:
                 pass
         
+        
+        
+        
+        
         elif not self.backwards:
             self.partial = True
+            
+            
+        #get update timestamp:
+        if self.backwards or self.partial:
+            date=soup.find('p', attrs={'class':'dates'}).strong.get_text()
+            #date='Jun 18, 2022'
+            timestamp=datetime.strptime(date, "%b %d, %Y")
+            #print(timestamp)
+            if not Common.CheckDuplicateTime(self.title, timestamp):
+                Common.prnt('Story not updated: '+self.url, f=True)
+                return None
+        
+        #check duplicate with timestamp
         
         if Common.dup:
             if Common.CheckDuplicate(self.title):

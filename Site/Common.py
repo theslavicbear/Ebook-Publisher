@@ -1,4 +1,5 @@
 import sys, urllib, os, requests, time
+from datetime import datetime
 
 #Module contains common functions needed by sites
 
@@ -16,6 +17,8 @@ epub = ('epub', 'Epub', 'EPUB')
 
 dup = False
 
+chyoaDupCheck=False
+
 chyoa_force_forwards=False
 
 mt = False
@@ -23,7 +26,7 @@ mt = False
 urlDict=  {}
 
 def prnt(out, f=False):
-    if not quiet and not f:
+    if not quiet or f:
         print(out)
 
 def imageDL(title, url, num,  size=0, pbar=None, queue=None):
@@ -52,12 +55,36 @@ def imageDL(title, url, num,  size=0, pbar=None, queue=None):
 
 
 def CheckDuplicate(title):
-    if opf == 'epub':
+    if any(x in ('epub', 'EPUB') for x in opf):
         return os.path.isfile(wd+title+'.epub')
-    elif opf == 'txt':
+    elif any(x in ('txt', 'TXT') for x in opf):
         return os.path.isfile(wd+title+'.txt') or os.path.exists(wd+title)
-    elif opf == 'html':
+    elif any(x in ('html', 'HTML') for x in opf):
         return os.path.isfile(wd+title+'.html') or os.path.exists(wd+title)
+    
+def CheckDuplicateTime(title, timeObject):
+    if any(x in ('epub', 'EPUB') for x in opf):
+        if os.path.isfile(wd+title+'.epub'):
+            #print(time.ctime(os.path.getmtime(wd+title+'.epub')))
+            if timeObject > datetime.strptime(time.ctime(os.path.getmtime(wd+title+'.epub')), '%a %b %d %H:%M:%S %Y'):
+                return True
+    elif any(x in ('txt', 'TXT') for x in opf):
+        if os.path.isfile(wd+title+'.txt'):
+            if timeObject > datetime.strptime(time.ctime(os.path.getmtime(wd+title+'.txt')), '%a %b %d %H:%M:%S %Y'):
+                return True
+        elif os.path.exists(wd+title):
+            if timeObject > datetime.strptime(time.ctime(os.path.getmtime(wd+title)), '%a %b %d %H:%M:%S %Y'):
+                return True
+            
+    elif any(x in ('html', 'HTML') for x in opf):
+        if os.path.isfile(wd+title+'.html'):
+            if timeObject > datetime.strptime(time.ctime(os.path.getmtime(wd+title+'.html')), '%a %b %d %H:%M:%S %Y'):
+                return True
+        elif os.path.exists(wd+title):
+            #print(datetime.strptime(time.ctime(os.path.getmtime(wd+title)), '%a %b %d %H:%M:%S %Y'))
+            if timeObject > datetime.strptime(time.ctime(os.path.getmtime(wd+title)), '%a %b %d %H:%M:%S %Y'):
+                return True
+    return False
     
     
 def GetImage(url):

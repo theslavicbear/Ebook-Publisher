@@ -234,6 +234,7 @@ parser.add_argument('-n', '--no-duplicates', help='Skips stories if they have al
 parser.add_argument('-s', '--css', '--style-sheet', help='either a CSS string or a .css file to use for formatting', default='')
 parser.add_argument('--chyoa-force-forwards', help='Force Chyoa stories to be scraped forwards if not given page 1', action='store_true')
 parser.add_argument('--eol', help='end of line character for .txt output format, must be enclosed in single quotes', default='\n\n')
+parser.add_argument('--chyoa-update', help='Checks if story already exists in output directory, and skips it if it has not been updated on the server since file was created.', action='store_true')
 args=parser.parse_args()
 
 #print(args.output_type)
@@ -257,6 +258,9 @@ if args.no_duplicates:
     
 if args.chyoa_force_forwards:
     Common.chyoa_force_forwards=True
+
+if args.chyoa_update:
+    Common.chyoaDupCheck=True
 
 Common.lineEnding=args.eol.encode('latin-1', 'backslashreplace').decode('unicode-escape')
 
