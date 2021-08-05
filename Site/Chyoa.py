@@ -166,7 +166,10 @@ class Chyoa:
         #self.backwards = not Common.chyoa_force_forwards
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter' and self.backwards:
-                self.AddPrevPage(i.get('href'))
+                newLink=i.get('href')
+                while newLink is not None:
+                    newLink=self.AddPrevPage(newLink)
+                    
                 self.backwards = True
                 break
             
@@ -357,10 +360,10 @@ class Chyoa:
         self.pbar.Update()
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter':
-                self.AddPrevPage(i.get('href'))
-                return
+                return i.get('href')
         #gets author name if on last/first page I guess
         self.authors[0]=soup.find_all('a')[5].get_text()
+        return None
         
         
     def AddNextPage(self, url, depth, prevChapNum, prevLink, epubPrevLink, currLink, prevLinkId):
