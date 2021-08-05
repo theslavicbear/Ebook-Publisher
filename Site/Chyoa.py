@@ -221,6 +221,7 @@ class Chyoa:
                     j+=1
             self.Pages.extend(urls)
             j=1
+            self.pageQueue=[]
             for u in urls:
                 if Common.mt and not self.partial:
                     chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
@@ -229,8 +230,12 @@ class Chyoa:
                 else:
                     if Common.mt:
                         Common.prnt('Warning: Cannot multithread partial Chyoa story: '+self.url+'\nUsing default method to download an unknown number of pages')
+                    defArgs=(u, j, 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], None)
+                    self.pageQueue.append(defArgs)
+                    while self.pageQueue!=[]:
+                        #n=self.pageQueue[0]
+                        self.AddNextPage(self.pageQueue.pop(0))
                         
-                    self.AddNextPage(u, j, 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], None)
                 j+=1
             if Common.mt and not self.partial:
                 i = int(numChapters)-1
@@ -365,8 +370,16 @@ class Chyoa:
         self.authors[0]=soup.find_all('a')[5].get_text()
         return None
         
+    #def AddNextPage(self, (url, depth, prevChapNum, prevLink, epubPrevLink, currLink, prevLinkId)):   
+    def AddNextPage(self, args):
+        url=args[0]
+        depth=args[1]
+        prevChapNum=args[2]
+        prevLink=args[3]
+        epubPrevLink=args[4]
+        currLink=args[5]
+        prevLinkId=args[6]
         
-    def AddNextPage(self, url, depth, prevChapNum, prevLink, epubPrevLink, currLink, prevLinkId):
         page = Common.RequestPage(url)
 
         if page is None:
@@ -453,9 +466,10 @@ class Chyoa:
 
             return
         
-        
+        n2=[]
         for i,j in zip(nextpagesurl, nextpagesdepth):
-            self.AddNextPage(i.get('href'), str(depth)+'.'+str(j), chapNum, currLink, epubCurrLink, nextLink, currLinkId)
+            n2.append([i.get('href'), str(depth)+'.'+str(j), chapNum, currLink, epubCurrLink, nextLink, currLinkId])
+        self.pageQueue[0:0]=n2
         
     def ThreadAdd(self, url, depth, renames, oldnames, chapNum, currLink, epubCurrLink, nextLink, currLinkId, ogUrl):
         #if self.Pages.count(url)>1:
