@@ -234,11 +234,20 @@ class Chyoa:
                 print("Pages to add: "+str(i))
                 while i >0:
                     #print(str(i))
-                    self.q.get()
+                    try:
+                        self.q.get(timeout=30)
+                    except queue.Empty as e:
+                        print("Unsure if all threads ended")
+                        break
                     i-=1
                 #print(threading.active_count())
+                self.pageQueue=[]
+                
                 for page in self.Pages:
-                    self.addPage(page)
+                    self.pageQueue.append(page)
+                    while self.pageQueue!=[]:
+                        self.addPage(self.pageQueue.pop(0))
+                
                 
             
         try:
@@ -473,11 +482,10 @@ class Chyoa:
                 #try:
                 while isinstance(page.children[zzz], str):
                     self.q.get()
-                    #print('waiting for thread to finish')
+            #prepend child pages to the queue
+            self.pageQueue[0:0]=page.children
 
-                self.addPage(page.children[zzz])
-                #except AttributeError as E:
-                    #print('Error after '+ str(self.depth))
+
         
 class Page:
     
