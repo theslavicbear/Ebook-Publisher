@@ -52,6 +52,10 @@ class Chyoa:
         self.partial = False
         self.partialStart=1
         self.ogUrl=self.url
+        self.pageIDs=[]
+        self.pageIDIter=0
+        self.pageIDDict={}
+        
         
         page = Common.RequestPage(url)
         
@@ -230,7 +234,7 @@ class Chyoa:
                 else:
                     if Common.mt:
                         Common.prnt('Warning: Cannot multithread partial Chyoa story: '+self.url+'\nUsing default method to download an unknown number of pages')
-                    defArgs=(u, j, 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], None)
+                    defArgs=(u, str(j), 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], None)
                     self.pageQueue.append(defArgs)
                     while self.pageQueue!=[]:
                         #n=self.pageQueue[0]
@@ -255,8 +259,16 @@ class Chyoa:
                     self.pageQueue.append(page)
                     while self.pageQueue!=[]:
                         self.addPage(self.pageQueue.pop(0))
-                
-                
+                #for page in self.epubtemp:
+            print(self.pageIDDict)
+            for p in range(len(self.epubtemp)):
+                for d in self.depth:
+                    if (self.epubtemp[p].count('href="'+d+'.xhtml"')) > 0:
+                        try:
+                            self.epubtemp[p]=self.epubtemp[p].replace('href="'+d+'.xhtml"', 'href="nfChapter'+str(self.pageIDDict[d])+'.xhtml"')
+                        except KeyError as k:
+                            print("Key error at: "+d)
+                            print("Please report this error to the developer.")
             
         try:
             self.pbar.End()
@@ -450,6 +462,10 @@ class Chyoa:
         #Checks if new page was a link backwards and exits if so
         chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
         
+        self.pageIDs.append(self.pageIDIter)
+        self.pageIDDict[depth]=self.pageIDIter
+        self.pageIDIter+=1
+        
         if prevChapNum >= chapNum:
             return None
         
@@ -494,6 +510,12 @@ class Chyoa:
         self.epubtemp.extend(page.epubtemp)
         self.temp.extend(page.temp)
         
+        #for j in range(1, page.epubtemp.count(page.depth)+1):
+        #    self.epubtemp.replace(page.depth, self.pageIDIter+'.'+str(j), 1)
+        self.pageIDs.append(self.pageIDIter)
+        self.pageIDDict[page.depth]=self.pageIDIter
+        self.pageIDIter+=1
+
         if page.children !=[]:
             for zzz in range(0, len(page.children)):
                 #try:
