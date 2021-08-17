@@ -260,7 +260,7 @@ class Chyoa:
                     while self.pageQueue!=[]:
                         self.addPage(self.pageQueue.pop(0))
                 #for page in self.epubtemp:
-            print(self.pageIDDict)
+            #print(self.pageIDDict)
             for p in range(len(self.epubtemp)):
                 for d in self.depth:
                     if (self.epubtemp[p].count('href="'+d+'.xhtml"')) > 0:
