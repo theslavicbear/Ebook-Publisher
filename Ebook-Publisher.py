@@ -123,7 +123,7 @@ def MakeEpub(site):
                         c.append(epub.EpubHtml(title=site.chapters[i], file_name='nfChapter'+str(site.pageIDs[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
                         #c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
                     else:
-                        c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((site.partialStart+len(site.depth[i-1])/2)+1))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
+                        c.append(epub.EpubHtml(title=site.chapters[i], file_name='nfChapter'+str(site.pageIDs[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((site.partialStart+len(site.depth[i-1])/2)+1))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+str(site.epubrawstoryhtml[i])
             elif type(site) is Nhentai.Nhentai:
                 c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
