@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+Version = '3.2.0'
+
 import sys
 from Site import *
 import urllib.parse
@@ -222,6 +224,7 @@ def getCSS():
         return args.css
 
 
+
 #setting up commandline argument parser
 parser=argparse.ArgumentParser()
 parser.add_argument('url', help='The URL of the story you want', nargs='*')
@@ -248,6 +251,8 @@ if args.insert_images:
     Common.images=True
 args.file=True
 stdin=False
+
+Common.prnt('Ebook-Publisher '+str(Version))
 if not sys.stdin.isatty():
     stdin=True
 elif not args.url:
