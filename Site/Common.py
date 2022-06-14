@@ -47,7 +47,9 @@ def imageDL(title, url, num,  size=0, pbar=None, queue=None):
         zeros = 'img' #TODO fix this for Chyoa stories so that image files don't have to be prepended with 'img' and no zeros
     #print(zeros)
     with open(wd+title+'/'+zeros+str(num)+'.jpg', 'wb') as myimg:
-        myimg.write(GetImage(url))
+        imgbytes=GetImage(url)
+        if(imgbytes is not None):
+            myimg.write(GetImage(url))
     if pbar is not None:
         pbar.Update()
     if queue is not None:
@@ -81,7 +83,6 @@ def CheckDuplicateTime(title, timeObject):
             if timeObject > datetime.strptime(time.ctime(os.path.getmtime(wd+title+'.html')), '%a %b %d %H:%M:%S %Y'):
                 return True
         elif os.path.exists(wd+title):
-            #print(datetime.strptime(time.ctime(os.path.getmtime(wd+title)), '%a %b %d %H:%M:%S %Y'))
             if timeObject > datetime.strptime(time.ctime(os.path.getmtime(wd+title)), '%a %b %d %H:%M:%S %Y'):
                 return True
     return False
@@ -92,11 +93,14 @@ def GetImage(url):
         req = urllib.request.Request(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         return urllib.request.urlopen(req).read()
     except:
-        if url[-4:]=='.jpg':
-            req = urllib.request.Request(url[:-4]+'.png', headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
-        elif url[-4:]=='.png':
-            req = urllib.request.Request(url[:-4]+'.jpg', headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
-        return urllib.request.urlopen(req).read()
+        try:    
+            if url[-4:]=='.jpg':
+                req = urllib.request.Request(url[:-4]+'.png', headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+            elif url[-4:]=='.png':
+                req = urllib.request.Request(url[:-4]+'.jpg', headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+            return urllib.request.urlopen(req).read()
+        except:
+            pass
     
 class Progress:
 

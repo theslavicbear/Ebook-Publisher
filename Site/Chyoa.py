@@ -69,20 +69,14 @@ class Chyoa:
             try:
                 self.title=soup.find('h1').get_text()
                 self.backwards = False
-                
             except:
                 pass
-        
-        
-        
-        
-        
         elif not self.backwards:
             self.partial = True
             
             
         #get update timestamp:
-        if (self.backwards or self.partial) and Common.chyoaDupCheck:
+        if (self.backwards or not self.partial) and Common.chyoaDupCheck:
             date=soup.find('p', attrs={'class':'dates'}).strong.get_text()
             #date='Jun 18, 2022'
             timestamp=datetime.strptime(date, "%b %d, %Y")
@@ -249,7 +243,7 @@ class Chyoa:
                     try:
                         self.q.get(timeout=30)
                     except queue.Empty as e:
-                        print("Unsure if all threads ended")
+                        print("Unsure if all threads ended. Expected reamining pages: "+str(i))
                         break
                     i-=1
                 #print(threading.active_count())
