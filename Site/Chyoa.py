@@ -57,7 +57,7 @@ class Chyoa:
         self.pageIDDict={}
         
         
-        page = Common.RequestPage(url)
+        page = Common.RequestPage(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         
         if page is None:
             print('Could not complete request for page: ' + url)
@@ -346,7 +346,7 @@ class Chyoa:
 
                 
     def AddPrevPage(self, url):
-        page = Common.RequestPage(url)
+        page = Common.RequestPage(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         
         if page is None:
             print('Could not complete request for page: ' + url)
@@ -386,7 +386,7 @@ class Chyoa:
         currLink=args[5]
         prevLinkId=args[6]
         
-        page = Common.RequestPage(url)
+        page = Common.RequestPage(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
 
         if page is None:
             print('Could not complete request for page: ' + url)
@@ -557,7 +557,7 @@ class Page:
     
     def AddNextPage(self, url, depth):
         #print(url)
-        page = Common.RequestPage(url)
+        page = Common.RequestPage(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         
         if page is None:
             print('Could not complete request for page: ' + url)
