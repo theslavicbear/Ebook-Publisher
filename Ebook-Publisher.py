@@ -34,17 +34,20 @@ formats={
 #function for making text files
 def MakeText(site):
     if type(site) is not Nhentai.Nhentai:
-        published=open(wd+site.title+'.txt', 'w', encoding="utf-8")
+        title_stripped=site.title.replace('*', '').replace(':', '').replace('?', '').replace('"', '').replace('/', '').replace('\\', '').replace('<', '').replace('>', '').replace('|', '')
+        published=open(wd+title_stripped+'.txt', 'w', encoding="utf-8")
         published.write(site.title+Common.lineEnding)
         published.write('by '+site.author+Common.lineEnding)
         published.write(site.story)
         published.close()
     
 def MakeHTML(site):
+
+    title_stripped=site.title.replace('*', '').replace(':', '').replace('?', '').replace('"', '').replace('/', '').replace('\\', '').replace('<', '').replace('>', '').replace('|', '')
     if (type(site) is Chyoa.Chyoa or type(site) is Nhentai.Nhentai) and site.hasimages:
-        published=open(wd+site.title+'/'+site.title+'.html', 'w', encoding="utf-8")
+        published=open(wd+title_stripped+'/'+site.title+'.html', 'w', encoding="utf-8")
     else:
-        published=open(wd+site.title+'.html', 'w', encoding="utf-8")
+        published=open(wd+title_stripped+'.html', 'w', encoding="utf-8")
     published.write('<!DOCTYPE html>\n')
     published.write('<html lang="en">\n')
     published.write('<style>\n'+styleSheet+'\n</style>')
@@ -156,7 +159,8 @@ def MakeEpub(site):
     #book.spine.append('nav')
     for i in c:
         book.spine.append(i)
-    epub.write_epub(wd+site.title+'.epub', book)
+    title_stripped=site.title.replace('*', '').replace(':', '').replace('?', '').replace('"', '').replace('/', '').replace('\\', '').replace('<', '').replace('>', '').replace('|', '')
+    epub.write_epub(wd+title_stripped+'.epub', book)
     
     if type(site) is Nhentai.Nhentai:
         if site.hasimages == True:
@@ -175,7 +179,7 @@ def MakeEpub(site):
                     i=i+1
     elif type(site) is Chyoa.Chyoa:
         if site.hasimages == True:
-            with ZipFile(wd+site.title+'.epub', 'a') as myfile:
+            with ZipFile(wd+title_stripped+'.epub', 'a') as myfile:
                 i=1
                 for num in Common.urlDict[site.url]:
                     try:
