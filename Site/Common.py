@@ -21,6 +21,11 @@ chyoaDupCheck=False
 
 chyoa_force_forwards=False
 
+chyoa_name=None
+chyoa_pass=None
+chyoa_session=None
+default_headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'}
+
 mt = False
 
 urlDict=  {}
@@ -132,11 +137,11 @@ class Progress:
         sys.stdout.flush()
         self.it=0
 
-def RequestSend(url, headers=None):
+def RequestSend(url, headers=None, cookies=None):
     if headers is None:
         response = requests.get(url)
     else:
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, cookies=cookies)
     return response
 
 def RequestPage(url, headers=None):
@@ -152,3 +157,30 @@ def RequestPage(url, headers=None):
         return None
     return response
     
+def GetChyoaSession():
+    global chyoa_session
+    chyoa_session=requests.Session()
+    chyoa_session.post('https://chyoa.com/auth/login', data={'username': chyoa_name, 'password': chyoa_pass}, headers=default_headers)
+    # if chyoa_session.status_code !=200:
+        # print("Server returned status code " + str(response.status_code) +" for Chyoa login.")
+        # chyoa_session=None
+        
+def RequestPageChyoa(url, headers=None):
+    global chyoa_session
+    if chyoa_session is None:
+        response = RequestSend(url, headers)
+    else:
+        response = chyoa_session.get(url, headers=headers)
+    attempts = 0
+    #print(response.url)
+    while response.status_code != 200 and attempts < 4:
+            time.sleep(2)
+            if chyoa_session is None:
+                response = RequestSend(url, headers)
+            else:
+                response = chyoa_session.get(url, headers=headers)
+            attempts +=1
+    if attempts >= 4:
+        print("Server returned status code " + str(response.status_code) +' for page: ' +url)
+        return None
+    return response

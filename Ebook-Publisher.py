@@ -239,9 +239,15 @@ parser.add_argument('-s', '--css', '--style-sheet', help='either a CSS string or
 parser.add_argument('--chyoa-force-forwards', help='Force Chyoa stories to be scraped forwards if not given page 1', action='store_true')
 parser.add_argument('--eol', help='end of line character for .txt output format, must be enclosed in single quotes', default='\n\n')
 parser.add_argument('--chyoa-update', help='Checks if story already exists in output directory, and skips it if it has not been updated on the server since file was created.', action='store_true')
+parser.add_argument('--usr', help='Chyoa username to log in with.')
+parser.add_argument('--pswd', help='Chyoa password to log in with.')
 args=parser.parse_args()
 
 #print(args.output_type)
+if args.usr is not None and args.pswd is not None:
+    Common.chyoa_name=args.usr
+    Common.chyoa_pass=args.pswd
+    Common.GetChyoaSession()
 
 if args.quiet:
     Common.quiet=True

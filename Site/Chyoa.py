@@ -57,7 +57,7 @@ class Chyoa:
         self.pageIDDict={}
         
         
-        page = Common.RequestPage(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+        page = Common.RequestPageChyoa(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         
         if page is None:
             print('Could not complete request for page: ' + url)
@@ -94,9 +94,9 @@ class Chyoa:
                 return None
         
         if self.backwards or self.partial:
-            self.authors.insert(0,soup.find_all('a')[7].get_text())
+            self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
         else:
-            self.authors.insert(0,soup.find_all('a')[5].get_text())
+            self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
         self.summary=soup.find('p', attrs={'class': 'synopsis'}).get_text()
                 
@@ -346,14 +346,14 @@ class Chyoa:
 
                 
     def AddPrevPage(self, url):
-        page = Common.RequestPage(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+        page = Common.RequestPageChyoa(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         
         if page is None:
             print('Could not complete request for page: ' + url)
             return None            
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.authors.insert(0,soup.find_all('a')[7].get_text())
+        self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
         
         if Common.images:
@@ -373,7 +373,7 @@ class Chyoa:
             if i.text.strip()=='Previous Chapter':
                 return i.get('href')
         #gets author name if on last/first page I guess
-        self.authors[0]=soup.find_all('a')[5].get_text()
+        self.authors[0]=soup.find('p', class_='meta').find('a').get_text()
         return None
         
     #def AddNextPage(self, (url, depth, prevChapNum, prevLink, epubPrevLink, currLink, prevLinkId)):   
@@ -386,14 +386,14 @@ class Chyoa:
         currLink=args[5]
         prevLinkId=args[6]
         
-        page = Common.RequestPage(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+        page = Common.RequestPageChyoa(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
 
         if page is None:
             print('Could not complete request for page: ' + url)
             return None
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.authors.append(soup.find_all('a')[7].get_text())
+        self.authors.append(soup.find('p', class_='meta').find('a').get_text())
         self.chapters.append(soup.find('h1').get_text())
         
         epubCurrLink='\n<a href="'+str(depth)+'.xhtml">'+'Previous Chapter'+'</a>\n<br />'
@@ -557,14 +557,14 @@ class Page:
     
     def AddNextPage(self, url, depth):
         #print(url)
-        page = Common.RequestPage(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
+        page = Common.RequestPageChyoa(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         
         if page is None:
             print('Could not complete request for page: ' + url)
             return None
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.author=(soup.find_all('a')[7].get_text())
+        self.author=(soup.find('p', class_='meta').find('a').get_text())
         self.chapter=(soup.find('h1').get_text())
         
         
