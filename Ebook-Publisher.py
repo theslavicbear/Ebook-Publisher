@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+Version = '3.3.0'
+
 import sys
 from Site import *
 import urllib.parse
@@ -32,17 +34,20 @@ formats={
 #function for making text files
 def MakeText(site):
     if type(site) is not Nhentai.Nhentai:
-        published=open(wd+site.title+'.txt', 'w', encoding="utf-8")
+        title_stripped=site.title.replace('*', '').replace(':', '').replace('?', '').replace('"', '').replace('/', '').replace('\\', '').replace('<', '').replace('>', '').replace('|', '')
+        published=open(wd+title_stripped+'.txt', 'w', encoding="utf-8")
         published.write(site.title+Common.lineEnding)
         published.write('by '+site.author+Common.lineEnding)
         published.write(site.story)
         published.close()
     
 def MakeHTML(site):
+
+    title_stripped=site.title.replace('*', '').replace(':', '').replace('?', '').replace('"', '').replace('/', '').replace('\\', '').replace('<', '').replace('>', '').replace('|', '')
     if (type(site) is Chyoa.Chyoa or type(site) is Nhentai.Nhentai) and site.hasimages:
-        published=open(wd+site.title+'/'+site.title+'.html', 'w', encoding="utf-8")
+        published=open(wd+title_stripped+'/'+site.title+'.html', 'w', encoding="utf-8")
     else:
-        published=open(wd+site.title+'.html', 'w', encoding="utf-8")
+        published=open(wd+title_stripped+'.html', 'w', encoding="utf-8")
     published.write('<!DOCTYPE html>\n')
     published.write('<html lang="en">\n')
     published.write('<style>\n'+styleSheet+'\n</style>')
@@ -120,9 +125,10 @@ def MakeEpub(site):
                     c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
                 else:
                     if not site.partial:
-                        c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
+                        c.append(epub.EpubHtml(title=site.chapters[i], file_name='nfChapter'+str(site.pageIDs[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
+                        #c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((len(site.depth[i-1])/2)+2))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
                     else:
-                        c.append(epub.EpubHtml(title=site.chapters[i], file_name=str(site.depth[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((site.partialStart+len(site.depth[i-1])/2)+1))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
+                        c.append(epub.EpubHtml(title=site.chapters[i], file_name='nfChapter'+str(site.pageIDs[i-1])+'.xhtml', lang='en', tocTitle=str(' _'*int((len(site.depth[i-1])/2)+1))+' '+str(int((site.partialStart+len(site.depth[i-1])/2)+1))+'.'+site.depth[i-1].split('.')[-1]+' '+site.chapters[i]))
                 c[i].content='<h2>\n'+site.chapters[i]+'\n</h2>\n'+str(site.epubrawstoryhtml[i])
             elif type(site) is Nhentai.Nhentai:
                 c.append(epub.EpubHtml(title=site.chapters[i], file_name='Chapter '+str(i+1)+'.xhtml', lang='en'))
@@ -153,7 +159,8 @@ def MakeEpub(site):
     #book.spine.append('nav')
     for i in c:
         book.spine.append(i)
-    epub.write_epub(wd+site.title+'.epub', book)
+    title_stripped=site.title.replace('*', '').replace(':', '').replace('?', '').replace('"', '').replace('/', '').replace('\\', '').replace('<', '').replace('>', '').replace('|', '')
+    epub.write_epub(wd+title_stripped+'.epub', book)
     
     if type(site) is Nhentai.Nhentai:
         if site.hasimages == True:
@@ -172,7 +179,7 @@ def MakeEpub(site):
                     i=i+1
     elif type(site) is Chyoa.Chyoa:
         if site.hasimages == True:
-            with ZipFile(wd+site.title+'.epub', 'a') as myfile:
+            with ZipFile(wd+title_stripped+'.epub', 'a') as myfile:
                 i=1
                 for num in Common.urlDict[site.url]:
                     try:
@@ -221,6 +228,7 @@ def getCSS():
         return args.css
 
 
+
 #setting up commandline argument parser
 parser=argparse.ArgumentParser()
 parser.add_argument('url', help='The URL of the story you want', nargs='*')
@@ -235,9 +243,15 @@ parser.add_argument('-s', '--css', '--style-sheet', help='either a CSS string or
 parser.add_argument('--chyoa-force-forwards', help='Force Chyoa stories to be scraped forwards if not given page 1', action='store_true')
 parser.add_argument('--eol', help='end of line character for .txt output format, must be enclosed in single quotes', default='\n\n')
 parser.add_argument('--chyoa-update', help='Checks if story already exists in output directory, and skips it if it has not been updated on the server since file was created.', action='store_true')
+parser.add_argument('--usr', help='Chyoa username to log in with.')
+parser.add_argument('--pswd', help='Chyoa password to log in with.')
 args=parser.parse_args()
 
 #print(args.output_type)
+if args.usr is not None and args.pswd is not None:
+    Common.chyoa_name=args.usr
+    Common.chyoa_pass=args.pswd
+    Common.GetChyoaSession()
 
 if args.quiet:
     Common.quiet=True
@@ -247,6 +261,8 @@ if args.insert_images:
     Common.images=True
 args.file=True
 stdin=False
+
+Common.prnt('Ebook-Publisher '+str(Version))
 if not sys.stdin.isatty():
     stdin=True
 elif not args.url:

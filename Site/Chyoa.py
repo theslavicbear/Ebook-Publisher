@@ -52,8 +52,12 @@ class Chyoa:
         self.partial = False
         self.partialStart=1
         self.ogUrl=self.url
+        self.pageIDs=[]
+        self.pageIDIter=0
+        self.pageIDDict={}
         
-        page = Common.RequestPage(url)
+        
+        page = Common.RequestPageChyoa(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         
         if page is None:
             print('Could not complete request for page: ' + url)
@@ -65,20 +69,14 @@ class Chyoa:
             try:
                 self.title=soup.find('h1').get_text()
                 self.backwards = False
-                
             except:
                 pass
-        
-        
-        
-        
-        
         elif not self.backwards:
             self.partial = True
             
             
         #get update timestamp:
-        if (self.backwards or self.partial) and Common.chyoaDupCheck:
+        if (self.backwards or not self.partial) and Common.chyoaDupCheck:
             date=soup.find('p', attrs={'class':'dates'}).strong.get_text()
             #date='Jun 18, 2022'
             timestamp=datetime.strptime(date, "%b %d, %Y")
@@ -96,9 +94,9 @@ class Chyoa:
                 return None
         
         if self.backwards or self.partial:
-            self.authors.insert(0,soup.find_all('a')[7].get_text())
+            self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
         else:
-            self.authors.insert(0,soup.find_all('a')[5].get_text())
+            self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
         self.summary=soup.find('p', attrs={'class': 'synopsis'}).get_text()
                 
@@ -166,7 +164,10 @@ class Chyoa:
         #self.backwards = not Common.chyoa_force_forwards
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter' and self.backwards:
-                self.AddPrevPage(i.get('href'))
+                newLink=i.get('href')
+                while newLink is not None:
+                    newLink=self.AddPrevPage(newLink)
+                    
                 self.backwards = True
                 break
             
@@ -218,6 +219,7 @@ class Chyoa:
                     j+=1
             self.Pages.extend(urls)
             j=1
+            self.pageQueue=[]
             for u in urls:
                 if Common.mt and not self.partial:
                     chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
@@ -226,20 +228,41 @@ class Chyoa:
                 else:
                     if Common.mt:
                         Common.prnt('Warning: Cannot multithread partial Chyoa story: '+self.url+'\nUsing default method to download an unknown number of pages')
+                    defArgs=(u, str(j), 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], None)
+                    self.pageQueue.append(defArgs)
+                    while self.pageQueue!=[]:
+                        #n=self.pageQueue[0]
+                        self.AddNextPage(self.pageQueue.pop(0))
                         
-                    self.AddNextPage(u, j, 1, '<a href="#Chapter 0">Previous Chapter</a>\n<br />', '\n<a href="'+'Chapter 1'+'.xhtml">'+'Previous Chapter'+'</a>\n<br />', self.nextLinks[j-1], None)
                 j+=1
             if Common.mt and not self.partial:
                 i = int(numChapters)-1
                 print("Pages to add: "+str(i))
                 while i >0:
                     #print(str(i))
-                    self.q.get()
+                    try:
+                        self.q.get(timeout=30)
+                    except queue.Empty as e:
+                        print("Unsure if all threads ended. Expected reamining pages: "+str(i))
+                        break
                     i-=1
                 #print(threading.active_count())
-                for page in self.Pages:
-                    self.addPage(page)
+                self.pageQueue=[]
                 
+                for page in self.Pages:
+                    self.pageQueue.append(page)
+                    while self.pageQueue!=[]:
+                        self.addPage(self.pageQueue.pop(0))
+                #for page in self.epubtemp:
+            #print(self.pageIDDict)
+            for p in range(len(self.epubtemp)):
+                for d in self.depth:
+                    if (self.epubtemp[p].count('href="'+d+'.xhtml"')) > 0:
+                        try:
+                            self.epubtemp[p]=self.epubtemp[p].replace('href="'+d+'.xhtml"', 'href="nfChapter'+str(self.pageIDDict[d])+'.xhtml"')
+                        except KeyError as k:
+                            print("Key error at: "+d)
+                            print("Please report this error to the developer.")
             
         try:
             self.pbar.End()
@@ -323,14 +346,14 @@ class Chyoa:
 
                 
     def AddPrevPage(self, url):
-        page = Common.RequestPage(url)
+        page = Common.RequestPageChyoa(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         
         if page is None:
             print('Could not complete request for page: ' + url)
             return None            
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.authors.insert(0,soup.find_all('a')[7].get_text())
+        self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
         
         if Common.images:
@@ -348,21 +371,29 @@ class Chyoa:
         self.pbar.Update()
         for i in soup.find_all('a'):
             if i.text.strip()=='Previous Chapter':
-                self.AddPrevPage(i.get('href'))
-                return
+                return i.get('href')
         #gets author name if on last/first page I guess
-        self.authors[0]=soup.find_all('a')[5].get_text()
+        self.authors[0]=soup.find('p', class_='meta').find('a').get_text()
+        return None
         
+    #def AddNextPage(self, (url, depth, prevChapNum, prevLink, epubPrevLink, currLink, prevLinkId)):   
+    def AddNextPage(self, args):
+        url=args[0]
+        depth=args[1]
+        prevChapNum=args[2]
+        prevLink=args[3]
+        epubPrevLink=args[4]
+        currLink=args[5]
+        prevLinkId=args[6]
         
-    def AddNextPage(self, url, depth, prevChapNum, prevLink, epubPrevLink, currLink, prevLinkId):
-        page = Common.RequestPage(url)
+        page = Common.RequestPageChyoa(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
 
         if page is None:
             print('Could not complete request for page: ' + url)
             return None
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.authors.append(soup.find_all('a')[7].get_text())
+        self.authors.append(soup.find('p', class_='meta').find('a').get_text())
         self.chapters.append(soup.find('h1').get_text())
         
         epubCurrLink='\n<a href="'+str(depth)+'.xhtml">'+'Previous Chapter'+'</a>\n<br />'
@@ -425,6 +456,10 @@ class Chyoa:
         #Checks if new page was a link backwards and exits if so
         chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
         
+        self.pageIDs.append(self.pageIDIter)
+        self.pageIDDict[depth]=self.pageIDIter
+        self.pageIDIter+=1
+        
         if prevChapNum >= chapNum:
             return None
         
@@ -441,9 +476,10 @@ class Chyoa:
 
             return
         
-        
+        n2=[]
         for i,j in zip(nextpagesurl, nextpagesdepth):
-            self.AddNextPage(i.get('href'), str(depth)+'.'+str(j), chapNum, currLink, epubCurrLink, nextLink, currLinkId)
+            n2.append([i.get('href'), str(depth)+'.'+str(j), chapNum, currLink, epubCurrLink, nextLink, currLinkId])
+        self.pageQueue[0:0]=n2
         
     def ThreadAdd(self, url, depth, renames, oldnames, chapNum, currLink, epubCurrLink, nextLink, currLinkId, ogUrl):
         #if self.Pages.count(url)>1:
@@ -468,16 +504,21 @@ class Chyoa:
         self.epubtemp.extend(page.epubtemp)
         self.temp.extend(page.temp)
         
+        #for j in range(1, page.epubtemp.count(page.depth)+1):
+        #    self.epubtemp.replace(page.depth, self.pageIDIter+'.'+str(j), 1)
+        self.pageIDs.append(self.pageIDIter)
+        self.pageIDDict[page.depth]=self.pageIDIter
+        self.pageIDIter+=1
+
         if page.children !=[]:
             for zzz in range(0, len(page.children)):
                 #try:
                 while isinstance(page.children[zzz], str):
                     self.q.get()
-                    #print('waiting for thread to finish')
+            #prepend child pages to the queue
+            self.pageQueue[0:0]=page.children
 
-                self.addPage(page.children[zzz])
-                #except AttributeError as E:
-                    #print('Error after '+ str(self.depth))
+
         
 class Page:
     
@@ -516,14 +557,14 @@ class Page:
     
     def AddNextPage(self, url, depth):
         #print(url)
-        page = Common.RequestPage(url)
+        page = Common.RequestPageChyoa(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
         
         if page is None:
             print('Could not complete request for page: ' + url)
             return None
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.author=(soup.find_all('a')[7].get_text())
+        self.author=(soup.find('p', class_='meta').find('a').get_text())
         self.chapter=(soup.find('h1').get_text())
         
         

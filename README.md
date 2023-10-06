@@ -59,6 +59,8 @@ optional arguments:
                         quotes
   --chyoa-update        Checks if story already exists in output directory, and skips it if it has
                         not been updated on the server since file was created.
+  --usr USR             Chyoa username to log in with
+  --pswd PSWD           Chyoa password to log in with
 ```  
 
                         
