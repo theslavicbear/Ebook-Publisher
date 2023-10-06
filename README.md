@@ -34,8 +34,8 @@ On the small amount of testing I have done under Windows 8.1, I did need to inst
 To run Ebook-Publisher, use the terminal or command prompt to execute Python3 and pass in Ebook-Publisher.py and the URL for the story you want. The URL can either be one or more links to a story on a supported webpage, or one or more text files containing a list of webpage URLs. You do not need to distinguish between the two. You can add several other arguments. Try `python3 Ebook-Publisher.py --help` for the detailed readout, or see below:
 
 ```
-usage: ebook-publisher [-h] [-o {txt,epub,html,TXT,EPUB,HTML}] [-d DIRECTORY]
-                       [-q] [-t] [-i] [-n] [-s CSS]
+usage: ebook-publisher [-h] [-o {txt,epub,html,TXT,EPUB,HTML}] [-d DIRECTORY] [-q] [-t] [-i] [-n]
+                       [-s CSS] [--chyoa-force-forwards] [--eol EOL] [--chyoa-update]
                        [url [url ...]]
 
 positional arguments:
@@ -48,14 +48,17 @@ optional arguments:
   -d DIRECTORY, --directory DIRECTORY
                         Directory to place output files. Default ./
   -q, --quiet           Turns off most terminal output
-  -t                    Turns on multithreading mode. Recommend also enabling
-                        --quiet
+  -t                    Turns on multithreading mode. Recommend also enabling --quiet
   -i, --insert-images   Downloads and inserts images for Chyoa stories
   -n, --no-duplicates   Skips stories if they have already been downloaded
   -s CSS, --css CSS, --style-sheet CSS
-                        either a CSS string or a .css file to use for
-                        formatting
-
+                        either a CSS string or a .css file to use for formatting
+  --chyoa-force-forwards
+                        Force Chyoa stories to be scraped forwards if not given page 1
+  --eol EOL             end of line character for .txt output format, must be enclosed in single
+                        quotes
+  --chyoa-update        Checks if story already exists in output directory, and skips it if it has
+                        not been updated on the server since file was created.
 ```  
 
                         
@@ -74,5 +77,5 @@ optional arguments:
 ### Known Issues
 
 * Image downloading can fail without alerting the user.
-* Progress bar behaves poorly when there are a large number of chapters/pages in a story.
 * Fanfiction and Fictionpress links currently do not work.
+* Classicreader links currently do not work
