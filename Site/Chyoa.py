@@ -64,15 +64,19 @@ class Chyoa:
             return None
         
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.title=soup.find('h3').get_text()
-        if self.title=='Log In':
-            try:
-                self.title=soup.find('h1').get_text()
-                self.backwards = False
-            except:
-                pass
-        elif not self.backwards:
-            self.partial = True
+        if soup.find('h3') is None:
+            self.title=soup.find('h1').get_text()
+            self.backwards=False
+        else:
+            self.title=soup.find('h3').get_text()
+            if self.title=='Log In':
+                try:
+                    self.title=soup.find('h1').get_text()
+                    self.backwards = False
+                except:
+                    pass
+            elif not self.backwards:
+                self.partial = True
             
             
         #get update timestamp:
