@@ -397,7 +397,12 @@ class Chyoa:
             return None
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.authors.append(soup.find('p', class_='meta').find('a').get_text())
+        
+        try:
+            self.authors.append(soup.find('p', class_='meta').find('a').get_text())
+        except AttributeError:
+            self.authors.append('Unknown')
+        
         self.chapters.append(soup.find('h1').get_text())
         
         epubCurrLink='\n<a href="'+str(depth)+'.xhtml">'+'Previous Chapter'+'</a>\n<br />'
@@ -568,7 +573,12 @@ class Page:
             return None
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.author=(soup.find('p', class_='meta').find('a').get_text())
+        
+        try:
+            self.author=(soup.find('p', class_='meta').find('a').get_text())
+        except AttributeError:
+            self.author='Unknown'
+        
         self.chapter=(soup.find('h1').get_text())
         
         
