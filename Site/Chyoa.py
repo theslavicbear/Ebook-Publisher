@@ -416,8 +416,13 @@ class Chyoa:
         
         temp2 = soup.find('div', attrs={'class': 'chapter-content'})
         self.depth.append(str(depth))
-        temp='<div id="'+str(depth)+'">'+str(temp2)     
-        self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
+        temp='<div id="'+str(depth)+'">'+str(temp2)
+        
+        try:
+            self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
+        except AttributeError:
+            self.questions.append('What\'s next?')
+            
         temp+='<h2>'+self.questions[-1]+'</h2>\n</div>'
         if self.partial:
             Common.prnt(str(depth))
@@ -595,8 +600,13 @@ class Page:
         temp2 = soup.find('div', attrs={'class': 'chapter-content'})
         #self.depth+=(str(depth))
         Common.prnt(str(depth))
-        temp='<div id="'+str(depth)+'">'+str(temp2)     
-        self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
+        temp='<div id="'+str(depth)+'">'+str(temp2)  
+
+        try:
+            self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
+        except AttributeError:
+            self.questions.append('What\'s next?')
+
         temp+='<h2>'+self.questions[-1]+'</h2>\n</div>'
         #Common.prnt(str(depth))
         j = 1
