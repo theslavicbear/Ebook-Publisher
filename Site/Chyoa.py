@@ -397,7 +397,12 @@ class Chyoa:
             return None
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.authors.append(soup.find('p', class_='meta').find('a').get_text())
+        
+        try:
+            self.authors.append(soup.find('p', class_='meta').find('a').get_text())
+        except AttributeError:
+            self.authors.append('Unknown')
+        
         self.chapters.append(soup.find('h1').get_text())
         
         epubCurrLink='\n<a href="'+str(depth)+'.xhtml">'+'Previous Chapter'+'</a>\n<br />'
@@ -405,14 +410,20 @@ class Chyoa:
         if Common.images:
             if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
                 for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
-                    self.images.append(simg.get('src'))
-                    simg['src']='img'+str(len(self.images))+'.jpg'
+                    imgtemp=simg.get('src')
+                    simg['src']='img'+str(len(Common.urlDict[self.ogUrl])+1)+'.jpg'
+                    Common.urlDict[self.ogUrl][len(Common.urlDict[self.ogUrl])]=imgtemp
                     self.hasimages = True
         
         temp2 = soup.find('div', attrs={'class': 'chapter-content'})
         self.depth.append(str(depth))
-        temp='<div id="'+str(depth)+'">'+str(temp2)     
-        self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
+        temp='<div id="'+str(depth)+'">'+str(temp2)
+        
+        try:
+            self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
+        except AttributeError:
+            self.questions.append('What\'s next?')
+            
         temp+='<h2>'+self.questions[-1]+'</h2>\n</div>'
         if self.partial:
             Common.prnt(str(depth))
@@ -568,7 +579,12 @@ class Page:
             return None
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        self.author=(soup.find('p', class_='meta').find('a').get_text())
+        
+        try:
+            self.author=(soup.find('p', class_='meta').find('a').get_text())
+        except AttributeError:
+            self.author='Unknown'
+        
         self.chapter=(soup.find('h1').get_text())
         
         
@@ -576,7 +592,6 @@ class Page:
             if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
                 with lock2:
                     for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
-                        
                         imgtemp=simg.get('src')
                         simg['src']='img'+str(len(Common.urlDict[self.ogUrl])+1)+'.jpg'
                         Common.urlDict[self.ogUrl][len(Common.urlDict[self.ogUrl])]=imgtemp
@@ -585,8 +600,13 @@ class Page:
         temp2 = soup.find('div', attrs={'class': 'chapter-content'})
         #self.depth+=(str(depth))
         Common.prnt(str(depth))
-        temp='<div id="'+str(depth)+'">'+str(temp2)     
-        self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
+        temp='<div id="'+str(depth)+'">'+str(temp2)  
+
+        try:
+            self.questions.append(soup.find('header', attrs={'class':"question-header"}).get_text())
+        except AttributeError:
+            self.questions.append('What\'s next?')
+
         temp+='<h2>'+self.questions[-1]+'</h2>\n</div>'
         #Common.prnt(str(depth))
         j = 1
