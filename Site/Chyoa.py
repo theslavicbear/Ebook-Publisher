@@ -410,8 +410,9 @@ class Chyoa:
         if Common.images:
             if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
                 for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
-                    self.images.append(simg.get('src'))
-                    simg['src']='img'+str(len(self.images))+'.jpg'
+                    imgtemp=simg.get('src')
+                    simg['src']='img'+str(len(Common.urlDict[self.ogUrl])+1)+'.jpg'
+                    Common.urlDict[self.ogUrl][len(Common.urlDict[self.ogUrl])]=imgtemp
                     self.hasimages = True
         
         temp2 = soup.find('div', attrs={'class': 'chapter-content'})
@@ -591,7 +592,6 @@ class Page:
             if soup.find('div', attrs={'class': 'chapter-content'}).find('img'):
                 with lock2:
                     for simg in soup.find('div', attrs={'class': 'chapter-content'}).find_all('img'):
-                        
                         imgtemp=simg.get('src')
                         simg['src']='img'+str(len(Common.urlDict[self.ogUrl])+1)+'.jpg'
                         Common.urlDict[self.ogUrl][len(Common.urlDict[self.ogUrl])]=imgtemp
