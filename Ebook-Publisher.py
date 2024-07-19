@@ -245,6 +245,7 @@ parser.add_argument('--eol', help='end of line character for .txt output format,
 parser.add_argument('--chyoa-update', help='Checks if story already exists in output directory, and skips it if it has not been updated on the server since file was created.', action='store_true')
 parser.add_argument('--usr', help='Chyoa username to log in with.')
 parser.add_argument('--pswd', help='Chyoa password to log in with.')
+parser.add_argument('-c', help="Turns on immersion promping.  --quiet", action='store_true')
 args=parser.parse_args()
 
 #print(args.output_type)
@@ -290,7 +291,7 @@ Common.opf = args.output_type
 if Common.opf == None:
     Common.opf = ['txt']
 
-
+Common.chyoaImmersionCheck =args.c
 
 Common.mt = args.t
 

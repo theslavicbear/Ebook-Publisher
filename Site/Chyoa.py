@@ -120,13 +120,16 @@ class Chyoa:
             with lock:
                 if Common.mt == True:
                     Common.quiet = True
-                for i in range(len(inputs)):
-                    print(self.title)
-                    print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
-                    try:
-                        newname=input()
-                        self.renames.append(newname)
-                    except:
+                print(self.title)
+                for i in range(len(inputs)):                   
+                    if Common.chyoaImmersionCheck:
+                        print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
+                        try:
+                            newname=input()
+                            self.renames.append(newname)
+                        except:
+                            self.renames.append('')
+                    else:
                         self.renames.append('')
                     self.oldnames.append(inputs[i].get('placeholder'))
                     if self.renames[i]=='':
