@@ -106,11 +106,6 @@ class Chyoa:
         else:
             self.authors.insert(0, author_text)
 
-        
-        if self.backwards or self.partial:
-            self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
-        else:
-            self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
         self.chapters.insert(0, soup.find('h1').get_text())
         self.summary=soup.find('p', attrs={'class': 'synopsis'}).get_text()
                 
