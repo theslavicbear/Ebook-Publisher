@@ -96,6 +96,16 @@ class Chyoa:
             if Common.CheckDuplicate(self.title):
                 self.duplicate = True
                 return None
+
+        meta_tag = soup.find('p', class_='meta')
+        author_tag = meta_tag.find('a') if meta_tag else None
+        author_text = author_tag.get_text() if author_tag else "Unknown author"
+        
+        if self.backwards or self.partial:
+            self.authors.insert(0, author_text)
+        else:
+            self.authors.insert(0, author_text)
+
         
         if self.backwards or self.partial:
             self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
