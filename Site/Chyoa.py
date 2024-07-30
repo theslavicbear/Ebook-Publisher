@@ -437,7 +437,6 @@ class Chyoa:
         temp+='<br />'
         epubtemp=temp
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
-            #print(i.get_text().strip())
             if i.get_text().strip() != 'Add a new chapter':
                 link = i.get_text()
                 #Band aid fix for replaceable text in the next chapter links
