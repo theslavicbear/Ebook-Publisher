@@ -389,7 +389,7 @@ class Chyoa:
         epubPrevLink=args[4]
         currLink=args[5]
         prevLinkId=args[6]
-        
+
         page = Common.RequestPageChyoa(url, headers={'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
 
         if page is None:
@@ -397,7 +397,7 @@ class Chyoa:
             return None
 
         soup=BeautifulSoup(page.content, 'html.parser')
-        
+
         try:
             self.authors.append(soup.find('p', class_='meta').find('a').get_text())
         except AttributeError:
@@ -438,7 +438,6 @@ class Chyoa:
         epubtemp=temp
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
             if i.get_text().strip() != 'Add a new chapter':
-                
                 link = i.get_text()
                 #Band aid fix for replaceable text in the next chapter links
                 for l in range(len(self.renames)):
@@ -454,7 +453,6 @@ class Chyoa:
                 nextpagesdepth.append(j)
                 j+=1
         temp+=prevLink
-
         if any(x in ('epub', 'EPUB') for x in Common.opf):
             epubtemp+=epubPrevLink
             for j in epubnextpages:
@@ -481,9 +479,9 @@ class Chyoa:
         #Other check if current page is a link and doesn't continue if so
         prevLinkCheck1=soup.find('span', attrs={'class':'controls-left'})
         prevLinkCheck2=prevLinkCheck1.find_all('a')[0].get('href')
-        prevLinkId1=urllib.parse.urlparse(prevLinkCheck2)[2].split('.')[1]
+        prevLinkId1=urllib.parse.urlparse(prevLinkCheck2)[2].split('.')[2]
         
-        currLinkId=urllib.parse.urlparse(url)[2].split('.')[1]
+        currLinkId=urllib.parse.urlparse(url)[2].split('.')[2]
         if prevLinkId is not None and prevLinkId1 != prevLinkId:
             #print(prevLinkId1)
             #print(prevLinkId)
@@ -670,9 +668,9 @@ class Page:
         #Other check if current page is a link and doesn't continue if so
         prevLinkCheck1=soup.find('span', attrs={'class':'controls-left'})
         prevLinkCheck2=prevLinkCheck1.find_all('a')[0].get('href')
-        prevLinkId=urllib.parse.urlparse(prevLinkCheck2)[2].split('.')[1]
+        prevLinkId=urllib.parse.urlparse(prevLinkCheck2)[2].split('.')[2]
         
-        currLinkId=urllib.parse.urlparse(url)[2].split('.')[1]
+        currLinkId=urllib.parse.urlparse(url)[2].split('.')[2]
         if self.prevLinkId is not None and prevLinkId!=self.prevLinkId:
             #print(self.prevLinkId)
             #print(prevLinkId)
