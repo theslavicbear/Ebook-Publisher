@@ -96,11 +96,16 @@ class Chyoa:
             if Common.CheckDuplicate(self.title):
                 self.duplicate = True
                 return None
+
+        meta_tag = soup.find('p', class_='meta')
+        author_tag = meta_tag.find('a') if meta_tag else None
+        author_text = author_tag.get_text() if author_tag else "Unknown author"
         
         if self.backwards or self.partial:
-            self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
+            self.authors.insert(0, author_text)
         else:
-            self.authors.insert(0,soup.find('p', class_='meta').find('a').get_text())
+            self.authors.insert(0, author_text)
+
         self.chapters.insert(0, soup.find('h1').get_text())
         self.summary=soup.find('p', attrs={'class': 'synopsis'}).get_text()
                 
@@ -115,13 +120,16 @@ class Chyoa:
             with lock:
                 if Common.mt == True:
                     Common.quiet = True
-                for i in range(len(inputs)):
-                    print(self.title)
-                    print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
-                    try:
-                        newname=input()
-                        self.renames.append(newname)
-                    except:
+                print(self.title)
+                for i in range(len(inputs)):                   
+                    if Common.chyoaImmersionCheck:
+                        print('Input immersion variable '+str(i)+' '+soup.find('label', attrs={'for':'c'+str(i)}).get_text()+' ('+inputs[i].get('placeholder')+') (Leave blank to keep placeholder name)')
+                        try:
+                            newname=input()
+                            self.renames.append(newname)
+                        except:
+                            self.renames.append('')
+                    else:
                         self.renames.append('')
                     self.oldnames.append(inputs[i].get('placeholder'))
                     if self.renames[i]=='':
