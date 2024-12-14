@@ -213,7 +213,7 @@ class Chyoa:
             self.epubtemp=self.temp.copy()
             for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
                 link= i.get_text()
-                if link.strip() != 'Add a new chapter':
+                if link.strip() != 'Add a new chapter' and 'deeprealms.io' not in link.strip().lower() and 'subscribestar' not in link.strip().lower() and link.strip() != 'Go into another direction with AI ':
                     
                     #Band aid fix for replaceable text in the next chapter links
                     
@@ -233,6 +233,9 @@ class Chyoa:
             j=1
             self.pageQueue=[]
             for u in urls:
+                if 'deeprealms.io' in u or 'subscribestar' in u:
+                   # print(f"URL übersprungen: {u}")  # Zum Debuggen
+                    continue  # Überspringt unerwünschte Links
                 if Common.mt and not self.partial:
                     chapNum = int(soup.find('p', attrs={'class':'meta'}).get_text().split()[1])
                     firstLinkId=None
@@ -244,6 +247,7 @@ class Chyoa:
                     self.pageQueue.append(defArgs)
                     while self.pageQueue!=[]:
                         #n=self.pageQueue[0]
+     
                         self.AddNextPage(self.pageQueue.pop(0))
                         
                 j+=1
@@ -404,13 +408,23 @@ class Chyoa:
             print('Could not complete request for page: ' + url)
             return None
 
+        if 'subscribestar' in url.lower():
+            return None
+
+      #  print('content')
+        #print( page.content)
         soup=BeautifulSoup(page.content, 'html.parser')
         
         try:
             self.authors.append(soup.find('p', class_='meta').find('a').get_text())
         except AttributeError:
             self.authors.append('Unknown')
-        
+            
+      #  print('before the for')    
+     #   print(url)
+      #  print(soup.find('h1'))
+        if soup.find('h1') is None:
+            return None
         self.chapters.append(soup.find('h1').get_text())
         
         epubCurrLink='\n<a href="'+str(depth)+'.xhtml">'+'Previous Chapter'+'</a>\n<br />'
@@ -444,8 +458,10 @@ class Chyoa:
         nextLinks=[]
         temp+='<br />'
         epubtemp=temp
+       # print('before the for')
+     #   print(soup.find('div', attrs={'class':'question-content'}))
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
-            if i.get_text().strip() != 'Add a new chapter':
+            if i.get_text().strip() != 'Add a new chapter' and i.get_text().strip() != 'Remove Ads' and i.get_text().strip() != 'Manage Ad Settings' and i.get_text().strip() != 'Go into another direction with AI':
                 
                 link = i.get_text()
                 #Band aid fix for replaceable text in the next chapter links
@@ -630,11 +646,12 @@ class Page:
         #epubNextLinks=[]
         epubCurrLink='\n<a href="'+str(depth)+'.xhtml">'+'Previous Chapter'+'</a>\n<br />'
         
+
         temp+= self.prevLink
         
         
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
-            if i.get_text().strip() != 'Add a new chapter':
+            if i.get_text().strip() != 'Add a new chapter' and i.get_text().strip() != 'Remove Ads' and i.get_text().strip() != 'Manage Ad Settings' and i.get_text().strip() != 'Go into another direction with AI':
                 
                 link = i.get_text()
                 #Band aid fix for replaceable text in the next chapter links
