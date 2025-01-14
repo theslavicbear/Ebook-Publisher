@@ -204,8 +204,8 @@ class Chyoa:
             self.temp[0]+='\n<br />'
             self.epubtemp=self.temp.copy()
             for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
-                link= i.get_text()
-                if link.strip() != 'Add a new chapter':
+                link= i.get_text().strip()
+                if link not in ['Add a new chapter', 'Go into another direction with AI', 'Remove Ads', 'Manage Ad Settings']:
                     
                     #Band aid fix for replaceable text in the next chapter links
                     
@@ -436,8 +436,9 @@ class Chyoa:
         nextLinks=[]
         temp+='<br />'
         epubtemp=temp
+        
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
-            if i.get_text().strip() != 'Add a new chapter':
+            if i.get_text().strip() not in ['Add a new chapter', 'Go into another direction with AI', 'Remove Ads', 'Manage Ad Settings']:
                 link = i.get_text()
                 #Band aid fix for replaceable text in the next chapter links
                 for l in range(len(self.renames)):
@@ -479,9 +480,9 @@ class Chyoa:
         #Other check if current page is a link and doesn't continue if so
         prevLinkCheck1=soup.find('span', attrs={'class':'controls-left'})
         prevLinkCheck2=prevLinkCheck1.find_all('a')[0].get('href')
-        prevLinkId1=urllib.parse.urlparse(prevLinkCheck2)[2].split('.')[2]
+        prevLinkId1=urllib.parse.urlparse(prevLinkCheck2)[2].split('.')[1]
         
-        currLinkId=urllib.parse.urlparse(url)[2].split('.')[2]
+        currLinkId=urllib.parse.urlparse(url)[2].split('.')[1]
         if prevLinkId is not None and prevLinkId1 != prevLinkId:
             #print(prevLinkId1)
             #print(prevLinkId)
@@ -624,8 +625,7 @@ class Page:
         
         
         for i in soup.find('div', attrs={'class':'question-content'}).find_all('a'):
-            if i.get_text().strip() != 'Add a new chapter':
-                
+            if i.get_text().strip() not in ['Add a new chapter', 'Go into another direction with AI', 'Remove Ads', 'Manage Ad Settings']:
                 link = i.get_text()
                 #Band aid fix for replaceable text in the next chapter links
                 for l in range(len(self.renames)):
